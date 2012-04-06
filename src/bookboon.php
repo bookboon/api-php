@@ -34,7 +34,7 @@ class Bookboon
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 60,
-        CURLOPT_USERAGENT      => 'bookboon-php-0.1',
+        CURLOPT_USERAGENT      => 'bookboon-php-0.2',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2
     );
@@ -101,6 +101,8 @@ class Bookboon
         
         foreach (self::$CURL_OPTS as $key=>$val) 
             curl_setopt($http, $key, $val);
+        
+        curl_setopt($http, CURLOPT_HTTPHEADER, array('X-Forwarded-For: ' . $_SERVER['REMOTE_ADDR']));
         
         $response = curl_exec($http);
         
