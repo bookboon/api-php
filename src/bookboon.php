@@ -34,7 +34,7 @@ class Bookboon
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 60,
-        CURLOPT_USERAGENT      => 'bookboon-php-0.2',
+        CURLOPT_USERAGENT      => 'bookboon-php-0.3',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2
     );
@@ -102,7 +102,7 @@ class Bookboon
         foreach (self::$CURL_OPTS as $key=>$val) 
             curl_setopt($http, $key, $val);
         
-        curl_setopt($http, CURLOPT_HTTPHEADER, array('X-Forwarded-For: ' . $_SERVER['REMOTE_ADDR']));
+        curl_setopt($http, CURLOPT_HTTPHEADER, array('X-Forwarded-For: ' . $this->getRemoteAddress()));
         
         $response = curl_exec($http);
         
@@ -167,5 +167,28 @@ class Bookboon
           return true;
     }
     
+    /**
+    * Returns the remote address either directly or if set XFF header value
+    * 
+    * @return string The ip address
+    */
+    private function getRemoteAddress() {
+      $hostname = $_SERVER['REMOTE_ADDR'];
+
+      if (function_exists('apache_request_headers')) {
+         $headers = apache_request_headers();
+         foreach ($headers as $k => $v) {
+            if (strcasecmp($k, "x-forwarded-for"))
+               continue;
+
+            $hostname = explode(",", $v);
+            $hostname = trim($hostname[0]);
+            break;
+         }
+      }
+
+      return $hostname;
+   }
+
 }
 ?>
