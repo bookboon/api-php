@@ -25,8 +25,8 @@ This requires an API key (`$APIKEY` below).
 To pass variables to the API send an array with the `api` function:
 	
 	/* The bacon-loving student */
-	$vars = array('post' => array( 'answer' => '6230e12c-68d8-45d5-8f02-1d3997713150',
-				  			       'answer' => '5aca0fe1-0d93-41b1-8691-aa242a526f17'
+	$vars = array('post' => array( 'answer[0]' => '6230e12c-68d8-45d5-8f02-1d3997713150',
+				  			       'answer[1]' => '5aca0fe1-0d93-41b1-8691-aa242a526f17'
 								 )
 				 );
 								
