@@ -93,7 +93,7 @@ class Bookboon {
          if (is_object($this->cache) && count($method_vars) == 1) {
             $result = $this->cache->get($queryUrl);
             if (!$result) {
-               $result = $this->query($queryUrl, $vars);
+               $result = $this->query($queryUrl, $method_vars);
                $this->cache->save($queryUrl, $result);
             }
             return $result;
