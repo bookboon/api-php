@@ -75,9 +75,10 @@ class Bookboon {
     * 
     * @param string $relative_url The url relative to the address. Must begin with '/'
     * @param array $method_vars must contain subarray called either 'post' or 'get' depend on HTTP method
+    * @param boolean $cache_query manually disable object cache for query
     * @return array results of call
     */
-   public function api($relative_url, $method_vars = array()) {
+   public function api($relative_url, $method_vars = array(), $cache_query = true) {
       
       $result = array();
       $queryUrl = $this->url . $relative_url;
@@ -86,7 +87,7 @@ class Bookboon {
          throw new Exception('Location must begin with forward slash');
       }
 
-      if (isset($method_vars['get'])) {
+      if (isset($method_vars['get']) && $cache_query) {
          $queryUrl = $this->url . $relative_url . "?" . $this->encodeVariables($method_vars['get']);
          /* Use cache if provider succesfully initialized and only GET calls */
          if (is_object($this->cache) && count($method_vars) == 1) {
