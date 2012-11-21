@@ -87,10 +87,10 @@ class Bookboon {
          throw new Exception('Location must begin with forward slash');
       }
 
-      if (isset($method_vars['get']) && $cache_query) {
+      if (isset($method_vars['get'])) {
          $queryUrl = $this->url . $relative_url . "?" . $this->encodeVariables($method_vars['get']);
          /* Use cache if provider succesfully initialized and only GET calls */
-         if (is_object($this->cache) && count($method_vars) == 1) {
+         if (is_object($this->cache) && count($method_vars) == 1 && $cache_query) {
             $result = $this->cache->get($queryUrl);
             if (!$result) {
                $result = $this->query($queryUrl, $method_vars);
