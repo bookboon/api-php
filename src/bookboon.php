@@ -48,7 +48,7 @@ class Bookboon {
             throw new Exception('Handle is invalid (see documentation)');
       }
       if (!empty($this->cache_class_name)) {
-         require (strtolower($this->cache_class_name).".php");
+         require_once (strtolower($this->cache_class_name).".php");
          $this->cache = new $this->cache_class_name();
       }
    }
