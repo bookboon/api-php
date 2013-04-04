@@ -88,7 +88,7 @@ class Bookboon {
       }
 
       if (isset($method_vars['get'])) {
-         $queryUrl = $this->url . $relative_url . "?" . $this->encodeVariables($method_vars['get']);
+         $queryUrl = $this->url . $relative_url . "?" . http_build_query($method_vars['get']);
          /* Use cache if provider succesfully initialized and only GET calls */
          if (is_object($this->cache) && count($method_vars) == 1 && $cache_query) {
             $result = $this->cache->get($queryUrl);
@@ -118,7 +118,7 @@ class Bookboon {
 
       if (isset($vars['post'])) {
          curl_setopt($http, CURLOPT_POST, count($vars['post']));
-         curl_setopt($http, CURLOPT_POSTFIELDS, $this->encodeVariables($vars['post']));
+         curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($vars['post']));
       }
       
       foreach (self::$CURL_OPTS as $key => $val)
@@ -150,25 +150,6 @@ class Bookboon {
          return json_decode($response, true);
       else
          throw new Exception('Unhandled HTTP (' . $http_status . ') response code');
-   }
-
-   /**
-    * Encodes variable for post or get strings
-    * 
-    * @param array $vars An arrays of varibles to encode
-    * @return string variable in string form var=data&var=data..
-    */
-   private function encodeVariables($vars = array()) {
-      $varsString = "";
-      if (!empty($vars) && is_array($vars)) {
-         foreach ($vars as $key => $value)
-            $varsString .= preg_replace("/\[[0-9]\]$/", "", $key) . '=' . $value . '&';
-
-         $varsString = rtrim($varsString, '&');
-
-         return $varsString;
-      }
-      return false;
    }
 
    /**
