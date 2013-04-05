@@ -37,3 +37,18 @@ To pass variables to the API send an array with the `api` function:
 ##Result
 
 The results is an array containing the decoded JSON response or if the call failed `false` value.
+
+##Exceptions
+
+The wrapper will throw an exception if API responds with an unhandled HTTP status such as if a profile is incomplete (403), the posted data is malformed (400) or an unknown API error (500). You may wish to catch these errors, like so:
+
+	require 'bookboon.php';
+	
+	$bookboon = new Bookboon($APIKEY, $handle);
+	
+	try {
+		print_r($bookboon->api('/recommendations'));
+	} 
+	catch (Exception $e) {
+	    // handle exception here
+	}
