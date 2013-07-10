@@ -52,3 +52,7 @@ The wrapper will throw an exception if API responds with an unhandled HTTP statu
 	catch (Exception $e) {
 	    // handle exception here
 	}
+
+##Cache
+
+The wrapper class provides a cache interface to be used to speed up GET queries. At the moment only memcached is implemented and enabled by default - it is fairly trivial to implement another provider. To change caching provider alter the `$cache_class_name` class variable to the name of the class (and filename) or set to an empty string to disable. 
