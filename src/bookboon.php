@@ -34,7 +34,7 @@ class Bookboon {
        CURLOPT_CONNECTTIMEOUT => 10,
        CURLOPT_RETURNTRANSFER => true,
        CURLOPT_TIMEOUT => 60,
-       CURLOPT_USERAGENT => 'bookboon-php-0.4',
+       CURLOPT_USERAGENT => 'bookboon-php-0.5',
        CURLOPT_SSL_VERIFYPEER => true,
        CURLOPT_SSL_VERIFYHOST => 2
    );
@@ -126,29 +126,26 @@ class Bookboon {
 
       curl_setopt($http, CURLOPT_HTTPHEADER, array('X-Forwarded-For: ' . $this->getRemoteAddress()));
 
-      $response = curl_exec($http);
+      $response = json_decode(curl_exec($http), true);
       $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
       
-      /* Requires Authentication & SSL */
-      if ($http_status == 401) {
+      /* Requires Authentication & SSL */     
+      if (isset($response['error']) && $response['error'] == "HttpsRequired") {
          if (empty($this->authenticated))
             throw new Exception('Function call requires authenticated class');
 
          curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['handle'] . ":" . $this->authenticated['apikey']);
          curl_setopt($http, CURLOPT_URL, "https://" . $url);
 
-         $response = curl_exec($http);
+         $response = json_decode(curl_exec($http), true);
          $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-
-         if ($http_status == 401)
-            throw new Exception('Incorrect Authentication');
       }
       curl_close($http);
 
       if ($http_status == 200)
-         return json_decode($response, true);
+         return $response;
       else
-         throw new Exception('Unhandled HTTP (' . $http_status . ') response code');
+         throw new Exception($response['error'] . ': ' . $response['messsage']);
    }
 
    /**
