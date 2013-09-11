@@ -133,7 +133,8 @@ class Bookboon {
       if (isset($response['error']) && $response['error'] == "HttpsRequired") {
          if (empty($this->authenticated))
             throw new Exception('Function call requires authenticated class');
-
+			
+         curl_setopt($http, CURLOPT_CAINFO, dirname(__FILE__) . '/certificate.crt');
          curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['handle'] . ":" . $this->authenticated['apikey']);
          curl_setopt($http, CURLOPT_URL, "https://" . $url);
 
