@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2011 Bookboon.com Ltd.
+ *  Copyright 2014 Bookboon.com Ltd.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,48 +26,38 @@ if (!function_exists('json_decode')) {
 class Bookboon {
 
    private $authenticated = array();
-   private $url = "api.bookboon.com";
+   private $headers = array();
+   private $url = "bookboon.com/api";
    private $cache_class_name= "Bookboon_Memcached";
    private $cache = null;
    
    public static $CURL_OPTS = array(
        CURLOPT_CONNECTTIMEOUT => 10,
        CURLOPT_RETURNTRANSFER => true,
+       CURLOPT_HEADER => true,
        CURLOPT_TIMEOUT => 60,
-       CURLOPT_USERAGENT => 'bookboon-php-0.5',
+       CURLOPT_USERAGENT => 'bookboon-php-2.0',
        CURLOPT_SSL_VERIFYPEER => true,
        CURLOPT_SSL_VERIFYHOST => 2
    );
 
-   function __construct($APIKEY = "", $UniqueUserIdentifier = "") {
-      if ((!empty($APIKEY)) AND (!empty($UniqueUserIdentifier))) {
-         if ($this->validateUserID($UniqueUserIdentifier)) {
-            $this->authenticated['apikey'] = $APIKEY;
-            $this->authenticated['handle'] = $UniqueUserIdentifier;
-         } else
-            throw new Exception('Handle is invalid (see documentation)');
+   function __construct($appid, $appkey, $headers = array()) {
+      if (empty($appid) || empty($appkey)) {
+          throw new Exception('Invalid appid or appkey');
       }
+      
+      $this->authenticated['appid'] = $appid;
+      $this->authenticated['appkey'] = $appkey;
+      
+      foreach ($headers as $h => $v) {
+         $this->headers[] = $h . ': ' . $v;
+      }
+      $this->headers[] = 'X-Forwarded-For: ' . $this->getRemoteAddress();
+      
       if (!empty($this->cache_class_name)) {
          require_once (strtolower($this->cache_class_name).".php");
          $this->cache = new $this->cache_class_name();
       }
-   }
-
-   /**
-    * Validate the UserID or Handle
-    * Check if the input is RFC 2617 compatible
-    * 
-    * @param string $UniqueUserIdentifier The unique user id
-    * @return boolean
-    */
-   private function validateUserID($UniqueUserIdentifier) {
-      /* handle cannot be longer than 64 chars and cannot contain colon. 
-       * See Documentation at http://api.bookboon.com/docs 
-       */
-      if (strstr($UniqueUserIdentifier, ':') OR strlen($UniqueUserIdentifier) > 64)
-         return false;
-      else
-         return true;
    }
 
    /**
@@ -89,6 +79,7 @@ class Bookboon {
 
       if (isset($method_vars['get'])) {
          $queryUrl = $this->url . $relative_url . "?" . http_build_query($method_vars['get']);
+       
          /* Use cache if provider succesfully initialized and only GET calls */
          if (is_object($this->cache) && count($method_vars) == 1 && $cache_query) {
             $result = $this->cache->get($queryUrl);
@@ -114,39 +105,42 @@ class Bookboon {
       
       $http = curl_init();
 
-      curl_setopt($http, CURLOPT_URL, "http://" . $url);
-
+      curl_setopt($http, CURLOPT_URL, "https://" . $url);
+      curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
+      curl_setopt($http, CURLOPT_HTTPHEADER, $this->headers);
+      
       if (isset($vars['post'])) {
          curl_setopt($http, CURLOPT_POST, count($vars['post']));
          curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($vars['post']));
       }
       
-      foreach (self::$CURL_OPTS as $key => $val)
+      foreach (self::$CURL_OPTS as $key => $val) {
          curl_setopt($http, $key, $val);
-
-      curl_setopt($http, CURLOPT_HTTPHEADER, array('X-Forwarded-For: ' . $this->getRemoteAddress()));
-
-      $response = json_decode(curl_exec($http), true);
+      }
+      $response = curl_exec($http);
+      
+      $header_size = curl_getinfo($http, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = json_decode(substr($response, $header_size), true);
+      
       $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
       
-      /* Requires Authentication & SSL */     
-      if (isset($response['error']) && $response['error'] == "HttpsRequired") {
-         if (empty($this->authenticated))
-            throw new Exception('Function call requires authenticated class');
-			
-         curl_setopt($http, CURLOPT_CAINFO, dirname(__FILE__) . '/certificate.crt');
-         curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['handle'] . ":" . $this->authenticated['apikey']);
-         curl_setopt($http, CURLOPT_URL, "https://" . $url);
-
-         $response = json_decode(curl_exec($http), true);
-         $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-      }
       curl_close($http);
 
-      if ($http_status == 200)
-         return $response;
-      else
-         throw new Exception($response['error'] . ': ' . $response['messsage']);
+      if ($http_status >= 400) {
+         throw new Exception($body['error'] . ': ' . $body['messsage'] . "//: " . $url); 
+      }
+      
+      if ($http_status >= 300 && $http <= 303) {
+          $body['url'] = '';
+          foreach (explode("\n", $header) as $h) {
+              if (strpos($h, "Location") === 0) {
+                  $body['url'] = str_replace("Location: ", "", $h);
+              }
+          }
+      }
+      
+      return $body;
    }
 
    /**
@@ -155,7 +149,7 @@ class Bookboon {
     * @param string $guid GUID to validate
     * @return boolean true if valid, false if not
     */
-   public function isValidGUID($guid) {
+   public static function isValidGUID($guid) {
       if (!preg_match("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$^", $guid))
          return false;
       else
