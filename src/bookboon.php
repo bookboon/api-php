@@ -28,7 +28,7 @@ class Bookboon {
    private $authenticated = array();
    private $headers = array();
    private $url = "bookboon.com/api";
-   private $cache_class_name= "Bookboon_Memcached";
+   private $cache_class_name= "";
    private $cache = null;
    
    public static $CURL_OPTS = array(
