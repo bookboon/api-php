@@ -135,7 +135,7 @@ class Bookboon {
           $body['url'] = '';
           foreach (explode("\n", $header) as $h) {
               if (strpos($h, "Location") === 0) {
-                  $body['url'] = str_replace("Location: ", "", $h);
+                  $body['url'] = trim(str_replace("Location: ", "", $h));
               }
           }
       }
