@@ -1,24 +1,15 @@
 #Bookboon API PHP Class
 
-The PHP class is a wrapper for the Bookboon.com API. It can be used in either public or authenticated mode, where the latter requires a key. Because this is just a wrapper class you should familiarize yourself with the REST api \([[Public]] and [[Authenticated]]\) before using it.
+The PHP class is a wrapper for the Bookboon.com API. Because this is just a wrapper class you should familiarize yourself with the [REST api](https://github.com/bookboon/api) before using it.
 
 ##Usage
 
-###Public usage
+This requires a bookboon application id and secret (`$API_ID` and `$API_SECRET` below).
 
 	require 'bookboon.php';
 	
-	$bookboon = new Bookboon();
+	$bookboon = new Bookboon($API_ID, $API_SECRET, array(/*optional named array to set request headers*/));
 	print_r($bookboon->api('/categories'));
-	
-###Authenticated usage
-
-This requires an API key (`$APIKEY` below).
-
-	require 'bookboon.php';
-	
-	$bookboon = new Bookboon($APIKEY, $handle);
-	print_r($bookboon->api('/recommendations'));
 
 ##Variables
 
@@ -40,14 +31,17 @@ The results is an array containing the decoded JSON response or if the call fail
 
 ##Exceptions
 
-The wrapper will throw an exception if API responds with an unhandled HTTP status such as if a profile is incomplete (403), the posted data is malformed (400) or an unknown API error (500). You may wish to catch these errors, like so:
+The wrapper will throw an exception if API responds with an unhandled HTTP status such as if a variabls are missing (403), the posted data is malformed (400) or an unknown API error (500). You may wish to catch these errors, like so:
 
 	require 'bookboon.php';
 	
-	$bookboon = new Bookboon($APIKEY, $handle);
+	$bookboon = new Bookboon($API_ID, $API_SECRET);
 	
 	try {
-		print_r($bookboon->api('/recommendations'));
+		print_r($bookboon->api('/recommendations', array(
+            'get' => array(
+                'books' => $book_id
+            )));
 	} 
 	catch (Exception $e) {
 	    // handle exception here
