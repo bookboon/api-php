@@ -131,7 +131,7 @@ class Bookboon {
          throw new Exception($body['error'] . ': ' . $body['messsage'] . "//: " . $url); 
       }
       
-      if ($http_status >= 300 && $http <= 303) {
+      if ($http_status >= 301 && $http_status <= 303) {
           $body['url'] = '';
           foreach (explode("\n", $header) as $h) {
               if (strpos($h, "Location") === 0) {
@@ -150,10 +150,7 @@ class Bookboon {
     * @return boolean true if valid, false if not
     */
    public static function isValidGUID($guid) {
-      if (!preg_match("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$^", $guid))
-         return false;
-      else
-         return true;
+      return preg_match("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$^", $guid);
    }
 
    /**
@@ -162,7 +159,7 @@ class Bookboon {
     * @return string The ip address
     */
    private function getRemoteAddress() {
-      $hostname = $_SERVER['REMOTE_ADDR'];
+      $hostname = filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
 
       if (function_exists('apache_request_headers')) {
          $headers = apache_request_headers();
