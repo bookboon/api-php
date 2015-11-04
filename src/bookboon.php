@@ -159,7 +159,7 @@ class Bookboon {
     * @return string The ip address
     */
    private function getRemoteAddress() {
-      $hostname = filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+      $hostname = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
 
       if (function_exists('apache_request_headers')) {
          $headers = apache_request_headers();
