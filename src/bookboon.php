@@ -128,7 +128,7 @@ class Bookboon {
       curl_close($http);
 
       if ($http_status >= 400) {
-         throw new Exception($body['error'] . ': ' . $body['messsage'] . "//: " . $url); 
+         throw new Exception($body['message'] . "//: " . $url);
       }
       
       if ($http_status >= 301 && $http_status <= 303) {
