@@ -1,5 +1,5 @@
 <?php
-
+namespace Bookboon\Api;
 /*
  *  Copyright 2012 Bookboon.com Ltd.
  *
@@ -16,13 +16,14 @@
  *  limitations under the License.
  * 
  */
-include_once ('cache.interface.php');
+
+use Exception;
 
 if (!class_exists('Memcached')) {
    throw new Exception('Bookboon_Memcached requires the memcached PHP extension');
 }
 
-class Bookboon_Memcached implements Bookboon_Cache {
+class Memcached implements Cache {
 
    private $server = 'localhost';
    private $port = 11211;

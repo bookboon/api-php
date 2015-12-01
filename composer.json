@@ -1,0 +1,24 @@
+{
+    "name": "bookboon/api",
+    "type": "library",
+    "description": "Wrapper for Bookboon API",
+    "keywords": ["api","wrapper"],
+    "homepage": "https://github.com/bookboon/api-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lasse Mammen",
+            "email": "lkm@bookboon.com",
+            "homepage": "http://bookboon.com",
+            "role": "CTO"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bookboon\\Api\\": "src"
+        }
+    }
+}

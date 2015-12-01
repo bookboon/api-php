@@ -1,4 +1,5 @@
 <?php
+namespace Bookboon\Api;
 /*
  *  Copyright 2014 Bookboon.com Ltd.
  *
@@ -15,6 +16,8 @@
  *  limitations under the License.
  * 
  */
+
+use Exception;
 
 if (!function_exists('curl_init')) {
    throw new Exception('Bookboon requires the curl PHP extension');

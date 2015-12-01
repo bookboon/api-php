@@ -1,5 +1,5 @@
 <?php
-
+namespace Bookboon\Api;
 /*
  *  Copyright 2012 Bookboon.com Ltd.
  *
@@ -16,7 +16,7 @@
  *  limitations under the License.
  * 
  */
-interface Bookboon_Cache {
+interface Cache {
    
    public function get($key);
    public function save($key, $data);
