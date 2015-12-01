@@ -33,13 +33,15 @@ class Bookboon {
    private $url = "bookboon.com/api";
    private $cache_class_name= "";
    private $cache = null;
+
+   public static $CURL_REQUESTS = array();
    
    public static $CURL_OPTS = array(
        CURLOPT_CONNECTTIMEOUT => 10,
        CURLOPT_RETURNTRANSFER => true,
        CURLOPT_HEADER => true,
        CURLOPT_TIMEOUT => 60,
-       CURLOPT_USERAGENT => 'bookboon-php-2.0',
+       CURLOPT_USERAGENT => 'bookboon-php-2.1',
        CURLOPT_SSL_VERIFYPEER => true,
        CURLOPT_SSL_VERIFYHOST => 2
    );
@@ -58,7 +60,6 @@ class Bookboon {
       $this->headers[] = 'X-Forwarded-For: ' . $this->getRemoteAddress();
       
       if (!empty($this->cache_class_name)) {
-         require_once (strtolower($this->cache_class_name).".php");
          $this->cache = new $this->cache_class_name();
       }
    }
@@ -80,15 +81,26 @@ class Bookboon {
          throw new Exception('Location must begin with forward slash');
       }
 
-      if (isset($method_vars['get'])) {
-         $queryUrl = $this->url . $relative_url . "?" . http_build_query($method_vars['get']);
+      if (isset($method_vars['get']) || empty($method_vars)) {
+         $queryUrl = $this->url . $relative_url;
+         if (!empty($method_vars)) {
+             $queryUrl .= "?" . http_build_query($method_vars['get']);
+         }
        
          /* Use cache if provider succesfully initialized and only GET calls */
-         if (is_object($this->cache) && count($method_vars) == 1 && $cache_query) {
-            $result = $this->cache->get($queryUrl);
-            if (!$result) {
+         if (is_object($this->cache) && count($method_vars) <= 1 && $cache_query) {
+            $hashkey = sha1( $this->authenticated['appid'] . serialize($this->headers) . $queryUrl);
+            $result = $this->cache->get($hashkey);
+            if ($result === false) {
                $result = $this->query($queryUrl, $method_vars);
-               $this->cache->save($queryUrl, $result);
+               $this->cache->save($hashkey, $result);
+            } else {
+               $this->reportDeveloperInfo(array(
+                   "total_time" => 0,
+                   "http_code" => 'memcache',
+                   "size_download" => mb_strlen(json_encode($result)),
+                   "url" => "https://" . $queryUrl
+               ), array());
             }
             return $result;
          }
@@ -105,33 +117,46 @@ class Bookboon {
     * @return array results of call
     */
    private function query($url, $vars = array()) {
-      
+
       $http = curl_init();
 
       curl_setopt($http, CURLOPT_URL, "https://" . $url);
       curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
       curl_setopt($http, CURLOPT_HTTPHEADER, $this->headers);
-      
+
       if (isset($vars['post'])) {
          curl_setopt($http, CURLOPT_POST, count($vars['post']));
          curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($vars['post']));
       }
-      
+
       foreach (self::$CURL_OPTS as $key => $val) {
          curl_setopt($http, $key, $val);
       }
       $response = curl_exec($http);
-      
+
       $header_size = curl_getinfo($http, CURLINFO_HEADER_SIZE);
       $header = substr($response, 0, $header_size);
       $body = json_decode(substr($response, $header_size), true);
-      
+
       $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-      
+
+      $this->reportDeveloperInfo(curl_getinfo($http), isset($vars['post']) ? $vars['post'] : array());
+
       curl_close($http);
 
       if ($http_status >= 400) {
-         throw new Exception($body['message'] . "//: " . $url);
+         switch ($http_status) {
+            case 400:
+                 throw new ApiSyntaxException($body['message']);
+            case 401:
+            case 403:
+               throw new AuthenticationException("Invalid credentials");
+            case 404:
+               throw new NotFoundException($url);
+               break;
+            default:
+               throw new GeneralApiException($body['message']);
+         }
       }
       
       if ($http_status >= 301 && $http_status <= 303) {
@@ -153,7 +178,7 @@ class Bookboon {
     * @return boolean true if valid, false if not
     */
    public static function isValidGUID($guid) {
-      return preg_match("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$^", $guid);
+      return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid);
    }
 
    /**
@@ -177,6 +202,13 @@ class Bookboon {
       }
 
       return $hostname;
+   }
+
+   private function reportDeveloperInfo($request, $data) {
+      self::$CURL_REQUESTS[] = array(
+          "curl" => $request,
+          "data" => $data
+      );
    }
 
 }
