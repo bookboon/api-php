@@ -29,7 +29,7 @@ class Memcached implements Cache {
    private $cache = null;
 
    function __construct($server = 'localhost', $port = 11211, $ttl = 600) {
-      $this->cache = new Memcached();
+      $this->cache = new \Memcached();
       $this->ttl = $ttl;
 
       if (!$this->cache->addServer($server, $port)) {
@@ -39,7 +39,7 @@ class Memcached implements Cache {
    
    function get($key) {
       $data = $this->cache->get($key);
-      return false === $data ? null : $data;
+      return $data;
    }
 
    function save($key, $data) {
