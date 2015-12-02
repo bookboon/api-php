@@ -25,15 +25,14 @@ if (!class_exists('Memcached')) {
 
 class Memcached implements Cache {
 
-   private $server = 'localhost';
-   private $port = 11211;
    private $ttl = 600;
    private $cache = null;
 
-   function __construct() {
+   function __construct($server = 'localhost', $port = 11211, $ttl = 600) {
       $this->cache = new Memcached();
+      $this->ttl = $ttl;
 
-      if (!$this->cache->addServer($this->server, $this->port)) {
+      if (!$this->cache->addServer($server, $port)) {
          $this->cache = null;
       }
    }

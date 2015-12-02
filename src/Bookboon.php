@@ -31,7 +31,6 @@ class Bookboon {
    private $authenticated = array();
    private $headers = array();
    private $url = "bookboon.com/api";
-   private $cache_class_name= "";
    private $cache = null;
 
    public static $CURL_REQUESTS = array();
@@ -58,10 +57,10 @@ class Bookboon {
          $this->headers[] = $h . ': ' . $v;
       }
       $this->headers[] = 'X-Forwarded-For: ' . $this->getRemoteAddress();
-      
-      if (!empty($this->cache_class_name)) {
-         $this->cache = new $this->cache_class_name();
-      }
+   }
+
+   public function setCache(Cache $cache) {
+      $this->cache = $cache;
    }
 
    /**
