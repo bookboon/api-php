@@ -60,7 +60,11 @@ class Bookboon {
       
       $this->authenticated['appid'] = $appid;
       $this->authenticated['appkey'] = $appkey;
-      $this->headers = array(self::HEADER_XFF => $this->getRemoteAddress());
+      $this->headers = array_merge(
+          array(self::HEADER_XFF => $this->getRemoteAddress()),
+          $headers
+      );
+
    }
 
    public function setCache(Cache $cache) {
