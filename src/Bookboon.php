@@ -75,6 +75,10 @@ class Bookboon {
       $this->headers[$header] = $value;
    }
 
+   public function getHeader($header) {
+      return $this->headers[$header];
+   }
+
    private function getHeaders()
    {
       $headers = array();
@@ -83,6 +87,12 @@ class Bookboon {
       }
 
       return $headers;
+   }
+
+   public function hash($url) {
+      $h = $this->headers;
+      unset($h[self::HEADER_XFF]);
+      return sha1($this->authenticated['appid'] . serialize($h) . $url);
    }
 
    /**
@@ -110,7 +120,7 @@ class Bookboon {
        
          /* Use cache if provider succesfully initialized and only GET calls */
          if (is_object($this->cache) && count($method_vars) <= 1 && $cache_query) {
-            $hashkey = sha1( $this->authenticated['appid'] . serialize($this->headers) . $queryUrl);
+            $hashkey = $this->hash($queryUrl);
             $result = $this->cache->get($hashkey);
             if ($result === false) {
                $result = $this->query($queryUrl, $method_vars);
@@ -199,7 +209,7 @@ class Bookboon {
     * @return boolean true if valid, false if not
     */
    public static function isValidGUID($guid) {
-      return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid);
+      return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid) == true;
    }
 
    /**
@@ -208,7 +218,11 @@ class Bookboon {
     * @return string The ip address
     */
    private function getRemoteAddress() {
-      $hostname = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+      $hostname = false;
+
+      if (isset($_SERVER['REMOTE_ADDR'])) {
+         $hostname = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+      }
 
       if (function_exists('apache_request_headers')) {
          $headers = apache_request_headers();
