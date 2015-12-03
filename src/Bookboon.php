@@ -28,6 +28,14 @@ if (!function_exists('json_decode')) {
 
 class Bookboon {
 
+   const HEADER_BRANDING = 'X-Bookboon-Branding';
+   const HEADER_ROTATION = 'X-Bookboon-Rotation';
+   const HEADER_PREMIUM = 'X-Bookboon-PremiumLevel';
+   const HEADER_CURRENCY = 'X-Bookboon-Currency';
+   const HEADER_LANGUAGE = 'Accept-Language';
+   const HEADER_XFF = 'X-Forwarded-For';
+
+
    private $authenticated = array();
    private $headers = array();
    private $url = "bookboon.com/api";
@@ -52,15 +60,25 @@ class Bookboon {
       
       $this->authenticated['appid'] = $appid;
       $this->authenticated['appkey'] = $appkey;
-      
-      foreach ($headers as $h => $v) {
-         $this->headers[] = $h . ': ' . $v;
-      }
-      $this->headers[] = 'X-Forwarded-For: ' . $this->getRemoteAddress();
+      $this->headers = array(self::HEADER_XFF => $this->getRemoteAddress());
    }
 
    public function setCache(Cache $cache) {
       $this->cache = $cache;
+   }
+
+   public function setHeader($header, $value) {
+      $this->headers[$header] = $value;
+   }
+
+   private function getHeaders()
+   {
+      $headers = array();
+      foreach ($this->headers as $h => $v) {
+         $headers[] = $h . ': ' . $v;
+      }
+
+      return $headers;
    }
 
    /**
@@ -121,7 +139,7 @@ class Bookboon {
 
       curl_setopt($http, CURLOPT_URL, "https://" . $url);
       curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
-      curl_setopt($http, CURLOPT_HTTPHEADER, $this->headers);
+      curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
       if (isset($vars['post'])) {
          curl_setopt($http, CURLOPT_POST, count($vars['post']));
