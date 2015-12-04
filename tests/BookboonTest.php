@@ -83,6 +83,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      * Actual calls
      */
 
+    /* to test cache properly this must the be first to make calls to the API */
     public function testBookCached()
     {
         $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
@@ -94,20 +95,29 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("memcache", Bookboon::$CURL_REQUESTS[1]["curl"]["http_code"]);
     }
 
-    public function testGetBook()
+    public function testGetSearch()
     {
-        $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
-        $book = $bookboon->api("/books/db98ac1b-435f-456b-9bdd-a2ba00d41a58");
-        $this->assertEquals("db98ac1b-435f-456b-9bdd-a2ba00d41a58", $book["_id"]);
+
+        // choose a query with almost certain response;
+        $search = $bookboon->getSearch("engineering");
+        $this->assertCount(10, $search);
     }
 
-    public function testGetCategory()
+    public function testGetRecommendations()
     {
-        $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
-        $category = $bookboon->api("/categories/062adfac-844b-4e8c-9242-a1620108325e");
-        $this->assertEquals("062adfac-844b-4e8c-9242-a1620108325e", $category["_id"]);
+
+        $recommendations = $bookboon->getRecommendations();
+        $this->assertCount(5, $recommendations);
+    }
+
+    public function testGetRecommendationsSpecific()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+
+        $recommendations = $bookboon->getRecommendations(array("3bf58559-034f-4676-bb5f-a2c101015a58"), 8);
+        $this->assertCount(8, $recommendations);
     }
 
     /**

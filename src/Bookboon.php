@@ -18,6 +18,10 @@ namespace Bookboon\Api;
  * 
  */
 
+use Bookboon\Api\Entity\Book;
+use Bookboon\Api\Entity\Category;
+use Bookboon\Api\Entity\Question;
+use Bookboon\Api\Entity\Review;
 use Exception;
 
 if (!function_exists('curl_init')) {
@@ -136,6 +140,114 @@ class Bookboon
         $h = $this->headers;
         unset($h[self::HEADER_XFF]);
         return sha1($this->authenticated['appid'] . serialize($h) . $url);
+    }
+
+    /**
+     * Get Book object
+     *
+     * @param $bookId guid for book
+     * @return Book|bool
+     * @throws ApiSyntaxException
+     */
+    public function getBook($bookId)
+    {
+        if (self::isValidGUID($bookId) === false) {
+            return false;
+        }
+        return new Book($this->api("/books/$bookId"));
+    }
+
+    /**
+     * Get Reviews for specified Book
+     *
+     * @param $bookId
+     * @return array of Review objects
+     * @throws ApiSyntaxException
+     */
+    public function getReviews($bookId)
+    {
+        if (self::isValidGUID($bookId) === false) {
+            return false;
+        }
+
+        $reviews = $this->api("/books/$bookId/review");
+        return Review::getEntitiesFromArray($reviews);
+    }
+
+    /**
+     * Get Category
+     *
+     * @param $categoryId
+     * @return Category|bool
+     * @throws ApiSyntaxException
+     */
+    public function getCategory($categoryId)
+    {
+        if (self::isValidGUID($categoryId) === false) {
+            return false;
+        }
+
+        return new Category($this->api("/categories/$categoryId"));
+    }
+
+    /**
+     * Search
+     *
+     * @param $query string to search for
+     * @param int $limit results to return per page
+     * @param int $offset offset of results
+     * @return array
+     * @throws ApiSyntaxException
+     */
+    public function getSearch($query, $limit = 10, $offset = 0)
+    {
+        $search = $this->api("/search", array("get" => array("q" => $query, "limit" => $limit, "offset" => $offset)));
+        if (count($search) === 0) {
+            return array();
+        }
+
+        return Book::getEntitiesFromArray($search);
+    }
+
+    /**
+     * Recommendations
+     *
+     * @param array $bookIds array of book ids to base recommendations on, can be empty
+     * @param int $limit
+     * @return array
+     * @throws ApiSyntaxException
+     */
+    public function getRecommendations(Array $bookIds = array(), $limit = 5)
+    {
+        $variables["get"] = array("limit" => $limit);
+        if (count($bookIds) > 0) {
+            for($i=0; $i<count($bookIds); $i++) {
+                $variables["get"]["book[$i]"] = $bookIds[$i];
+            }
+        }
+        $recommendations = $this->api("/recommendations", $variables);
+        return Book::getEntitiesFromArray($recommendations);
+    }
+
+    /**
+     * Questions
+     *
+     * @param array $answerIds array of answer ids, can be empty
+     * @return array
+     * @throws ApiSyntaxException
+     */
+    public function getQuestions(Array $answerIds = array())
+    {
+        $variables = array();
+        if (count($answerIds) > 0) {
+            $variables["get"] = array();
+            for($i=0; $i<count($answerIds); $i++) {
+                $variables["get"]["answer[$i]"] = $answerIds[$i];
+            }
+        }
+
+        $questions = $this->api("/questions", $variables);
+        return Question::getEntitiesFromArray($questions);
     }
 
     /**
