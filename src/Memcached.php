@@ -1,5 +1,6 @@
 <?php
 namespace Bookboon\Api;
+
 /*
  *  Copyright 2012 Bookboon.com Ltd.
  *
@@ -17,35 +18,38 @@ namespace Bookboon\Api;
  * 
  */
 
-use Exception;
-
 if (!class_exists('Memcached')) {
-   throw new Exception('Bookboon_Memcached requires the memcached PHP extension');
+    throw new \Exception('Bookboon_Memcached requires the memcached PHP extension');
 }
 
-class Memcached implements Cache {
+class Memcached implements Cache
+{
 
-   private $ttl = 600;
-   private $cache = null;
+    private $ttl = 600;
+    private $cache = null;
 
-   function __construct($server = 'localhost', $port = 11211, $ttl = 600) {
-      $this->cache = new \Memcached();
-      $this->ttl = $ttl;
+    function __construct($server = 'localhost', $port = 11211, $ttl = 600)
+    {
+        $this->cache = new \Memcached();
+        $this->ttl = $ttl;
 
-      $this->cache->addServer($server, $port);
-   }
-   
-   function get($key) {
-      return $this->cache->get($key);
-   }
+        $this->cache->addServer($server, $port);
+    }
 
-   function save($key, $data) {
-      return $this->cache->set($key, $data, $this->ttl);
-   }
+    function get($key)
+    {
+        return $this->cache->get($key);
+    }
 
-   function delete($key) {
-      return $this->cache->delete($key);
-   }
+    function save($key, $data)
+    {
+        return $this->cache->set($key, $data, $this->ttl);
+    }
+
+    function delete($key)
+    {
+        return $this->cache->delete($key);
+    }
 
 }
 

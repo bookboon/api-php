@@ -27,14 +27,14 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
-        $this->assertEquals("127.0.0.1" ,$bookboon->getHeader(Bookboon::HEADER_XFF));
+        $this->assertEquals("127.0.0.1", $bookboon->getHeader(Bookboon::HEADER_XFF));
     }
 
     public function testOverrideXFF()
     {
         $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY, array(Bookboon::HEADER_XFF => "TEST"));
-        $this->assertEquals("TEST" ,$bookboon->getHeader(Bookboon::HEADER_XFF));
+        $this->assertEquals("TEST", $bookboon->getHeader(Bookboon::HEADER_XFF));
     }
 
     /*
@@ -72,7 +72,8 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($bookboon->hash("/test"), $bookboon2->hash("/test"));
     }
 
-    public function testHashUrl() {
+    public function testHashUrl()
+    {
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
 
         $this->assertEquals($bookboon->hash("/test"), $bookboon->hash("/test"));

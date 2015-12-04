@@ -16,11 +16,14 @@ namespace Bookboon\Api;
  *  limitations under the License.
  * 
  */
-interface Cache {
-   
-   public function get($key);
-   public function save($key, $data);
-   public function delete($key);
+interface Cache
+{
+
+    public function get($key);
+
+    public function save($key, $data);
+
+    public function delete($key);
 }
 
 ?>

@@ -1,5 +1,6 @@
 <?php
 namespace Bookboon\Api;
+
 /*
  *  Copyright 2014 Bookboon.com Ltd.
  *
@@ -20,229 +21,240 @@ namespace Bookboon\Api;
 use Exception;
 
 if (!function_exists('curl_init')) {
-   throw new Exception('Bookboon requires the curl PHP extension');
+    throw new Exception('Bookboon requires the curl PHP extension');
 }
 if (!function_exists('json_decode')) {
-   throw new Exception('Bookboon requires the json PHP extension');
+    throw new Exception('Bookboon requires the json PHP extension');
 }
 
-class Bookboon {
+class Bookboon
+{
 
-   const HEADER_BRANDING = 'X-Bookboon-Branding';
-   const HEADER_ROTATION = 'X-Bookboon-Rotation';
-   const HEADER_PREMIUM = 'X-Bookboon-PremiumLevel';
-   const HEADER_CURRENCY = 'X-Bookboon-Currency';
-   const HEADER_LANGUAGE = 'Accept-Language';
-   const HEADER_XFF = 'X-Forwarded-For';
+    const HEADER_BRANDING = 'X-Bookboon-Branding';
+    const HEADER_ROTATION = 'X-Bookboon-Rotation';
+    const HEADER_PREMIUM = 'X-Bookboon-PremiumLevel';
+    const HEADER_CURRENCY = 'X-Bookboon-Currency';
+    const HEADER_LANGUAGE = 'Accept-Language';
+    const HEADER_XFF = 'X-Forwarded-For';
 
 
-   private $authenticated = array();
-   private $headers = array();
-   private $url = "bookboon.com/api";
-   private $cache = null;
+    private $authenticated = array();
+    private $headers = array();
+    private $url = "bookboon.com/api";
+    private $cache = null;
 
-   public static $CURL_REQUESTS = array();
-   
-   public static $CURL_OPTS = array(
-       CURLOPT_CONNECTTIMEOUT => 10,
-       CURLOPT_RETURNTRANSFER => true,
-       CURLOPT_HEADER => true,
-       CURLOPT_TIMEOUT => 60,
-       CURLOPT_USERAGENT => 'bookboon-php-2.1',
-       CURLOPT_SSL_VERIFYPEER => true,
-       CURLOPT_SSL_VERIFYHOST => 2
-   );
+    public static $CURL_REQUESTS = array();
 
-   function __construct($appid, $appkey, $headers = array()) {
-      if (empty($appid) || empty($appkey)) {
-          throw new Exception('Empty appid or appkey');
-      }
-      
-      $this->authenticated['appid'] = $appid;
-      $this->authenticated['appkey'] = $appkey;
-      $this->headers = array_merge(
-          array(self::HEADER_XFF => $this->getRemoteAddress()),
-          $headers
-      );
+    public static $CURL_OPTS = array(
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        CURLOPT_TIMEOUT => 60,
+        CURLOPT_USERAGENT => 'bookboon-php-2.1',
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
+    );
 
-   }
+    function __construct($appid, $appkey, $headers = array())
+    {
+        if (empty($appid) || empty($appkey)) {
+            throw new Exception('Empty appid or appkey');
+        }
 
-   public function setCache(Cache $cache) {
-      $this->cache = $cache;
-   }
+        $this->authenticated['appid'] = $appid;
+        $this->authenticated['appkey'] = $appkey;
+        $this->headers = array_merge(
+            array(self::HEADER_XFF => $this->getRemoteAddress()),
+            $headers
+        );
 
-   public function setHeader($header, $value) {
-      $this->headers[$header] = $value;
-   }
+    }
 
-   public function getHeader($header) {
-      return $this->headers[$header];
-   }
+    public function setCache(Cache $cache)
+    {
+        $this->cache = $cache;
+    }
 
-   private function getHeaders()
-   {
-      $headers = array();
-      foreach ($this->headers as $h => $v) {
-         $headers[] = $h . ': ' . $v;
-      }
+    public function setHeader($header, $value)
+    {
+        $this->headers[$header] = $value;
+    }
 
-      return $headers;
-   }
+    public function getHeader($header)
+    {
+        return $this->headers[$header];
+    }
 
-   public function hash($url) {
-      $h = $this->headers;
-      unset($h[self::HEADER_XFF]);
-      return sha1($this->authenticated['appid'] . serialize($h) . $url);
-   }
+    private function getHeaders()
+    {
+        $headers = array();
+        foreach ($this->headers as $h => $v) {
+            $headers[] = $h . ': ' . $v;
+        }
 
-   /**
-    * Prepares the call to the api and if enabled tries cache provider first for GET calls
-    * 
-    * @param string $relativeUrl The url relative to the address. Must begin with '/'
-    * @param array $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
-    * @param boolean $cacheQuery manually disable object cache for query
-    * @return array results of call
-    */
-   public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true) {
+        return $headers;
+    }
 
-      $queryUrl = $this->url . $relativeUrl;
-      
-      if (substr($relativeUrl, 0, 1) !== '/') {
-         throw new ApiSyntaxException('Location must begin with forward slash');
-      }
+    public function hash($url)
+    {
+        $h = $this->headers;
+        unset($h[self::HEADER_XFF]);
+        return sha1($this->authenticated['appid'] . serialize($h) . $url);
+    }
 
-      if (isset($methodVariables['get']) || empty($methodVariables)) {
-         $queryUrl = $this->url . $relativeUrl;
-         if (!empty($methodVariables)) {
-             $queryUrl .= "?" . http_build_query($methodVariables['get']);
-         }
-       
-         /* Use cache if provider succesfully initialized and only GET calls */
-         if (is_object($this->cache) && count($methodVariables) <= 1 && $cacheQuery) {
-            $hashkey = $this->hash($queryUrl);
-            $result = $this->cache->get($hashkey);
-            if ($result === false) {
-               $result = $this->query($queryUrl, $methodVariables);
-               $this->cache->save($hashkey, $result);
-            } else {
-               $this->reportDeveloperInfo(array(
-                   "total_time" => 0,
-                   "http_code" => 'memcache',
-                   "size_download" => mb_strlen(json_encode($result)),
-                   "url" => "https://" . $queryUrl
-               ), array());
+    /**
+     * Prepares the call to the api and if enabled tries cache provider first for GET calls
+     *
+     * @param string $relativeUrl The url relative to the address. Must begin with '/'
+     * @param array $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
+     * @param boolean $cacheQuery manually disable object cache for query
+     * @return array results of call
+     */
+    public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true)
+    {
+
+        $queryUrl = $this->url . $relativeUrl;
+
+        if (substr($relativeUrl, 0, 1) !== '/') {
+            throw new ApiSyntaxException('Location must begin with forward slash');
+        }
+
+        if (isset($methodVariables['get']) || empty($methodVariables)) {
+            $queryUrl = $this->url . $relativeUrl;
+            if (!empty($methodVariables)) {
+                $queryUrl .= "?" . http_build_query($methodVariables['get']);
             }
-            return $result;
-         }
-      }
-      
-      return $this->query($queryUrl, $methodVariables);
-   }
-   
-   /**
-    * Makes the actual query call to the remote api.
-    * 
-    * @param string $relative_url The url relative to the address. Must begin with '/'
-    * @param array $variables must contain subarray called either 'post' or 'get' depend on HTTP method
-    * @return array results of call
-    */
-   private function query($url, $variables = array()) {
 
-      $http = curl_init();
+            /* Use cache if provider succesfully initialized and only GET calls */
+            if (is_object($this->cache) && count($methodVariables) <= 1 && $cacheQuery) {
+                $hashkey = $this->hash($queryUrl);
+                $result = $this->cache->get($hashkey);
+                if ($result === false) {
+                    $result = $this->query($queryUrl, $methodVariables);
+                    $this->cache->save($hashkey, $result);
+                } else {
+                    $this->reportDeveloperInfo(array(
+                        "total_time" => 0,
+                        "http_code" => 'memcache',
+                        "size_download" => mb_strlen(json_encode($result)),
+                        "url" => "https://" . $queryUrl
+                    ), array());
+                }
+                return $result;
+            }
+        }
 
-      curl_setopt($http, CURLOPT_URL, "https://" . $url);
-      curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
-      curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
+        return $this->query($queryUrl, $methodVariables);
+    }
 
-      if (isset($variables['post'])) {
-         curl_setopt($http, CURLOPT_POST, count($variables['post']));
-         curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables['post']));
-      }
+    /**
+     * Makes the actual query call to the remote api.
+     *
+     * @param string $relative_url The url relative to the address. Must begin with '/'
+     * @param array $variables must contain subarray called either 'post' or 'get' depend on HTTP method
+     * @return array results of call
+     */
+    private function query($url, $variables = array())
+    {
 
-      foreach (self::$CURL_OPTS as $key => $val) {
-         curl_setopt($http, $key, $val);
-      }
-      $response = curl_exec($http);
+        $http = curl_init();
 
-      $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
-      $header = substr($response, 0, $headerSize);
-      $body = json_decode(substr($response, $headerSize), true);
+        curl_setopt($http, CURLOPT_URL, "https://" . $url);
+        curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
+        curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-      $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
+        if (isset($variables['post'])) {
+            curl_setopt($http, CURLOPT_POST, count($variables['post']));
+            curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables['post']));
+        }
 
-      $this->reportDeveloperInfo(curl_getinfo($http), isset($variables['post']) ? $variables['post'] : array());
+        foreach (self::$CURL_OPTS as $key => $val) {
+            curl_setopt($http, $key, $val);
+        }
+        $response = curl_exec($http);
 
-      curl_close($http);
+        $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
+        $header = substr($response, 0, $headerSize);
+        $body = json_decode(substr($response, $headerSize), true);
 
-      if ($httpStatus >= 400) {
-         switch ($httpStatus) {
-            case 400:
-               throw new ApiSyntaxException($body['message']);
-            case 401:
-            case 403:
-               throw new AuthenticationException("Invalid credentials");
-            case 404:
-               throw new NotFoundException($url);
-               break;
-            default:
-               throw new GeneralApiException($body['message']);
-         }
-      }
-      
-      if ($httpStatus >= 301 && $httpStatus <= 303) {
-          $body['url'] = '';
-          foreach (explode("\n", $header) as $h) {
-              if (strpos($h, "Location") === 0) {
-                  $body['url'] = trim(str_replace("Location: ", "", $h));
-              }
-          }
-      }
-      
-      return $body;
-   }
+        $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-   /**
-    * Useful GUID validator to validate input in scripts
-    * 
-    * @param string $guid GUID to validate
-    * @return boolean true if valid, false if not
-    */
-   public static function isValidGUID($guid) {
-      return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid) == true;
-   }
+        $this->reportDeveloperInfo(curl_getinfo($http), isset($variables['post']) ? $variables['post'] : array());
 
-   /**
-    * Returns the remote address either directly or if set XFF header value
-    * 
-    * @return string The ip address
-    */
-   private function getRemoteAddress() {
-      $hostname = false;
+        curl_close($http);
 
-      if (isset($_SERVER['REMOTE_ADDR'])) {
-         $hostname = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
-      }
+        if ($httpStatus >= 400) {
+            switch ($httpStatus) {
+                case 400:
+                    throw new ApiSyntaxException($body['message']);
+                case 401:
+                case 403:
+                    throw new AuthenticationException("Invalid credentials");
+                case 404:
+                    throw new NotFoundException($url);
+                    break;
+                default:
+                    throw new GeneralApiException($body['message']);
+            }
+        }
 
-      if (function_exists('apache_request_headers')) {
-         $headers = apache_request_headers();
-         foreach ($headers as $k => $v) {
-            if (strcasecmp($k, "x-forwarded-for"))
-               continue;
+        if ($httpStatus >= 301 && $httpStatus <= 303) {
+            $body['url'] = '';
+            foreach (explode("\n", $header) as $h) {
+                if (strpos($h, "Location") === 0) {
+                    $body['url'] = trim(str_replace("Location: ", "", $h));
+                }
+            }
+        }
 
-            $hostname = explode(",", $v);
-            $hostname = trim($hostname[0]);
-            break;
-         }
-      }
+        return $body;
+    }
 
-      return $hostname;
-   }
+    /**
+     * Useful GUID validator to validate input in scripts
+     *
+     * @param string $guid GUID to validate
+     * @return boolean true if valid, false if not
+     */
+    public static function isValidGUID($guid)
+    {
+        return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid) == true;
+    }
 
-   private function reportDeveloperInfo($request, $data) {
-      self::$CURL_REQUESTS[] = array(
-          "curl" => $request,
-          "data" => $data
-      );
-   }
+    /**
+     * Returns the remote address either directly or if set XFF header value
+     *
+     * @return string The ip address
+     */
+    private function getRemoteAddress()
+    {
+        $hostname = false;
+
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $hostname = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+        }
+
+        if (function_exists('apache_request_headers')) {
+            $headers = apache_request_headers();
+            foreach ($headers as $k => $v) {
+                if (strcasecmp($k, "x-forwarded-for"))
+                    continue;
+
+                $hostname = explode(",", $v);
+                $hostname = trim($hostname[0]);
+                break;
+            }
+        }
+
+        return $hostname;
+    }
+
+    private function reportDeveloperInfo($request, $data)
+    {
+        self::$CURL_REQUESTS[] = array(
+            "curl" => $request,
+            "data" => $data
+        );
+    }
 
 }
