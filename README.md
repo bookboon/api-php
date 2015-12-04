@@ -1,4 +1,6 @@
 #Bookboon API PHP Class
+[![Build Status](https://travis-ci.org/bookboon/api-php.svg?branch=master)](https://travis-ci.org/bookboon/api-php) [![Code Climate](https://codeclimate.com/github/bookboon/api-php/badges/gpa.svg)](https://codeclimate.com/github/bookboon/api-php) [![Test Coverage](https://codeclimate.com/github/bookboon/api-php/badges/coverage.svg)](https://codeclimate.com/github/bookboon/api-php/coverage)
+
 
 The PHP class is a wrapper for the Bookboon.com API. Because this is just a wrapper class you should familiarize yourself with the [REST api](https://github.com/bookboon/api) before using it.
 
