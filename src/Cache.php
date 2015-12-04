@@ -1,5 +1,7 @@
 <?php
+
 namespace Bookboon\Api;
+
 /*
  *  Copyright 2012 Bookboon.com Ltd.
  *
@@ -25,5 +27,3 @@ interface Cache
 
     public function delete($key);
 }
-
-?>

@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-
 class Category extends Entity
 {
     const TEXTBOOKS = "d1fabb36-4eff-4760-a80d-a15700efa9ae";

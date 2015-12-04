@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-
 class Review extends Entity
 {
 

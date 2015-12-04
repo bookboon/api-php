@@ -1,6 +1,6 @@
 <?php
-namespace Bookboon\Api;
 
+namespace Bookboon\Api;
 
 use Exception;
 

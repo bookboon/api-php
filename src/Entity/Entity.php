@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-
 use Serializable;
 
 abstract class Entity implements Serializable

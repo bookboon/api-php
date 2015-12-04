@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-
 class Answer extends Entity
 {
     protected function isValid(Array $array)

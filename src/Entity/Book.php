@@ -1,8 +1,6 @@
 <?php
+
 namespace Bookboon\Api\Entity;
-
-use Serializable;
-
 
 class Book extends Entity
 {
@@ -72,6 +70,7 @@ class Book extends Entity
      * Returns closes thumbnail size to input, default 210px
      *
      * @param int $size appromimate size
+     * @param bool $ssl Whether or not to return https:// url for thumbnail
      * @return string url for thumbnail
      */
     public function getThumbnail($size = 210, $ssl = false)
@@ -83,13 +82,12 @@ class Book extends Entity
 
         $sizes = array_keys($thumbs);
         while (true) {
-            $thumb_size = array_shift($sizes);
-            if ((int)$size <= (int)$thumb_size || count($sizes) == 0) {
+            $thumbSize = array_shift($sizes);
+            if ((int)$size <= (int)$thumbSize || count($sizes) == 0) {
                 if ($ssl) {
-                    return str_replace('http://', 'https://', $thumbs[$thumb_size]);
-                } else {
-                    return $thumbs[$thumb_size];
+                    return str_replace('http://', 'https://', $thumbs[$thumbSize]);
                 }
+                return $thumbs[$thumbSize];
             }
         }
     }

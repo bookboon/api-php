@@ -69,7 +69,7 @@ class Bookboon
      * @param array $headers in format array("headername" => "value")
      * @throws Exception
      */
-    function __construct($appid, $appkey, $headers = array())
+    public function __construct($appid, $appkey, $headers = array())
     {
         if (empty($appid) || empty($appkey)) {
             throw new Exception('Empty appid or appkey');
@@ -139,9 +139,9 @@ class Bookboon
      */
     public function hash($url)
     {
-        $h = $this->headers;
-        unset($h[self::HEADER_XFF]);
-        return sha1($this->authenticated['appid'] . serialize($h) . $url);
+        $headers = $this->headers;
+        unset($headers[self::HEADER_XFF]);
+        return sha1($this->authenticated['appid'] . serialize($headers) . $url);
     }
 
     /**
@@ -236,6 +236,7 @@ class Bookboon
     {
         $variables["get"] = array("limit" => $limit);
         if (count($bookIds) > 0) {
+
             for($i=0; $i<count($bookIds); $i++) {
                 $variables["get"]["book[$i]"] = $bookIds[$i];
             }
@@ -256,6 +257,7 @@ class Bookboon
         $variables = array();
         if (count($answerIds) > 0) {
             $variables["get"] = array();
+
             for($i=0; $i<count($answerIds); $i++) {
                 $variables["get"]["answer[$i]"] = $answerIds[$i];
             }

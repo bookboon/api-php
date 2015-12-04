@@ -1,4 +1,5 @@
 <?php
+
 namespace Bookboon\Api;
 
 /*
@@ -77,5 +78,3 @@ class Memcached implements Cache
     }
 
 }
-
-?>
