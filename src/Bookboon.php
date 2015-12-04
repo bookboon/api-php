@@ -33,6 +33,8 @@ if (!function_exists('json_decode')) {
 
 class Bookboon
 {
+    const HTTP_GET = 'GET';
+    const HTTP_POST = 'POST';
 
     const HEADER_BRANDING = 'X-Bookboon-Branding';
     const HEADER_ROTATION = 'X-Bookboon-Rotation';
@@ -157,6 +159,13 @@ class Bookboon
         return new Book($this->api("/books/$bookId"));
     }
 
+    public function getBookDownloadUrl($bookId, Array $variables, $format = "pdf")
+    {
+        $variables["format"] = $format;
+        $download = $this->api("/books/$bookId/download", array("post" => $variables));
+        return $download["url"];
+    }
+
     /**
      * Get Reviews for specified Book
      *
@@ -188,6 +197,12 @@ class Bookboon
         }
 
         return new Category($this->api("/categories/$categoryId"));
+    }
+
+    public function getCategoryDownloadUrl($categoryId, Array $variables)
+    {
+        $download = $this->api("/categories/$categoryId/download", array("post" => $variables));
+        return $download["url"];
     }
 
     /**
@@ -251,6 +266,21 @@ class Bookboon
     }
 
     /**
+     * Determine whether cache should be attempted
+     * 
+     * @param $variables
+     * @return bool
+     */
+    protected function isCachable($variables)
+    {
+        if (isset($variables['get']) || empty($variables)) {
+            if (is_object($this->cache) && count($variables) <= 1)
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls
      *
      * @param string $relativeUrl The url relative to the address. Must begin with '/'
@@ -261,53 +291,57 @@ class Bookboon
      */
     public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true)
     {
-
         $queryUrl = $this->url . $relativeUrl;
+        $type = Bookboon::HTTP_GET;
+        $postVariables = array();
+
+        if (isset($methodVariables['get'])) {
+            $queryUrl .= "?" . http_build_query($methodVariables['get']);
+        }
+
+        if (isset($methodVariables['post'])) {
+            $postVariables = $methodVariables['post'];
+            $type = Bookboon::HTTP_POST;
+        }
 
         if (substr($relativeUrl, 0, 1) !== '/') {
             throw new ApiSyntaxException('Location must begin with forward slash');
         }
 
-        if (isset($methodVariables['get']) || empty($methodVariables)) {
-            $queryUrl = $this->url . $relativeUrl;
-            if (!empty($methodVariables)) {
-                $queryUrl .= "?" . http_build_query($methodVariables['get']);
-            }
+        if ($this->isCachable($methodVariables) && $cacheQuery) {
+            $hash = $this->hash($queryUrl);
+            $result = $this->cache->get($hash);
 
-            /* Use cache if provider succesfully initialized and only GET calls */
-            if (is_object($this->cache) && count($methodVariables) <= 1 && $cacheQuery) {
-                $hashkey = $this->hash($queryUrl);
-                $result = $this->cache->get($hashkey);
-                if ($result === false) {
-                    $result = $this->query($queryUrl, $methodVariables);
-                    $this->cache->save($hashkey, $result);
-                } else {
-                    $this->reportDeveloperInfo(array(
-                        "total_time" => 0,
-                        "http_code" => 'memcache',
-                        "size_download" => mb_strlen(json_encode($result)),
-                        "url" => "https://" . $queryUrl
-                    ), array());
-                }
-                return $result;
+            if ($result === false) {
+                $result = $this->query($queryUrl, $type, $postVariables);
+                $this->cache->save($hash, $result);
+            } else {
+                $this->reportDeveloperInfo(array(
+                    "total_time" => 0,
+                    "http_code" => 'memcache',
+                    "size_download" => mb_strlen(json_encode($result)),
+                    "url" => "https://" . $queryUrl
+                ), array());
             }
+            return $result;
         }
 
-        return $this->query($queryUrl, $methodVariables);
+        return $this->query($queryUrl, $type, $postVariables);
     }
 
     /**
      * Makes the actual query call to the remote api.
      *
      * @param string $url The url relative to the address
-     * @param array $variables must contain subarray called either 'post' or 'get' depend on HTTP method
+     * @param string $type  Bookboon::HTTP_GET or  Bookboon::HTTP_POST
+     * @param array $variables array of post variables (key => value)
      * @return array results of call, json decoded
      * @throws ApiSyntaxException
      * @throws AuthenticationException
      * @throws GeneralApiException
      * @throws NotFoundException
      */
-    private function query($url, $variables = array())
+    private function query($url, $type = Bookboon::HTTP_GET, $variables = array())
     {
 
         $http = curl_init();
@@ -316,9 +350,9 @@ class Bookboon
         curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
         curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-        if (isset($variables['post'])) {
-            curl_setopt($http, CURLOPT_POST, count($variables['post']));
-            curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables['post']));
+        if ($type == Bookboon::HTTP_POST) {
+            curl_setopt($http, CURLOPT_POST, count($variables));
+            curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables));
         }
 
         foreach (self::$CURL_OPTS as $key => $val) {
@@ -332,7 +366,7 @@ class Bookboon
 
         $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-        $this->reportDeveloperInfo(curl_getinfo($http), isset($variables['post']) ? $variables['post'] : array());
+        $this->reportDeveloperInfo(curl_getinfo($http), $variables);
 
         curl_close($http);
 

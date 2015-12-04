@@ -95,6 +95,22 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("memcache", Bookboon::$CURL_REQUESTS[1]["curl"]["http_code"]);
     }
 
+    public function testBookDownload()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+
+        $url = $bookboon->getBookDownloadUrl("db98ac1b-435f-456b-9bdd-a2ba00d41a58", array("handle" => "phpunit"));
+        $this->assertContains("/download/", $url);
+    }
+
+    public function testCategoryDownload()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+
+        $url = $bookboon->getCategoryDownloadUrl("062adfac-844b-4e8c-9242-a1620108325e", array("handle" => "phpunit"));
+        $this->assertContains("/download/", $url);
+    }
+
     public function testGetSearch()
     {
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
