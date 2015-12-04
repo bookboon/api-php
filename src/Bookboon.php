@@ -55,7 +55,7 @@ class Bookboon {
 
    function __construct($appid, $appkey, $headers = array()) {
       if (empty($appid) || empty($appkey)) {
-          throw new Exception('Invalid appid or appkey');
+          throw new Exception('Empty appid or appkey');
       }
       
       $this->authenticated['appid'] = $appid;
@@ -98,32 +98,31 @@ class Bookboon {
    /**
     * Prepares the call to the api and if enabled tries cache provider first for GET calls
     * 
-    * @param string $relative_url The url relative to the address. Must begin with '/'
-    * @param array $method_vars must contain subarray called either 'post' or 'get' depend on HTTP method
-    * @param boolean $cache_query manually disable object cache for query
+    * @param string $relativeUrl The url relative to the address. Must begin with '/'
+    * @param array $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
+    * @param boolean $cacheQuery manually disable object cache for query
     * @return array results of call
     */
-   public function api($relative_url, $method_vars = array(), $cache_query = true) {
+   public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true) {
+
+      $queryUrl = $this->url . $relativeUrl;
       
-      $result = array();
-      $queryUrl = $this->url . $relative_url;
-      
-      if (!substr($relative_url, 1, 1) == '/') {
-         throw new Exception('Location must begin with forward slash');
+      if (substr($relativeUrl, 0, 1) !== '/') {
+         throw new ApiSyntaxException('Location must begin with forward slash');
       }
 
-      if (isset($method_vars['get']) || empty($method_vars)) {
-         $queryUrl = $this->url . $relative_url;
-         if (!empty($method_vars)) {
-             $queryUrl .= "?" . http_build_query($method_vars['get']);
+      if (isset($methodVariables['get']) || empty($methodVariables)) {
+         $queryUrl = $this->url . $relativeUrl;
+         if (!empty($methodVariables)) {
+             $queryUrl .= "?" . http_build_query($methodVariables['get']);
          }
        
          /* Use cache if provider succesfully initialized and only GET calls */
-         if (is_object($this->cache) && count($method_vars) <= 1 && $cache_query) {
+         if (is_object($this->cache) && count($methodVariables) <= 1 && $cacheQuery) {
             $hashkey = $this->hash($queryUrl);
             $result = $this->cache->get($hashkey);
             if ($result === false) {
-               $result = $this->query($queryUrl, $method_vars);
+               $result = $this->query($queryUrl, $methodVariables);
                $this->cache->save($hashkey, $result);
             } else {
                $this->reportDeveloperInfo(array(
@@ -137,17 +136,17 @@ class Bookboon {
          }
       }
       
-      return $result = $this->query($queryUrl, $method_vars);
+      return $this->query($queryUrl, $methodVariables);
    }
    
    /**
     * Makes the actual query call to the remote api.
     * 
     * @param string $relative_url The url relative to the address. Must begin with '/'
-    * @param array $vars must contain subarray called either 'post' or 'get' depend on HTTP method
+    * @param array $variables must contain subarray called either 'post' or 'get' depend on HTTP method
     * @return array results of call
     */
-   private function query($url, $vars = array()) {
+   private function query($url, $variables = array()) {
 
       $http = curl_init();
 
@@ -155,9 +154,9 @@ class Bookboon {
       curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
       curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-      if (isset($vars['post'])) {
-         curl_setopt($http, CURLOPT_POST, count($vars['post']));
-         curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($vars['post']));
+      if (isset($variables['post'])) {
+         curl_setopt($http, CURLOPT_POST, count($variables['post']));
+         curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables['post']));
       }
 
       foreach (self::$CURL_OPTS as $key => $val) {
@@ -165,20 +164,20 @@ class Bookboon {
       }
       $response = curl_exec($http);
 
-      $header_size = curl_getinfo($http, CURLINFO_HEADER_SIZE);
-      $header = substr($response, 0, $header_size);
-      $body = json_decode(substr($response, $header_size), true);
+      $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $headerSize);
+      $body = json_decode(substr($response, $headerSize), true);
 
-      $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+      $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-      $this->reportDeveloperInfo(curl_getinfo($http), isset($vars['post']) ? $vars['post'] : array());
+      $this->reportDeveloperInfo(curl_getinfo($http), isset($variables['post']) ? $variables['post'] : array());
 
       curl_close($http);
 
-      if ($http_status >= 400) {
-         switch ($http_status) {
+      if ($httpStatus >= 400) {
+         switch ($httpStatus) {
             case 400:
-                 throw new ApiSyntaxException($body['message']);
+               throw new ApiSyntaxException($body['message']);
             case 401:
             case 403:
                throw new AuthenticationException("Invalid credentials");
@@ -190,7 +189,7 @@ class Bookboon {
          }
       }
       
-      if ($http_status >= 301 && $http_status <= 303) {
+      if ($httpStatus >= 301 && $httpStatus <= 303) {
           $body['url'] = '';
           foreach (explode("\n", $header) as $h) {
               if (strpos($h, "Location") === 0) {
@@ -247,5 +246,3 @@ class Bookboon {
    }
 
 }
-
-?>
