@@ -32,14 +32,11 @@ class Memcached implements Cache {
       $this->cache = new \Memcached();
       $this->ttl = $ttl;
 
-      if (!$this->cache->addServer($server, $port)) {
-         $this->cache = null;
-      }
+      $this->cache->addServer($server, $port);
    }
    
    function get($key) {
-      $data = $this->cache->get($key);
-      return $data;
+      return $this->cache->get($key);
    }
 
    function save($key, $data) {
