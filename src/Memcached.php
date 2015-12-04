@@ -28,7 +28,13 @@ class Memcached implements Cache
     private $ttl = 600;
     private $cache = null;
 
-    function __construct($server = 'localhost', $port = 11211, $ttl = 600)
+    /**
+     * Memcached constructor.
+     * @param string $server IP or hostname
+     * @param int $port
+     * @param int $ttl Time to live
+     */
+    public function __construct($server = 'localhost', $port = 11211, $ttl = 600)
     {
         $this->cache = new \Memcached();
         $this->ttl = $ttl;
@@ -36,17 +42,36 @@ class Memcached implements Cache
         $this->cache->addServer($server, $port);
     }
 
-    function get($key)
+    /**
+     * Get a cached object
+     *
+     * @param $key
+     * @return mixed False is not found
+     */
+    public function get($key)
     {
         return $this->cache->get($key);
     }
 
-    function save($key, $data)
+    /**
+     * Save an object
+     *
+     * @param $key
+     * @param $data
+     * @return bool
+     */
+    public function save($key, $data)
     {
         return $this->cache->set($key, $data, $this->ttl);
     }
 
-    function delete($key)
+    /**
+     * Delete a cached object
+     *
+     * @param $key
+     * @return bool if successful true
+     */
+    public function delete($key)
     {
         return $this->cache->delete($key);
     }

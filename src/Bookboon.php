@@ -55,6 +55,14 @@ class Bookboon
         CURLOPT_SSL_VERIFYHOST => 2
     );
 
+    /**
+     * Bookboon constructor.
+     *
+     * @param $appid Bookboon API ID
+     * @param $appkey Bookboon API KEY
+     * @param array $headers in format array("headername" => "value")
+     * @throws Exception
+     */
     function __construct($appid, $appkey, $headers = array())
     {
         if (empty($appid) || empty($appkey)) {
@@ -70,21 +78,43 @@ class Bookboon
 
     }
 
+    /**
+     * Set cache instance
+     *
+     * @param Cache $cache
+     */
     public function setCache(Cache $cache)
     {
         $this->cache = $cache;
     }
 
+    /**
+     * Set or override header
+     *
+     * @param $header
+     * @param $value
+     */
     public function setHeader($header, $value)
     {
         $this->headers[$header] = $value;
     }
 
+    /**
+     * Get specific header
+     *
+     * @param $header
+     * @return bool|string false if header is not set or string value of header
+     */
     public function getHeader($header)
     {
-        return $this->headers[$header];
+        return isset($this->headers[$header]) ? $this->headers[$header] : false;
     }
 
+    /**
+     * Get all headers in CURL format
+     *
+     * @return array
+     */
     private function getHeaders()
     {
         $headers = array();
@@ -95,6 +125,12 @@ class Bookboon
         return $headers;
     }
 
+    /**
+     * Hashes url with unique values: app id and headers
+     *
+     * @param $url
+     * @return string the hashed key
+     */
     public function hash($url)
     {
         $h = $this->headers;
@@ -109,6 +145,7 @@ class Bookboon
      * @param array $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
      * @param boolean $cacheQuery manually disable object cache for query
      * @return array results of call
+     * @throws ApiSyntaxException
      */
     public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true)
     {
@@ -150,9 +187,13 @@ class Bookboon
     /**
      * Makes the actual query call to the remote api.
      *
-     * @param string $relative_url The url relative to the address. Must begin with '/'
+     * @param string $url The url relative to the address
      * @param array $variables must contain subarray called either 'post' or 'get' depend on HTTP method
-     * @return array results of call
+     * @return array results of call, json decoded
+     * @throws ApiSyntaxException
+     * @throws AuthenticationException
+     * @throws GeneralApiException
+     * @throws NotFoundException
      */
     private function query($url, $variables = array())
     {
