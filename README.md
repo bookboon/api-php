@@ -6,16 +6,35 @@ The PHP class is a wrapper for the Bookboon.com API. Because this is just a wrap
 
 ##Usage
 
-This requires a bookboon application id and secret (`$API_ID` and `$API_SECRET` below).
+To use the Bookboon AIP you are required to have an application id and secret (`$API_ID` and `$API_SECRET` below), see the [API page](https://github.com/bookboon/api) for details. Install via composer:
 
-	require 'bookboon.php';
+    composer require bookboon/api
+
+To use it without composer, use with any PSR-0 compatible autoloader or require every file manually.  
+
+The simplest way to get a book is to use the getBook method:
 	
 	$bookboon = new Bookboon($API_ID, $API_SECRET, array(/*optional named array to set request headers*/));
-	print_r($bookboon->api('/categories'));
+	$book = $bookboon->getBook("BOOK_GUID");
 
-##Variables
+That will return a Book object with public getters for every property. There are plenty more simple get functions:  
 
-To pass variables to the API send an array with the `api` function:
+	$category = $bookboon->getCategory("CATEGORY_GUID"); // return Category object
+	$reviews = $bookboon->getReviews("BOOK_GUID"); // return array of Review
+	$search = $bookboon->getSearch("query text"); // return array of Book
+	$recommendations = $bookboon->getRecommendations(array("BOOK_ID_1", "BOOK_ID_2"); // return array of Book
+	$questions = $bookboon->getQuestions(); // return array of Question
+
+Finally you can download a book usually the following, you need to send a unique user identifier `handle` for every unique user (for instance a user id, email):  
+
+	$url = $bookboon->getBookDownloadUrl("BOOK_GUID", array("handle" => "user@email"));
+	// Send the $url in a redirect header to the user
+	
+> **Important:** Do **NOT** store this value as it will change constantly.
+
+## Use api raw
+
+You can also use the `api` method to get database from the API. To pass variables to the API send an array with the `api` function:
 	
 	/* The bacon-loving student */
 	$vars = array('post' => array( 'answer[0]' => '6230e12c-68d8-45d5-8f02-1d3997713150',
@@ -29,13 +48,11 @@ To pass variables to the API send an array with the `api` function:
 
 ##Result
 
-The results is an array containing the decoded JSON response or if the call failed `false` value.
+Results from the `api` method is json decoded arrays of data directly from the API, if you use any of the other methods (`getbooks`, `getCategories` etc.) an appropiate object will be returned.
 
 ##Exceptions
 
-The wrapper will throw an exception if API responds with an unhandled HTTP status such as if a variabls are missing (403), the posted data is malformed (400) or an unknown API error (500). You may wish to catch these errors, like so:
-
-	require 'bookboon.php';
+The wrapper will throw a few different exceptions. If API responds with an unhandled HTTP status such as if a variabls are missing (403), the posted data is malformed (400) or an unknown API error (500). You may wish to catch these errors, like so:
 	
 	$bookboon = new Bookboon($API_ID, $API_SECRET);
 	
@@ -45,10 +62,23 @@ The wrapper will throw an exception if API responds with an unhandled HTTP statu
                 'books' => $book_id
             )));
 	} 
-	catch (Exception $e) {
+	catch (NotFoundException $e) {
 	    // handle exception here
 	}
 
+Right now we throw the following exceptions:
+
+`ApiSyntaxException` - Usually missing or malformed parameters  
+`AuthenticationException` - Bad credentials  
+`GeneralApiException` - When some unknown goes wrong, please report this to us  
+`NotFoundException` - API returns not found status (404)  
+ 
+
 ##Cache
 
-The wrapper class provides a cache interface to be used to speed up GET queries. At the moment only memcached is implemented and enabled by default - it is fairly trivial to implement another provider. To change caching provider alter the `$cache_class_name` class variable to the name of the class (and filename) or set to an empty string to disable. 
+The wrapper class provides a cache interface to be used to speed up GET queries. At the moment only memcached is implemented. To set the cache provider use the `setCache` method:  
+
+	$bookboon->setCache(new \Bookboon\Api\Memcached($server, $port, $timeToLive));
+
+To implement your own provider cache software, make sure your interface imlements ` \Bookboon\Api\Cache`. It only has three methods: `save`, `get` and `delete`, so it should be easy enough to do.
+
