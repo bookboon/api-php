@@ -108,4 +108,50 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
         $category = $bookboon->api("/categories/062adfac-844b-4e8c-9242-a1620108325e");
         $this->assertEquals("062adfac-844b-4e8c-9242-a1620108325e", $category["_id"]);
     }
+
+    /**
+     * @expectedException \Bookboon\Api\ApiSyntaxException
+     */
+    public function testBadUrl()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+        $test = $bookboon->api("bah");
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\ApiSyntaxException
+     */
+    public function testBadRequest()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+        $test = $bookboon->api("/search", array("get" => array("q" => "")));
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\NotFoundException
+     */
+    public function testNotFound()
+    {
+        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+        $test = $bookboon->api("/bah");
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\AuthenticationException
+     */
+    public function testBadAuthentication()
+    {
+        $bookboon = new Bookboon("badid", "badkey");
+        $test = $bookboon->api("/categories/062adfac-844b-4e8c-9242-a1620108325e");
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testEmpty()
+    {
+        $bookboon = new Bookboon("badid", "");
+        $test = $bookboon->api("/categories/062adfac-844b-4e8c-9242-a1620108325e");
+    }
+
 }
