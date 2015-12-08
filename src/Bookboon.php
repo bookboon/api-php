@@ -186,7 +186,7 @@ class Bookboon
     /**
      * Get Category
      *
-     * @param $categoryId
+     * @param string $categoryId
      * @return Category|bool
      * @throws ApiSyntaxException
      */
@@ -197,6 +197,39 @@ class Bookboon
         }
 
         return new Category($this->api("/categories/$categoryId"));
+    }
+
+    /**
+     * Returns the entire Category structure
+     *
+     * @param array $blacklistedCategoryIds
+     * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
+     * @return array
+     * @throws ApiSyntaxException
+     */
+    public function getCategoryTree(Array $blacklistedCategoryIds = array(), $depth = 2)
+    {
+        $categories = $this->api("/categories", array('get' => array('depth' => $depth)));
+
+        if (count($blacklistedCategoryIds) !== 0) {
+            $this->recursiveBlacklist($categories, $blacklistedCategoryIds);
+        }
+
+        return Category::getEntitiesFromArray($categories);
+    }
+
+    private function recursiveBlacklist(&$categories, $blacklistedCategoryIds)
+    {
+        foreach ($categories as $key => $category) {
+            if (in_array($category['_id'], $blacklistedCategoryIds)) {
+                unset($categories[$key]);
+                continue;
+            }
+            if (isset($category["categories"])) {
+                $this->recursiveBlacklist($category["categories"], $blacklistedCategoryIds);
+            }
+        }
+
     }
 
     public function getCategoryDownloadUrl($categoryId, Array $variables)
