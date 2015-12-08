@@ -226,7 +226,7 @@ class Bookboon
                 continue;
             }
             if (isset($category["categories"])) {
-                $this->recursiveBlacklist($category["categories"], $blacklistedCategoryIds);
+                $this->recursiveBlacklist($categories[$key]["categories"], $blacklistedCategoryIds);
             }
         }
 
