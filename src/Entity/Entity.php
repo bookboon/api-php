@@ -16,7 +16,7 @@ abstract class Entity implements Serializable
     public function __construct(Array $array)
     {
         if (!$this->isValid($array)) {
-            throw new EntityDataException("Not valid entity");
+            throw new EntityDataException("Not valid " . get_class($this));
         }
 
         $this->data = $array;
