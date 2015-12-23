@@ -148,15 +148,16 @@ class Bookboon
      * Get Book object
      *
      * @param $bookId guid for book
+     * @param $extendedMetadata bool include reviews and similar books
      * @return Book|bool
      * @throws ApiSyntaxException
      */
-    public function getBook($bookId)
+    public function getBook($bookId, $extendedMetadata = false)
     {
         if (self::isValidGUID($bookId) === false) {
             return false;
         }
-        return new Book($this->api("/books/$bookId"));
+        return new Book($this->api("/books/$bookId", array("get" => array("extendedMetadata" => $extendedMetadata ? "true" : "false"))));
     }
 
     public function getBookDownloadUrl($bookId, Array $variables, $format = "pdf")

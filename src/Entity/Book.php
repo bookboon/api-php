@@ -228,6 +228,26 @@ class Book extends Entity
     }
 
     /**
+     * Return array of similar books
+     *
+     * @return array of Book
+     */
+    public function getSimilarBooks()
+    {
+        return Book::getEntitiesFromArray($this->safeget("similar", array()));
+    }
+
+    /**
+     * Return array of book reviews
+     *
+     * @return array of Review
+     */
+    public function getReviews()
+    {
+        return Review::getEntitiesFromArray($this->safeGet("reviews", array()));
+    }
+
+    /**
      * Returns true if Epub format is available
      *
      * @return bool
