@@ -303,7 +303,7 @@ class Bookboon
 
     /**
      * Determine whether cache should be attempted
-     * 
+     *
      * @param $variables
      * @return bool
      */
@@ -379,21 +379,33 @@ class Bookboon
      */
     private function query($url, $type = Bookboon::HTTP_GET, $variables = array())
     {
-
         $http = curl_init();
+
+        if ($type == Bookboon::HTTP_POST) {
+
+            if(isset($variables['json'])) {
+
+                $postableJson = json_encode($variables['json']);
+                curl_setopt($http, CURLOPT_POSTFIELDS, $postableJson);
+
+                $this->setHeader('Content-Type', 'application/json',
+                    'Content-Length: ', sizeof($variables));
+            }
+
+            else {
+                curl_setopt($http, CURLOPT_POST, count($variables));
+                curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables));
+            }
+        }
 
         curl_setopt($http, CURLOPT_URL, "https://" . $url);
         curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
         curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-        if ($type == Bookboon::HTTP_POST) {
-            curl_setopt($http, CURLOPT_POST, count($variables));
-            curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables));
-        }
-
         foreach (self::$CURL_OPTS as $key => $val) {
             curl_setopt($http, $key, $val);
         }
+
         $response = curl_exec($http);
 
         $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
@@ -480,4 +492,19 @@ class Bookboon
         );
     }
 
+    /**
+     * submit a book review helper method
+     *
+     * @param $bookId
+     * @param Review $review
+     * @throws ApiSyntaxException
+     */
+    public function submitReview($bookId, Review $review)
+    {
+        if(self::isValidGUID($bookId)) {
+            $postableJson = array('json' => $review->getData());
+            $variables = array('post' => $postableJson);
+            $this->api("/books/$bookId/review", $variables);
+        }
+    }
 }

@@ -42,6 +42,12 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($firstReview->getComment());
     }
 
+    public function testGetRating()
+    {
+        $firstReview = self::$data[0];
+        $this->assertNotEmpty($firstReview->getRating());
+    }
+
     /**
      * @expectedException \Bookboon\Api\Entity\EntityDataException
      */
