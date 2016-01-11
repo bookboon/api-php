@@ -17,8 +17,9 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $id = getenv('BOOKBOON_API_ID');
-        $key = getenv('BOOKBOON_API_KEY');
+        $id = "855abac0499c28e3";
+        $key = "VqfEh8LpTMsj9nLjc8VhEzHtUwoWkUdr";
+
 
         $bookboon = new Bookboon($id, $key);
         self::$data = $bookboon->getReviews("3bf58559-034f-4676-bb5f-a2c101015a58");
@@ -40,6 +41,12 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
     {
         $firstReview = self::$data[0];
         $this->assertNotEmpty($firstReview->getComment());
+    }
+
+    public function testGetRating()
+    {
+        $firstReview = self::$data[0];
+        $this->assertNotEmpty($firstReview->getRating());
     }
 
     /**
