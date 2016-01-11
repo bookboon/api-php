@@ -7,7 +7,7 @@ class Review extends Entity
 
     protected function isValid(Array $array)
     {
-        return isset($array['comment'], $array['created']);
+        return isset($array['comment']);
     }
 
     /**
@@ -32,5 +32,10 @@ class Review extends Entity
     public function getComment()
     {
         return $this->safeGet("comment");
+    }
+
+    public function getRating()
+    {
+        return $this->safeGet('rating');
     }
 }
