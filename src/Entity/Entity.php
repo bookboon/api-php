@@ -72,4 +72,12 @@ abstract class Entity implements Serializable
         return $entities;
     }
 
+    /**
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
 }
