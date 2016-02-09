@@ -371,11 +371,12 @@ class Bookboon
      * @param string $url The url relative to the address
      * @param string $type  Bookboon::HTTP_GET or  Bookboon::HTTP_POST
      * @param array $variables array of post variables (key => value)
-     * @return array results of call, json decoded
      * @throws ApiSyntaxException
      * @throws AuthenticationException
      * @throws GeneralApiException
      * @throws NotFoundException
+     * @throws TimeoutException
+     * @return array results of call, json decoded
      */
     private function query($url, $type = Bookboon::HTTP_GET, $variables = array())
     {
@@ -407,11 +408,7 @@ class Bookboon
         }
 
         $response = curl_exec($http);
-
-        $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
-        $header = substr($response, 0, $headerSize);
-        $body = json_decode(substr($response, $headerSize), true);
-
+        $headersSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
         $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
         $this->reportDeveloperInfo(curl_getinfo($http), $variables);
@@ -425,8 +422,31 @@ class Bookboon
 
         curl_close($http);
 
-        if ($httpStatus >= 400) {
-            switch ($httpStatus) {
+        return $this->handleCurlResponse(substr($response, $headersSize), substr($response, 0, $headersSize), $httpStatus, $url);
+    }
+
+    /**
+     * @param $body
+     * @param $headers
+     * @param $status
+     * @param $url
+     * @return array
+     * @throws ApiSyntaxException
+     * @throws AuthenticationException
+     * @throws GeneralApiException
+     * @throws NotFoundException
+     */
+    private function handleCurlResponse($body, $headers, $status, $url)
+    {
+        $body = json_decode($body, true);
+
+        if ($status >= 300) {
+            switch ($status) {
+                case 301:
+                case 302:
+                case 303:
+                    $body['url'] = $this->getHeaderFromCurl($headers, "Location");
+                    break;
                 case 400:
                     throw new ApiSyntaxException($body['message']);
                 case 401:
@@ -436,20 +456,31 @@ class Bookboon
                     throw new NotFoundException($url);
                     break;
                 default:
-                    throw new GeneralApiException($body['message']);
-            }
-        }
-
-        if ($httpStatus >= 301 && $httpStatus <= 303) {
-            $body['url'] = '';
-            foreach (explode("\n", $header) as $h) {
-                if (strpos($h, "Location") === 0) {
-                    $body['url'] = trim(str_replace("Location: ", "", $h));
-                }
+                    $errorDetail = isset($body["message"]) ? "Message: " . $body["message"] : "";
+                    $errorDetail .= !empty($this->getHeaderFromCurl($headers, "X-Varnish")) ? "\nX-Varnish:" . $this->getHeaderFromCurl($headers, "X-Varnish") : "";
+                    throw new GeneralApiException($errorDetail);
             }
         }
 
         return $body;
+    }
+
+    /**
+     * Return specific header value from string of headers
+     *
+     * @param string $headers
+     * @param string $name
+     * @return string result
+     */
+    private function getHeaderFromCurl($headers, $name)
+    {
+        foreach (explode("\n", $headers) as $header) {
+            if (strpos($header, $name) === 0) {
+                return trim(str_replace("Location: ", "", $header));
+            }
+        }
+
+        return "";
     }
 
     /**
