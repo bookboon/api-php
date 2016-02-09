@@ -440,7 +440,7 @@ class Bookboon
     {
         $body = json_decode($body, true);
 
-        if ($status >= 300) {
+        if ($status >= 300 || $status < 200) {
             switch ($status) {
                 case 301:
                 case 302:
