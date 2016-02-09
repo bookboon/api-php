@@ -438,17 +438,17 @@ class Bookboon
      */
     private function handleCurlResponse($body, $headers, $status, $url)
     {
-        $body = json_decode($body, true);
+        $returnArray = json_decode($body, true);
 
         if ($status >= 300 || $status < 200) {
             switch ($status) {
                 case 301:
                 case 302:
                 case 303:
-                    $body['url'] = $this->getHeaderFromCurl($headers, "Location");
+                    $returnArray['url'] = $this->getHeaderFromCurl($headers, "Location");
                     break;
                 case 400:
-                    throw new ApiSyntaxException($body['message']);
+                    throw new ApiSyntaxException($returnArray['message']);
                 case 401:
                 case 403:
                     throw new AuthenticationException("Invalid credentials");
@@ -456,13 +456,13 @@ class Bookboon
                     throw new NotFoundException($url);
                     break;
                 default:
-                    $errorDetail = isset($body["message"]) ? "Message: " . $body["message"] : "";
+                    $errorDetail = isset($returnArray["message"]) ? "Message: " . $returnArray["message"] : "";
                     $errorDetail .= !empty($this->getHeaderFromCurl($headers, "X-Varnish")) ? "\nX-Varnish:" . $this->getHeaderFromCurl($headers, "X-Varnish") : "";
                     throw new GeneralApiException($errorDetail);
             }
         }
 
-        return $body;
+        return $returnArray;
     }
 
     /**
