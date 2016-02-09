@@ -416,6 +416,13 @@ class Bookboon
 
         $this->reportDeveloperInfo(curl_getinfo($http), $variables);
 
+        if (curl_errno($http)) {
+            if (curl_errno($http) == 28) {
+                throw new TimeoutException();
+            }
+            throw new GeneralApiException("Curl error number " . curl_errno($http));
+        }
+
         curl_close($http);
 
         if ($httpStatus >= 400) {
