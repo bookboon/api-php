@@ -52,7 +52,7 @@ class Bookboon
     public static $CURL_REQUESTS = array();
 
     public static $CURL_OPTS = array(
-        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_CONNECTTIMEOUT => 15,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
@@ -457,7 +457,8 @@ class Bookboon
                     break;
                 default:
                     $errorDetail = isset($returnArray["message"]) ? "Message: " . $returnArray["message"] : "";
-                    $errorDetail .= !empty($this->getHeaderFromCurl($headers, "X-Varnish")) ? "\nX-Varnish:" . $this->getHeaderFromCurl($headers, "X-Varnish") : "";
+                    $xVarnish = $this->getHeaderFromCurl($headers, "X-Varnish");
+                    $errorDetail .= !empty($xVarnish) ? "\nX-Varnish: " . $xVarnish : "";
                     throw new GeneralApiException($errorDetail);
             }
         }
