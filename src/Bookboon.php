@@ -477,7 +477,7 @@ class Bookboon
     {
         foreach (explode("\n", $headers) as $header) {
             if (strpos($header, $name) === 0) {
-                return trim(str_replace("Location: ", "", $header));
+                return trim(str_replace("$name: ", "", $header));
             }
         }
 
