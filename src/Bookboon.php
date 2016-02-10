@@ -448,6 +448,7 @@ class Bookboon
                     $returnArray['url'] = $this->getHeaderFromCurl($headers, "Location");
                     break;
                 case 400:
+                case 405:
                     throw new ApiSyntaxException($returnArray['message']);
                 case 401:
                 case 403:
