@@ -415,7 +415,7 @@ class Bookboon
 
         if (curl_errno($http)) {
             if (curl_errno($http) == 28) {
-                throw new TimeoutException(substr($response, $headersSize));
+                throw new TimeoutException();
             }
             throw new GeneralApiException("Curl error number " . curl_errno($http));
         }
