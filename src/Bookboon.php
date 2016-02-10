@@ -52,7 +52,7 @@ class Bookboon
     public static $CURL_REQUESTS = array();
 
     public static $CURL_OPTS = array(
-        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
