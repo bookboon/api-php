@@ -195,4 +195,103 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
         $test = $bookboon->api("/categories/062adfac-844b-4e8c-9242-a1620108325e");
     }
 
+    /**
+     * Call protected/private method of a class.
+     *
+     * @param object &$object    Instantiated object that we will run method on.
+     * @param string $methodName Method name to call
+     * @param array  $parameters Array of parameters to pass into method.
+     *
+     * @return mixed Method return.
+     */
+    public function invokeMethod(&$object, $methodName, array $parameters = array())
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
+    }
+
+    public function testNonExistingHeader()
+    {
+        $bookboon = new Bookboon("id", "key");
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0";
+        $result = $this->invokeMethod($bookboon, "getHeaderFromCurl", array($headers, "Location"));
+
+        $this->assertEmpty($result);
+    }
+
+    public function testValidHeader()
+    {
+        $bookboon = new Bookboon("id", "key");
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: http://bookboon.com";
+        $result = $this->invokeMethod($bookboon, "getHeaderFromCurl", array($headers, "Location"));
+
+        $this->assertEquals("http://bookboon.com", $result);
+    }
+    
+    /**
+     * @expectedException \Bookboon\Api\ApiSyntaxException
+     */
+    public function testParseCurlSyntaxError()
+    {
+        $bookboon = new Bookboon("id", "key");
+        $this->invokeMethod($bookboon, "handleCurlResponse", array("", "", 400, "http://bookboon.com/api/categories"));
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\AuthenticationException
+     */
+    public function testParseCurlAuthenticationError()
+    {
+        $bookboon = new Bookboon("id", "key");
+        $this->invokeMethod($bookboon, "handleCurlResponse", array("", "", 403, "http://bookboon.com/api/categories"));
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\NotFoundException
+     */
+    public function testParseCurlNotFoundError()
+    {
+        $bookboon = new Bookboon("id", "key");
+        $this->invokeMethod($bookboon, "handleCurlResponse", array("", "", 404, "http://bookboon.com/api/categories"));
+    }
+
+    public function testParseCurlRedirect()
+    {
+        $bookboon = new Bookboon("id", "key");
+
+        $expectedUrl = "http://yes.we.can";
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: $expectedUrl";
+        $result = $this->invokeMethod($bookboon, "handleCurlResponse", array("", $headers, 302, "http://bookboon.com/api/books/xx/download"));
+        $this->assertEquals(array("url" => $expectedUrl), $result);
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\GeneralApiException
+     */
+    public function testParseCurlServerError()
+    {
+        $bookboon = new Bookboon("id", "key");
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
+        $this->invokeMethod($bookboon, "handleCurlResponse", array("", $headers, 500, "http://bookboon.com/api/categories"));
+    }
+
+    /**
+     * @expectedException \Bookboon\Api\GeneralApiException
+     */
+    public function testParseCurlUnknownError()
+    {
+        $bookboon = new Bookboon("id", "key");
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
+        $this->invokeMethod($bookboon, "handleCurlResponse", array("", $headers, 0, "http://bookboon.com/api/categories"));
+    }
+
+
+
 }
