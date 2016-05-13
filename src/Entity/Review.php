@@ -7,7 +7,7 @@ class Review extends Entity
 
     protected function isValid(Array $array)
     {
-        return isset($array['comment']);
+        return isset($array['comment'], $array['rating']);
     }
 
     /**

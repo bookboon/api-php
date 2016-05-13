@@ -542,9 +542,7 @@ class Bookboon
     public function submitReview($bookId, Review $review)
     {
         if(self::isValidGUID($bookId)) {
-            $postableJson = array('json' => $review->getData());
-            $variables = array('post' => $postableJson);
-            $this->api("/books/$bookId/review", $variables);
+            $this->api("/books/$bookId/review", array('post' => $review->getData()));
         }
     }
 }
