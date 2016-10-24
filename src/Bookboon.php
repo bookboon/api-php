@@ -18,6 +18,7 @@ namespace Bookboon\Api;
  * 
  */
 
+use Bookboon\Api\Entity\Author;
 use Bookboon\Api\Entity\Book;
 use Bookboon\Api\Entity\Category;
 use Bookboon\Api\Entity\Question;
@@ -201,11 +202,44 @@ class Bookboon
     }
 
     /**
+     * Get Author
+     *
+     * @param string $authorId
+     * @return Author|bool
+     * @throws ApiSyntaxException
+     */
+    public function getAuthor($authorId)
+    {
+        if (self::isValidGUID($authorId) === false) {
+            return false;
+        }
+
+        return new Author($this->api("/authors/$authorId"));
+    }
+
+    /**
+     * Get Author by book
+     *
+     * @param string $bookId
+     * @return Author[]|bool
+     * @throws ApiSyntaxException
+     */
+    public function getAuthorByBookId($bookId)
+    {
+        if (self::isValidGUID($bookId) === false) {
+            return false;
+        }
+
+        $authors = $this->api("/books/$bookId/authors");
+        return Author::getEntitiesFromArray($authors);
+    }
+
+    /**
      * Returns the entire Category structure
      *
      * @param array $blacklistedCategoryIds
      * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
-     * @return array
+     * @return Category[]
      * @throws ApiSyntaxException
      */
     public function getCategoryTree(Array $blacklistedCategoryIds = array(), $depth = 2)
@@ -245,7 +279,7 @@ class Bookboon
      * @param $query string to search for
      * @param int $limit results to return per page
      * @param int $offset offset of results
-     * @return array
+     * @return Book[]
      * @throws ApiSyntaxException
      */
     public function getSearch($query, $limit = 10, $offset = 0)
@@ -263,7 +297,7 @@ class Bookboon
      *
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
-     * @return array
+     * @return Book[]
      * @throws ApiSyntaxException
      */
     public function getRecommendations(Array $bookIds = array(), $limit = 5)
@@ -283,7 +317,7 @@ class Bookboon
      * Questions
      *
      * @param array $answerIds array of answer ids, can be empty
-     * @return array
+     * @return Question[]
      * @throws ApiSyntaxException
      */
     public function getQuestions(Array $answerIds = array())
