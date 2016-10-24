@@ -16,7 +16,7 @@ namespace Bookboon\Api;
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- * 
+ *
  */
 
 if (!class_exists('Memcached')) {
@@ -25,15 +25,15 @@ if (!class_exists('Memcached')) {
 
 class Memcached implements Cache
 {
-
     private $ttl = 600;
     private $cache = null;
 
     /**
      * Memcached constructor.
+     *
      * @param string $server IP or hostname
-     * @param int $port
-     * @param int $ttl Time to live
+     * @param int    $port
+     * @param int    $ttl    Time to live
      */
     public function __construct($server = 'localhost', $port = 11211, $ttl = 600)
     {
@@ -44,9 +44,10 @@ class Memcached implements Cache
     }
 
     /**
-     * Get a cached object
+     * Get a cached object.
      *
      * @param $key
+     *
      * @return mixed False is not found
      */
     public function get($key)
@@ -55,10 +56,11 @@ class Memcached implements Cache
     }
 
     /**
-     * Save an object
+     * Save an object.
      *
      * @param $key
      * @param $data
+     *
      * @return bool
      */
     public function save($key, $data)
@@ -67,14 +69,14 @@ class Memcached implements Cache
     }
 
     /**
-     * Delete a cached object
+     * Delete a cached object.
      *
      * @param $key
+     *
      * @return bool if successful true
      */
     public function delete($key)
     {
         return $this->cache->delete($key);
     }
-
 }

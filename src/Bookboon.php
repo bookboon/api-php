@@ -1,4 +1,5 @@
 <?php
+
 namespace Bookboon\Api;
 
 /*
@@ -15,7 +16,7 @@ namespace Bookboon\Api;
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- * 
+ *
  */
 
 use Bookboon\Api\Entity\Author;
@@ -44,10 +45,9 @@ class Bookboon
     const HEADER_LANGUAGE = 'Accept-Language';
     const HEADER_XFF = 'X-Forwarded-For';
 
-
     private $authenticated = array();
     private $headers = array();
-    private $url = "bookboon.com/api";
+    private $url = 'bookboon.com/api';
     private $cache = null;
 
     public static $CURL_REQUESTS = array();
@@ -59,7 +59,7 @@ class Bookboon
         CURLOPT_TIMEOUT => 60,
         CURLOPT_USERAGENT => 'bookboon-php-2.1',
         CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2
+        CURLOPT_SSL_VERIFYHOST => 2,
     );
 
     /**
@@ -68,6 +68,7 @@ class Bookboon
      * @param $appid Bookboon API ID
      * @param $appkey Bookboon API KEY
      * @param array $headers in format array("headername" => "value")
+     *
      * @throws Exception
      */
     public function __construct($appid, $appkey, $headers = array())
@@ -82,11 +83,10 @@ class Bookboon
             array(self::HEADER_XFF => $this->getRemoteAddress()),
             $headers
         );
-
     }
 
     /**
-     * Set cache instance
+     * Set cache instance.
      *
      * @param Cache $cache
      */
@@ -96,7 +96,7 @@ class Bookboon
     }
 
     /**
-     * Set or override header
+     * Set or override header.
      *
      * @param $header
      * @param $value
@@ -107,9 +107,10 @@ class Bookboon
     }
 
     /**
-     * Get specific header
+     * Get specific header.
      *
      * @param $header
+     *
      * @return bool|string false if header is not set or string value of header
      */
     public function getHeader($header)
@@ -118,7 +119,7 @@ class Bookboon
     }
 
     /**
-     * Get all headers in CURL format
+     * Get all headers in CURL format.
      *
      * @return array
      */
@@ -126,31 +127,35 @@ class Bookboon
     {
         $headers = array();
         foreach ($this->headers as $h => $v) {
-            $headers[] = $h . ': ' . $v;
+            $headers[] = $h.': '.$v;
         }
 
         return $headers;
     }
 
     /**
-     * Hashes url with unique values: app id and headers
+     * Hashes url with unique values: app id and headers.
      *
      * @param $url
+     *
      * @return string the hashed key
      */
     public function hash($url)
     {
         $headers = $this->headers;
         unset($headers[self::HEADER_XFF]);
-        return sha1($this->authenticated['appid'] . serialize($headers) . $url);
+
+        return sha1($this->authenticated['appid'].serialize($headers).$url);
     }
 
     /**
-     * Get Book object
+     * Get Book object.
      *
      * @param $bookId guid for book
      * @param $extendedMetadata bool include reviews and similar books
+     *
      * @return Book|bool
+     *
      * @throws ApiSyntaxException
      */
     public function getBook($bookId, $extendedMetadata = false)
@@ -158,21 +163,25 @@ class Bookboon
         if (self::isValidGUID($bookId) === false) {
             return false;
         }
-        return new Book($this->api("/books/$bookId", array("get" => array("extendedMetadata" => $extendedMetadata ? "true" : "false"))));
+
+        return new Book($this->api("/books/$bookId", array('get' => array('extendedMetadata' => $extendedMetadata ? 'true' : 'false'))));
     }
 
-    public function getBookDownloadUrl($bookId, Array $variables, $format = "pdf")
+    public function getBookDownloadUrl($bookId, array $variables, $format = 'pdf')
     {
-        $variables["format"] = $format;
-        $download = $this->api("/books/$bookId/download", array("post" => $variables));
-        return $download["url"];
+        $variables['format'] = $format;
+        $download = $this->api("/books/$bookId/download", array('post' => $variables));
+
+        return $download['url'];
     }
 
     /**
-     * Get Reviews for specified Book
+     * Get Reviews for specified Book.
      *
      * @param $bookId
+     *
      * @return array of Review objects
+     *
      * @throws ApiSyntaxException
      */
     public function getReviews($bookId)
@@ -182,14 +191,17 @@ class Bookboon
         }
 
         $reviews = $this->api("/books/$bookId/review");
+
         return Review::getEntitiesFromArray($reviews);
     }
 
     /**
-     * Get Category
+     * Get Category.
      *
      * @param string $categoryId
+     *
      * @return Category|bool
+     *
      * @throws ApiSyntaxException
      */
     public function getCategory($categoryId)
@@ -202,10 +214,12 @@ class Bookboon
     }
 
     /**
-     * Get Author
+     * Get Author.
      *
      * @param string $authorId
+     *
      * @return Author|bool
+     *
      * @throws ApiSyntaxException
      */
     public function getAuthor($authorId)
@@ -218,10 +232,12 @@ class Bookboon
     }
 
     /**
-     * Get Author by book
+     * Get Author by book.
      *
      * @param string $bookId
+     *
      * @return Author[]|bool
+     *
      * @throws ApiSyntaxException
      */
     public function getAuthorByBookId($bookId)
@@ -231,20 +247,23 @@ class Bookboon
         }
 
         $authors = $this->api("/books/$bookId/authors");
+
         return Author::getEntitiesFromArray($authors);
     }
 
     /**
-     * Returns the entire Category structure
+     * Returns the entire Category structure.
      *
      * @param array $blacklistedCategoryIds
-     * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
+     * @param int   $depth                  level of recursion (default 2 maximum, 0 no recursion)
+     *
      * @return Category[]
+     *
      * @throws ApiSyntaxException
      */
-    public function getCategoryTree(Array $blacklistedCategoryIds = array(), $depth = 2)
+    public function getCategoryTree(array $blacklistedCategoryIds = array(), $depth = 2)
     {
-        $categories = $this->api("/categories", array('get' => array('depth' => $depth)));
+        $categories = $this->api('/categories', array('get' => array('depth' => $depth)));
 
         if (count($blacklistedCategoryIds) !== 0) {
             $this->recursiveBlacklist($categories, $blacklistedCategoryIds);
@@ -260,31 +279,33 @@ class Bookboon
                 unset($categories[$key]);
                 continue;
             }
-            if (isset($category["categories"])) {
-                $this->recursiveBlacklist($categories[$key]["categories"], $blacklistedCategoryIds);
+            if (isset($category['categories'])) {
+                $this->recursiveBlacklist($categories[$key]['categories'], $blacklistedCategoryIds);
             }
         }
-
     }
 
-    public function getCategoryDownloadUrl($categoryId, Array $variables)
+    public function getCategoryDownloadUrl($categoryId, array $variables)
     {
-        $download = $this->api("/categories/$categoryId/download", array("post" => $variables));
-        return $download["url"];
+        $download = $this->api("/categories/$categoryId/download", array('post' => $variables));
+
+        return $download['url'];
     }
 
     /**
-     * Search
+     * Search.
      *
      * @param $query string to search for
-     * @param int $limit results to return per page
+     * @param int $limit  results to return per page
      * @param int $offset offset of results
+     *
      * @return Book[]
+     *
      * @throws ApiSyntaxException
      */
     public function getSearch($query, $limit = 10, $offset = 0)
     {
-        $search = $this->api("/search", array("get" => array("q" => $query, "limit" => $limit, "offset" => $offset)));
+        $search = $this->api('/search', array('get' => array('q' => $query, 'limit' => $limit, 'offset' => $offset)));
         if (count($search) === 0) {
             return array();
         }
@@ -293,85 +314,95 @@ class Bookboon
     }
 
     /**
-     * Recommendations
+     * Recommendations.
      *
      * @param array $bookIds array of book ids to base recommendations on, can be empty
-     * @param int $limit
+     * @param int   $limit
+     *
      * @return Book[]
+     *
      * @throws ApiSyntaxException
      */
-    public function getRecommendations(Array $bookIds = array(), $limit = 5)
+    public function getRecommendations(array $bookIds = array(), $limit = 5)
     {
-        $variables["get"] = array("limit" => $limit);
+        $variables['get'] = array('limit' => $limit);
         if (count($bookIds) > 0) {
-
-            for($i=0; $i<count($bookIds); $i++) {
-                $variables["get"]["book[$i]"] = $bookIds[$i];
+            for ($i = 0; $i < count($bookIds); ++$i) {
+                $variables['get']["book[$i]"] = $bookIds[$i];
             }
         }
-        $recommendations = $this->api("/recommendations", $variables);
+        $recommendations = $this->api('/recommendations', $variables);
+
         return Book::getEntitiesFromArray($recommendations);
     }
 
     /**
-     * Questions
+     * Questions.
      *
      * @param array $answerIds array of answer ids, can be empty
+     *
      * @return Question[]
+     *
      * @throws ApiSyntaxException
      */
-    public function getQuestions(Array $answerIds = array())
+    public function getQuestions(array $answerIds = array())
     {
         $variables = array();
         if (count($answerIds) > 0) {
-            $variables["get"] = array();
+            $variables['get'] = array();
 
-            for($i=0; $i<count($answerIds); $i++) {
-                $variables["get"]["answer[$i]"] = $answerIds[$i];
+            for ($i = 0; $i < count($answerIds); ++$i) {
+                $variables['get']["answer[$i]"] = $answerIds[$i];
             }
         }
 
-        $questions = $this->api("/questions", $variables);
+        $questions = $this->api('/questions', $variables);
+
         return Question::getEntitiesFromArray($questions);
     }
 
     /**
-     * Determine whether cache should be attempted
+     * Determine whether cache should be attempted.
      *
      * @param $variables
+     *
      * @return bool
      */
     protected function isCachable($variables)
     {
         if (isset($variables['get']) || empty($variables)) {
-            if (is_object($this->cache) && count($variables) <= 1)
+            if (is_object($this->cache) && count($variables) <= 1) {
                 return true;
+            }
         }
+
         return false;
     }
 
     /**
-     * Prepares the call to the api and if enabled tries cache provider first for GET calls
+     * Prepares the call to the api and if enabled tries cache provider first for GET calls.
      *
-     * @param string $relativeUrl The url relative to the address. Must begin with '/'
-     * @param array $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
-     * @param boolean $cacheQuery manually disable object cache for query
+     * @param string $relativeUrl     The url relative to the address. Must begin with '/'
+     * @param array  $methodVariables must contain subarray called either 'post' or 'get' depend on HTTP method
+     * @param bool   $cacheQuery      manually disable object cache for query
+     *
      * @return array results of call
+     *
      * @throws ApiSyntaxException
      */
     public function api($relativeUrl, $methodVariables = array(), $cacheQuery = true)
     {
-        $queryUrl = $this->url . $relativeUrl;
-        $type = Bookboon::HTTP_GET;
+        $queryUrl = $this->url.$relativeUrl;
+        $type = self::HTTP_GET;
         $postVariables = array();
 
         if (isset($methodVariables['get'])) {
-            $queryUrl .= "?" . http_build_query($methodVariables['get']);
+            $queryUrl .= '?'.http_build_query($methodVariables['get']);
         }
 
         if (isset($methodVariables['post'])) {
             $postVariables = $methodVariables['post'];
-            $type = Bookboon::HTTP_POST;
+            $type = self::HTTP_POST;
         }
 
         if (substr($relativeUrl, 0, 1) !== '/') {
@@ -387,12 +418,13 @@ class Bookboon
                 $this->cache->save($hash, $result);
             } else {
                 $this->reportDeveloperInfo(array(
-                    "total_time" => 0,
-                    "http_code" => 'memcache',
-                    "size_download" => mb_strlen(json_encode($result)),
-                    "url" => "https://" . $queryUrl
+                    'total_time' => 0,
+                    'http_code' => 'memcache',
+                    'size_download' => mb_strlen(json_encode($result)),
+                    'url' => 'https://'.$queryUrl,
                 ), array());
             }
+
             return $result;
         }
 
@@ -402,39 +434,37 @@ class Bookboon
     /**
      * Makes the actual query call to the remote api.
      *
-     * @param string $url The url relative to the address
-     * @param string $type  Bookboon::HTTP_GET or  Bookboon::HTTP_POST
-     * @param array $variables array of post variables (key => value)
+     * @param string $url       The url relative to the address
+     * @param string $type      Bookboon::HTTP_GET or  Bookboon::HTTP_POST
+     * @param array  $variables array of post variables (key => value)
+     *
      * @throws ApiSyntaxException
      * @throws AuthenticationException
      * @throws GeneralApiException
      * @throws NotFoundException
      * @throws TimeoutException
+     *
      * @return array results of call, json decoded
      */
-    private function query($url, $type = Bookboon::HTTP_GET, $variables = array())
+    private function query($url, $type = self::HTTP_GET, $variables = array())
     {
         $http = curl_init();
 
-        if ($type == Bookboon::HTTP_POST) {
-
-            if(isset($variables['json'])) {
-
+        if ($type == self::HTTP_POST) {
+            if (isset($variables['json'])) {
                 $postableJson = json_encode($variables['json']);
                 curl_setopt($http, CURLOPT_POSTFIELDS, $postableJson);
 
                 $this->setHeader('Content-Type', 'application/json',
                     'Content-Length: ', sizeof($variables));
-            }
-
-            else {
+            } else {
                 curl_setopt($http, CURLOPT_POST, count($variables));
                 curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables));
             }
         }
 
-        curl_setopt($http, CURLOPT_URL, "https://" . $url);
-        curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'] . ":" . $this->authenticated['appkey']);
+        curl_setopt($http, CURLOPT_URL, 'https://'.$url);
+        curl_setopt($http, CURLOPT_USERPWD, $this->authenticated['appid'].':'.$this->authenticated['appkey']);
         curl_setopt($http, CURLOPT_HTTPHEADER, $this->getHeaders());
 
         foreach (self::$CURL_OPTS as $key => $val) {
@@ -451,7 +481,7 @@ class Bookboon
             if (curl_errno($http) == 28) {
                 throw new TimeoutException();
             }
-            throw new GeneralApiException("Curl error number " . curl_errno($http));
+            throw new GeneralApiException('Curl error number '.curl_errno($http));
         }
 
         curl_close($http);
@@ -464,7 +494,9 @@ class Bookboon
      * @param $headers
      * @param $status
      * @param $url
+     *
      * @return array
+     *
      * @throws ApiSyntaxException
      * @throws AuthenticationException
      * @throws GeneralApiException
@@ -479,21 +511,21 @@ class Bookboon
                 case 301:
                 case 302:
                 case 303:
-                    $returnArray['url'] = $this->getHeaderFromCurl($headers, "Location");
+                    $returnArray['url'] = $this->getHeaderFromCurl($headers, 'Location');
                     break;
                 case 400:
                 case 405:
                     throw new ApiSyntaxException($returnArray['message']);
                 case 401:
                 case 403:
-                    throw new AuthenticationException("Invalid credentials");
+                    throw new AuthenticationException('Invalid credentials');
                 case 404:
                     throw new NotFoundException($url);
                     break;
                 default:
-                    $errorDetail = isset($returnArray["message"]) ? "Message: " . $returnArray["message"] : "";
-                    $xVarnish = $this->getHeaderFromCurl($headers, "X-Varnish");
-                    $errorDetail .= !empty($xVarnish) ? "\nX-Varnish: " . $xVarnish : "";
+                    $errorDetail = isset($returnArray['message']) ? 'Message: '.$returnArray['message'] : '';
+                    $xVarnish = $this->getHeaderFromCurl($headers, 'X-Varnish');
+                    $errorDetail .= !empty($xVarnish) ? "\nX-Varnish: ".$xVarnish : '';
                     throw new GeneralApiException($errorDetail);
             }
         }
@@ -502,36 +534,38 @@ class Bookboon
     }
 
     /**
-     * Return specific header value from string of headers
+     * Return specific header value from string of headers.
      *
      * @param string $headers
      * @param string $name
+     *
      * @return string result
      */
     private function getHeaderFromCurl($headers, $name)
     {
         foreach (explode("\n", $headers) as $header) {
             if (strpos($header, $name) === 0) {
-                return trim(str_replace("$name: ", "", $header));
+                return trim(str_replace("$name: ", '', $header));
             }
         }
 
-        return "";
+        return '';
     }
 
     /**
-     * Useful GUID validator to validate input in scripts
+     * Useful GUID validator to validate input in scripts.
      *
      * @param string $guid GUID to validate
-     * @return boolean true if valid, false if not
+     *
+     * @return bool true if valid, false if not
      */
     public static function isValidGUID($guid)
     {
-        return preg_match("/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/", $guid) == true;
+        return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $guid) == true;
     }
 
     /**
-     * Returns the remote address either directly or if set XFF header value
+     * Returns the remote address either directly or if set XFF header value.
      *
      * @return string The ip address
      */
@@ -546,10 +580,11 @@ class Bookboon
         if (function_exists('apache_request_headers')) {
             $headers = apache_request_headers();
             foreach ($headers as $k => $v) {
-                if (strcasecmp($k, "x-forwarded-for"))
+                if (strcasecmp($k, 'x-forwarded-for')) {
                     continue;
+                }
 
-                $hostname = explode(",", $v);
+                $hostname = explode(',', $v);
                 $hostname = trim($hostname[0]);
                 break;
             }
@@ -561,21 +596,22 @@ class Bookboon
     private function reportDeveloperInfo($request, $data)
     {
         self::$CURL_REQUESTS[] = array(
-            "curl" => $request,
-            "data" => $data
+            'curl' => $request,
+            'data' => $data,
         );
     }
 
     /**
-     * submit a book review helper method
+     * submit a book review helper method.
      *
      * @param $bookId
      * @param Review $review
+     *
      * @throws ApiSyntaxException
      */
     public function submitReview($bookId, Review $review)
     {
-        if(self::isValidGUID($bookId)) {
+        if (self::isValidGUID($bookId)) {
             $this->api("/books/$bookId/review", array('post' => $review->getData()));
         }
     }

@@ -4,8 +4,7 @@ namespace Bookboon\Api\Entity;
 
 class Review extends Entity
 {
-
-    protected function isValid(Array $array)
+    protected function isValid(array $array)
     {
         return isset($array['comment'], $array['rating']);
     }
@@ -15,7 +14,7 @@ class Review extends Entity
      */
     public function getAuthor()
     {
-        return $this->safeGet("author");
+        return $this->safeGet('author');
     }
 
     /**
@@ -23,7 +22,7 @@ class Review extends Entity
      */
     public function getCreated()
     {
-        return $this->safeGet("created");
+        return $this->safeGet('created');
     }
 
     /**
@@ -31,7 +30,7 @@ class Review extends Entity
      */
     public function getComment()
     {
-        return $this->safeGet("comment");
+        return $this->safeGet('comment');
     }
 
     public function getRating()

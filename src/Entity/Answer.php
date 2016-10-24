@@ -4,28 +4,28 @@ namespace Bookboon\Api\Entity;
 
 class Answer extends Entity
 {
-    protected function isValid(Array $array)
+    protected function isValid(array $array)
     {
         return isset($array['id'], $array['text']);
     }
 
     /**
-     * Returns id
+     * Returns id.
      *
      * @return string guid
      */
     public function getId()
     {
-        return $this->safeGet("id");
+        return $this->safeGet('id');
     }
 
     /**
-     * Returns answer text
+     * Returns answer text.
      *
      * @return string
      */
     public function getText()
     {
-        return $this->safeGet("text");
+        return $this->safeGet('text');
     }
 }

@@ -4,17 +4,17 @@ namespace Bookboon\Api\Entity;
 
 class Detail extends Entity
 {
-    protected function isValid(Array $array)
+    protected function isValid(array $array)
     {
         return isset($array['title'], $array['body']);
     }
 
     /**
-     * @return string title of details, e.g. description, table of content etc.
+     * @return string title of details, e.g. description, table of content etc
      */
     public function getTitle()
     {
-        return $this->safeGet("title");
+        return $this->safeGet('title');
     }
 
     /**
@@ -22,6 +22,6 @@ class Detail extends Entity
      */
     public function getBody()
     {
-        return $this->safeGet("body");
+        return $this->safeGet('body');
     }
 }

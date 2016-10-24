@@ -2,12 +2,11 @@
 
 namespace Bookboon\Api\Entity;
 
-
 use Bookboon\Api\Bookboon;
 
 class AnswerTest extends \PHPUnit_Framework_TestCase
 {
-    static private $data = null;
+    private static $data = null;
 
     public static function setUpBeforeClass()
     {

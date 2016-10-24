@@ -6,7 +6,7 @@ use Bookboon\Api\Bookboon;
 
 class AuthorTest extends \PHPUnit_Framework_TestCase
 {
-    static private $data = null;
+    private static $data = null;
 
     public static function setUpBeforeClass()
     {
@@ -14,15 +14,15 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getAuthor("0908031c-ce02-9b86-11e6-6dd9aa4699d1");
+        self::$data = $bookboon->getAuthor('0908031c-ce02-9b86-11e6-6dd9aa4699d1');
     }
 
     public function providerTestGetters()
     {
         return array(
-            "getName" => array("getName"),
-            "getProfile" => array("getProfile"),
-            "getBooks" => array("getBooks")
+            'getName' => array('getName'),
+            'getProfile' => array('getProfile'),
+            'getBooks' => array('getBooks'),
         );
     }
 
@@ -45,6 +45,6 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidAuthor()
     {
-        $author = new Author(array("blah"));
+        $author = new Author(array('blah'));
     }
 }

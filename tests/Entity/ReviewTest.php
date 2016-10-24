@@ -1,19 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lasse
- * Date: 04/12/2015
- * Time: 14:53
- */
 
 namespace Bookboon\Api\Entity;
-
 
 use Bookboon\Api\Bookboon;
 
 class ReviewTest extends \PHPUnit_Framework_TestCase
 {
-    static private $data = null;
+    private static $data = null;
 
     public static function setUpBeforeClass()
     {
@@ -21,7 +14,7 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getReviews("3bf58559-034f-4676-bb5f-a2c101015a58");
+        self::$data = $bookboon->getReviews('3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 
     public function testGetAuthor()
@@ -53,6 +46,6 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidReview()
     {
-        $review = new Review(array("blah"));
+        $review = new Review(array('blah'));
     }
 }
