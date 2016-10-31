@@ -151,17 +151,15 @@ class Bookboon
     /**
      * Get Book object.
      *
-     * @param $bookId guid for book
+     * @param $bookId uuid for book
      * @param $extendedMetadata bool include reviews and similar books
-     *
      * @return Book|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadUUIDException
      */
     public function getBook($bookId, $extendedMetadata = false)
     {
-        if (self::isValidGUID($bookId) === false) {
-            return false;
+        if (self::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
         return new Book($this->api("/books/$bookId", array('get' => array('extendedMetadata' => $extendedMetadata ? 'true' : 'false'))));
@@ -179,15 +177,14 @@ class Bookboon
      * Get Reviews for specified Book.
      *
      * @param $bookId
-     *
      * @return array of Review objects
      *
-     * @throws ApiSyntaxException
+     * @throws BadUUIDException
      */
     public function getReviews($bookId)
     {
-        if (self::isValidGUID($bookId) === false) {
-            return false;
+        if (self::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
         $reviews = $this->api("/books/$bookId/review");
@@ -199,15 +196,13 @@ class Bookboon
      * Get Category.
      *
      * @param string $categoryId
-     *
      * @return Category|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadUUIDException
      */
     public function getCategory($categoryId)
     {
-        if (self::isValidGUID($categoryId) === false) {
-            return false;
+        if (self::isValidUUID($categoryId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
         return new Category($this->api("/categories/$categoryId"));
@@ -217,15 +212,13 @@ class Bookboon
      * Get Author.
      *
      * @param string $authorId
-     *
      * @return Author|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadUUIDException
      */
     public function getAuthor($authorId)
     {
-        if (self::isValidGUID($authorId) === false) {
-            return false;
+        if (self::isValidUUID($authorId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
         return new Author($this->api("/authors/$authorId"));
@@ -235,15 +228,13 @@ class Bookboon
      * Get Author by book.
      *
      * @param string $bookId
-     *
-     * @return Author[]|bool
-     *
-     * @throws ApiSyntaxException
+     * @return Entity\Author[]|bool
+     * @throws BadUUIDException
      */
     public function getAuthorByBookId($bookId)
     {
-        if (self::isValidGUID($bookId) === false) {
-            return false;
+        if (self::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
         $authors = $this->api("/books/$bookId/authors");
@@ -553,15 +544,16 @@ class Bookboon
     }
 
     /**
-     * Useful GUID validator to validate input in scripts.
+     * Useful UUID validator to validate input in scripts.
      *
-     * @param string $guid GUID to validate
-     *
+     * @param $uuid
      * @return bool true if valid, false if not
+     * @internal param string $uuid UUID to validate
+     *
      */
-    public static function isValidGUID($guid)
+    public static function isValidUUID($uuid)
     {
-        return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $guid) == true;
+        return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $uuid) == true;
     }
 
     /**
@@ -611,7 +603,7 @@ class Bookboon
      */
     public function submitReview($bookId, Review $review)
     {
-        if (self::isValidGUID($bookId)) {
+        if (self::isValidUUID($bookId)) {
             $this->api("/books/$bookId/review", array('post' => $review->getData()));
         }
     }
