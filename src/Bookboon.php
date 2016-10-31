@@ -153,15 +153,13 @@ class Bookboon
      *
      * @param $bookId guid for book
      * @param $extendedMetadata bool include reviews and similar books
-     *
      * @return Book|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadGUIDException
      */
     public function getBook($bookId, $extendedMetadata = false)
     {
         if (self::isValidGUID($bookId) === false) {
-            return false;
+            throw new BadGUIDException("Guid Not Formatted Correctly");
         }
 
         return new Book($this->api("/books/$bookId", array('get' => array('extendedMetadata' => $extendedMetadata ? 'true' : 'false'))));
@@ -179,15 +177,14 @@ class Bookboon
      * Get Reviews for specified Book.
      *
      * @param $bookId
-     *
      * @return array of Review objects
      *
-     * @throws ApiSyntaxException
+     * @throws BadGUIDException
      */
     public function getReviews($bookId)
     {
         if (self::isValidGUID($bookId) === false) {
-            return false;
+            throw new BadGUIDException("Guid Not Formatted Correctly");
         }
 
         $reviews = $this->api("/books/$bookId/review");
@@ -199,15 +196,13 @@ class Bookboon
      * Get Category.
      *
      * @param string $categoryId
-     *
      * @return Category|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadGUIDException
      */
     public function getCategory($categoryId)
     {
         if (self::isValidGUID($categoryId) === false) {
-            return false;
+            throw new BadGUIDException("Guid Not Formatted Correctly");
         }
 
         return new Category($this->api("/categories/$categoryId"));
@@ -217,15 +212,13 @@ class Bookboon
      * Get Author.
      *
      * @param string $authorId
-     *
      * @return Author|bool
-     *
-     * @throws ApiSyntaxException
+     * @throws BadGUIDException
      */
     public function getAuthor($authorId)
     {
         if (self::isValidGUID($authorId) === false) {
-            return false;
+            throw new BadGUIDException("Guid Not Formatted Correctly");
         }
 
         return new Author($this->api("/authors/$authorId"));
@@ -235,15 +228,13 @@ class Bookboon
      * Get Author by book.
      *
      * @param string $bookId
-     *
-     * @return Author[]|bool
-     *
-     * @throws ApiSyntaxException
+     * @return Entity\Author[]|bool
+     * @throws BadGUIDException
      */
     public function getAuthorByBookId($bookId)
     {
         if (self::isValidGUID($bookId) === false) {
-            return false;
+            throw new BadGUIDException("Guid Not Formatted Correctly");
         }
 
         $authors = $this->api("/books/$bookId/authors");
