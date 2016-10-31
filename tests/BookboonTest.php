@@ -38,19 +38,19 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
     }
 
     /*
-     * GUID
+     * UUID
      */
 
-    public function testInvalidGuid()
+    public function testInvalidUuid()
     {
-        $guid = '4343f-4343-4343';
-        $this->assertFalse(Bookboon::isValidGUID($guid));
+        $uuid = '4343f-4343-4343';
+        $this->assertFalse(Bookboon::isValidUUID($uuid));
     }
 
-    public function testValidGuid()
+    public function testValidUuid()
     {
-        $guid = 'db98ac1b-435f-456b-9bdd-a2ba00d41a58';
-        $this->assertTrue(Bookboon::isValidGUID($guid));
+        $uuid = 'db98ac1b-435f-456b-9bdd-a2ba00d41a58';
+        $this->assertTrue(Bookboon::isValidUUID($uuid));
     }
 
     /*

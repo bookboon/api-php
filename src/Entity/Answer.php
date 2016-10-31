@@ -12,7 +12,7 @@ class Answer extends Entity
     /**
      * Returns id.
      *
-     * @return string guid
+     * @return string uuid
      */
     public function getId()
     {
