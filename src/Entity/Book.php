@@ -59,7 +59,7 @@ class Book extends Entity
      */
     public static function search(Bookboon $bookboon, $query, $limit = 10, $offset = 0)
     {
-        $search = $bookboon->rawRequest('/search', array('get' => array('q' => $query, 'limit' => $limit, 'offset' => $offset)));
+        $search = $bookboon->rawRequest('/search', array('q' => $query, 'limit' => $limit, 'offset' => $offset));
         if (count($search) === 0) {
             return array();
         }
@@ -77,7 +77,7 @@ class Book extends Entity
      */
     public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5)
     {
-        $variables['get'] = array('limit' => $limit);
+        $variables = array('limit' => $limit);
         if (count($bookIds) > 0) {
             for ($i = 0; $i < count($bookIds); ++$i) {
                 $variables['get']["book[$i]"] = $bookIds[$i];

@@ -15,10 +15,8 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $id = getenv('BOOKBOON_API_ID');
-        $key = getenv('BOOKBOON_API_KEY');
-
-        $bookboon = new Bookboon($id, $key);
+        include_once(__DIR__ . '/../Authentication.php');
+        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
         self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 

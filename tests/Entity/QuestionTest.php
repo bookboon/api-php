@@ -17,10 +17,8 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$API_ID = getenv('BOOKBOON_API_ID');
-        self::$API_KEY = getenv('BOOKBOON_API_KEY');
-
-        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+        include_once(__DIR__ . '/../Authentication.php');
+        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
         self::$data = Question::get($bookboon);
     }
 
@@ -42,7 +40,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $answers = $firstQuestion->getAnswers();
         $firstAnswer = $answers[0];
 
-        $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
+        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
 
         $questions = Question::get($bookboon, array($firstAnswer->getId()));
         $this->assertGreaterThan(1, count($questions));

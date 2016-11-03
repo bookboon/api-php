@@ -16,10 +16,8 @@ class AnswerTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $id = getenv('BOOKBOON_API_ID');
-        $key = getenv('BOOKBOON_API_KEY');
-
-        $bookboon = new Bookboon($id, $key);
+        include_once(__DIR__ . '/../Authentication.php');
+        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
         self::$data = Question::get($bookboon);
     }
 

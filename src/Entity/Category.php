@@ -36,7 +36,7 @@ class Category extends Entity
      * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
      * @return Category[]
      */
-    public static function getCategoryTree(Bookboon $bookboon, array $blacklistedCategoryIds = array(), $depth = 2)
+    public static function getTree(Bookboon $bookboon, array $blacklistedCategoryIds = array(), $depth = 2)
     {
         $categories = $bookboon->rawRequest('/categories', array('depth' => $depth));
 
