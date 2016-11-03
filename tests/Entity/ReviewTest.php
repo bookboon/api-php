@@ -4,6 +4,11 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class ReviewTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class ReviewTest extends \PHPUnit_Framework_TestCase
 {
     private static $data = null;
@@ -14,7 +19,7 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getReviews('3bf58559-034f-4676-bb5f-a2c101015a58');
+        self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 
     public function testGetAuthor()

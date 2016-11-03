@@ -4,8 +4,14 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class BookTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class BookTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Book */
     private static $data = null;
 
     public static function setUpBeforeClass()
@@ -14,7 +20,8 @@ class BookTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getBook('3bf58559-034f-4676-bb5f-a2c101015a58');
+
+        self::$data = Book::get($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 
     public function testGetId()

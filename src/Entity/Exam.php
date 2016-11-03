@@ -2,8 +2,28 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\BadUUIDException;
+
 class Exam extends Entity
 {
+    /**
+     * Get Exam.
+     *
+     * @param Bookboon $bookboon
+     * @param string $examId
+     * @return Exam
+     * @throws BadUUIDException
+     */
+    public static function get(Bookboon $bookboon, $examId)
+    {
+        if (Entity::isValidUUID($examId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
+        }
+
+        return new static($bookboon->rawRequest("/exams/$examId"));
+    }
+
     protected function isValid(array $array)
     {
         return isset($array['_id'], $array['title'], $array['book'], $array['passScore'], $array['timeSeconds']);

@@ -4,6 +4,11 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class CategoryTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class CategoryTest extends \PHPUnit_Framework_TestCase
 {
     private static $data = null;
@@ -14,7 +19,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getCategory('062adfac-844b-4e8c-9242-a1620108325e');
+        self::$data = Category::get($bookboon, '062adfac-844b-4e8c-9242-a1620108325e');
     }
 
     public function testGetId()

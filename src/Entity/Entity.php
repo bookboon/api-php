@@ -2,6 +2,7 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Bookboon;
 use Serializable;
 
 abstract class Entity implements Serializable
@@ -87,5 +88,18 @@ abstract class Entity implements Serializable
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * Useful UUID validator to validate input in scripts.
+     *
+     * @param $uuid
+     * @return bool true if valid, false if not
+     * @internal param string $uuid UUID to validate
+     *
+     */
+    public static function isValidUUID($uuid)
+    {
+        return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $uuid) == true;
     }
 }

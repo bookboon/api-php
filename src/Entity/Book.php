@@ -2,8 +2,92 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\Client;
+use Bookboon\Api\Exception\BadUUIDException;
+
 class Book extends Entity
 {
+    const FORMAT_PDF = 'pdf';
+    const FORMAT_EPUB = 'epub';
+    const FORMAT_MOBI = 'mobi';
+    const FORMAT_VIDEO = 'video';
+
+    /**
+     * Get Book object.
+     *
+     * @param Bookboon $bookboon
+     * @param string $bookId uuid for book
+     * @param bool $extendedMetadata bool include reviews and similar books
+     * @return Book|bool
+     * @throws BadUUIDException
+     */
+    public static function get(Bookboon $bookboon, $bookId, $extendedMetadata = false)
+    {
+        if (Entity::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
+        }
+
+        return new static($bookboon->rawRequest("/books/$bookId", array('extendedMetadata' => $extendedMetadata ? 'true' : 'false')));
+    }
+
+    /**
+     * Get the download url.
+     *
+     * @param Bookboon $bookboon
+     * @param string $bookId
+     * @param array $variables
+     * @param string $format
+     * @return string
+     */
+    public static function getDownloadUrl(Bookboon $bookboon, $bookId, array $variables, $format = self::FORMAT_PDF)
+    {
+        $variables['format'] = $format;
+        $download = $bookboon->rawRequest("/books/$bookId/download", $variables, Client::HTTP_POST);
+
+        return $download['url'];
+    }
+
+    /**
+     * Search.
+     *
+     * @param Bookboon $bookboon
+     * @param $query string to search for
+     * @param int $limit results to return per page
+     * @param int $offset offset of results
+     * @return Book[]
+     */
+    public static function search(Bookboon $bookboon, $query, $limit = 10, $offset = 0)
+    {
+        $search = $bookboon->rawRequest('/search', array('get' => array('q' => $query, 'limit' => $limit, 'offset' => $offset)));
+        if (count($search) === 0) {
+            return array();
+        }
+
+        return Book::getEntitiesFromArray($search);
+    }
+
+    /**
+     * Recommendations.
+     *
+     * @param Bookboon $bookboon
+     * @param array $bookIds array of book ids to base recommendations on, can be empty
+     * @param int $limit
+     * @return Book[]
+     */
+    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5)
+    {
+        $variables['get'] = array('limit' => $limit);
+        if (count($bookIds) > 0) {
+            for ($i = 0; $i < count($bookIds); ++$i) {
+                $variables['get']["book[$i]"] = $bookIds[$i];
+            }
+        }
+        $recommendations = $bookboon->rawRequest('/recommendations', $variables);
+
+        return Book::getEntitiesFromArray($recommendations);
+    }
+
     protected function isValid(array $array)
     {
         return isset($array['_id'], $array['title'], $array['authors'], $array['thumbnail']);

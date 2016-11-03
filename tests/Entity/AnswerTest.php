@@ -4,8 +4,14 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class AnswerTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class AnswerTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Question[] */
     private static $data = null;
 
     public static function setUpBeforeClass()
@@ -14,7 +20,7 @@ class AnswerTest extends \PHPUnit_Framework_TestCase
         $key = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getQuestions();
+        self::$data = Question::get($bookboon);
     }
 
     public function testGetText()

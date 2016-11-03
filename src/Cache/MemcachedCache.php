@@ -1,6 +1,6 @@
 <?php
 
-namespace Bookboon\Api;
+namespace Bookboon\Api\Cache;
 
 /*
  *  Copyright 2012 Bookboon.com Ltd.
@@ -19,11 +19,12 @@ namespace Bookboon\Api;
  *
  */
 
+
 if (!class_exists('Memcached')) {
     throw new \Exception('Bookboon_Memcached requires the memcached PHP extension');
 }
 
-class Memcached implements Cache
+class MemcachedCache extends CacheCommon
 {
     private $ttl = 600;
     private $cache = null;
@@ -78,5 +79,13 @@ class Memcached implements Cache
     public function delete($key)
     {
         return $this->cache->delete($key);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInitialized()
+    {
+        return $this->cache == null;
     }
 }

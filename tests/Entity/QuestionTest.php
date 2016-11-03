@@ -4,6 +4,11 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class QuestionTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class QuestionTest extends \PHPUnit_Framework_TestCase
 {
     private static $data = null;
@@ -16,7 +21,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         self::$API_KEY = getenv('BOOKBOON_API_KEY');
 
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
-        self::$data = $bookboon->getQuestions();
+        self::$data = Question::get($bookboon);
     }
 
     public function testGetText()
@@ -39,7 +44,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
 
         $bookboon = new Bookboon(self::$API_ID, self::$API_KEY);
 
-        $questions = $bookboon->getQuestions(array($firstAnswer->getId()));
+        $questions = Question::get($bookboon, array($firstAnswer->getId()));
         $this->assertGreaterThan(1, count($questions));
     }
 
