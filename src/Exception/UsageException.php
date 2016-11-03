@@ -2,8 +2,10 @@
 
 namespace Bookboon\Api\Exception;
 
+
 use Exception;
 
-class TimeoutException extends Exception
+class UsageException extends Exception
 {
+
 }

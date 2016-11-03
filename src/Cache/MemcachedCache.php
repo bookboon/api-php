@@ -24,8 +24,10 @@ if (!class_exists('Memcached')) {
     throw new \Exception('Bookboon_Memcached requires the memcached PHP extension');
 }
 
-class MemcachedCache extends CacheCommon
+class MemcachedCache implements Cache
 {
+    use HashTrait;
+
     private $ttl = 600;
     private $cache = null;
 

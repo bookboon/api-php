@@ -4,11 +4,7 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
-use Bookboon\Api\Exception\ApiSyntaxException;
-use Bookboon\Api\Exception\AuthenticationException;
-use Bookboon\Api\Exception\GeneralApiException;
-use Bookboon\Api\Exception\NotFoundException;
-use Bookboon\Api\Exception\TimeoutException;
+use Bookboon\Api\Exception\UsageException;
 
 interface Client
 {
@@ -17,7 +13,13 @@ interface Client
 
     const API_URL = 'bookboon.com/api';
 
-
+    /**
+     * Client constructor.
+     * @param $apiId
+     * @param $apiSecret
+     * @param Headers $headers
+     * @param Cache|null $cache
+     */
     public function __construct($apiId, $apiSecret, Headers $headers, $cache = null);
 
     /**
@@ -30,11 +32,17 @@ interface Client
      *
      * @return array results of call
      *
-     * @throws ApiSyntaxException
-     * @throws AuthenticationException
-     * @throws GeneralApiException
-     * @throws NotFoundException
-     * @throws TimeoutException
+     * @throws UsageException
      */
     public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true);
+
+    /**
+     * @return Headers
+     */
+    public function getHeaders();
+
+    /**
+     * @return Cache|null
+     */
+    public function getCache();
 }

@@ -23,6 +23,7 @@ use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\BookboonCurlClient;
+use Bookboon\Api\Exception\UsageException;
 use Exception;
 
 if (!function_exists('curl_init')) {
@@ -44,12 +45,12 @@ class Bookboon
      * @param $appSecret
      * @param array $headers in format array("headername" => "value")
      * @param Cache $cache
-     * @throws Exception
+     * @throws UsageException
      */
     public function __construct($appId, $appSecret, $headers = array(), $cache = null)
     {
         if (empty($appId) || empty($appSecret)) {
-            throw new Exception('Empty appid or appkey');
+            throw new UsageException('Empty appid or appkey');
         }
 
         $this->headers = new Headers();

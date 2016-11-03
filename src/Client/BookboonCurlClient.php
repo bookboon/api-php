@@ -6,11 +6,13 @@ use Bookboon\Api\Exception\ApiSyntaxException;
 use Bookboon\Api\Exception\AuthenticationException;
 use Bookboon\Api\Exception\GeneralApiException;
 use Bookboon\Api\Exception\NotFoundException;
-use Bookboon\Api\Exception\TimeoutException;
+use Bookboon\Api\Exception\ApiTimeoutException;
 
-class BookboonCurlClient extends ClientCommon
+class BookboonCurlClient implements Client
 {
-    private static $CURL_REQUESTS;
+    use ClientTrait, ResponseTrait, RequestTrait;
+
+    protected static $CURL_REQUESTS;
 
     public static $CURL_OPTS = array(
         CURLOPT_CONNECTTIMEOUT => 10,
@@ -33,11 +35,11 @@ class BookboonCurlClient extends ClientCommon
      * @throws AuthenticationException
      * @throws GeneralApiException
      * @throws NotFoundException
-     * @throws TimeoutException
+     * @throws ApiTimeoutException
      *
      * @return array results of call, json decoded
      */
-    private function query($url, $type = self::HTTP_GET, $variables = array())
+    protected function executeQuery($url, $type = self::HTTP_GET, $variables = array())
     {
         $http = curl_init();
 
@@ -70,7 +72,7 @@ class BookboonCurlClient extends ClientCommon
 
         if (curl_errno($http)) {
             if (curl_errno($http) == 28) {
-                throw new TimeoutException();
+                throw new ApiTimeoutException();
             }
             throw new GeneralApiException('Curl error number '.curl_errno($http));
         }
@@ -78,61 +80,6 @@ class BookboonCurlClient extends ClientCommon
         curl_close($http);
 
         return $this->handleResponse(substr($response, $headersSize), substr($response, 0, $headersSize), $httpStatus, $url);
-    }
-
-    /**
-     * Prepares the call to the api and if enabled tries cache provider first for GET calls.
-     *
-     * @param string $relativeUrl     The url relative to the address. Must begin with '/'
-     * @param array  $variables       Array of variables
-     * @param string $httpMethod      Override http method
-     * @param bool   $shouldCache     manually disable object cache for query
-     *
-     * @return array results of call
-     *
-     * @throws ApiSyntaxException
-     * @throws AuthenticationException
-     * @throws GeneralApiException
-     * @throws NotFoundException
-     * @throws TimeoutException
-     */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true)
-    {
-        $queryUrl = static::API_URL . $relativeUrl;
-        $postVariables = array();
-
-        if ($httpMethod == static::HTTP_GET && count($variables) !== 0) {
-            $queryUrl .= '?' . http_build_query($variables);
-        }
-
-        if ($httpMethod == static::HTTP_POST) {
-            $postVariables = $variables;
-        }
-
-        if (substr($relativeUrl, 0, 1) !== '/') {
-            throw new ApiSyntaxException('Location must begin with forward slash');
-        }
-
-        if ($this->cache != null && $this->cache->isCachable($queryUrl, $httpMethod) && $shouldCache) {
-            $hash = $this->cache->hash($queryUrl, $this->apiId, $this->headers->getAll());
-            $result = $this->cache->get($hash);
-
-            if ($result === false) {
-                $result = $this->query($queryUrl, $httpMethod, $postVariables);
-                $this->cache->save($hash, $result);
-            } else {
-                $this->reportDeveloperInfo(array(
-                    'total_time' => 0,
-                    'http_code' => 'memcache',
-                    'size_download' => mb_strlen(json_encode($result)),
-                    'url' => 'https://'.$queryUrl,
-                ), array());
-            }
-
-            return $result;
-        }
-
-        return $this->query($queryUrl, $httpMethod, $postVariables);
     }
 
     /**
@@ -154,7 +101,7 @@ class BookboonCurlClient extends ClientCommon
         return '';
     }
 
-    private function reportDeveloperInfo($request, $data)
+    protected function reportDeveloperInfo($request, $data)
     {
         self::$CURL_REQUESTS[] = array(
             'curl' => $request,

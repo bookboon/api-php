@@ -6,8 +6,10 @@ namespace Bookboon\Api\Cache;
 use Exception;
 use Redis;
 
-class RedisCache extends CacheCommon
+class RedisCache implements Cache
 {
+    use HashTrait;
+
     /**
      * @var Redis
      */

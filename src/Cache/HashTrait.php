@@ -6,7 +6,7 @@ use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
 
 
-abstract class CacheCommon implements Cache
+trait HashTrait
 {
     /**
      * Hashes url with unique values: app id and headers.

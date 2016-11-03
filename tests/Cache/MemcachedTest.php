@@ -1,8 +1,15 @@
 <?php
 
+namespace Bookboon\Api\Client;
+
 use Bookboon\Api\Cache\MemcachedCache;
 
-class MemcachedTest extends PHPUnit_Framework_TestCase
+/**
+ * Class MemcachedTest
+ * @package Bookboon\Api\Client
+ * @group cache
+ */
+class MemcachedTest extends \PHPUnit_Framework_TestCase
 {
     public function testSuccessGet()
     {

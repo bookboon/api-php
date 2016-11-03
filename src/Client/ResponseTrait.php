@@ -3,34 +3,13 @@
 namespace Bookboon\Api\Client;
 
 
-use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiGeneralException;
+use Bookboon\Api\Exception\ApiNotFoundException;
 use Bookboon\Api\Exception\ApiSyntaxException;
-use Bookboon\Api\Exception\AuthenticationException;
-use Bookboon\Api\Exception\GeneralApiException;
-use Bookboon\Api\Exception\NotFoundException;
 
-abstract class ClientCommon implements Client
+trait ResponseTrait
 {
-    protected $apiId;
-    protected $apiSecret;
-    protected $headers;
-    protected $cache;
-
-    /**
-     * ClientCommon constructor.
-     * @param string $apiId
-     * @param string $apiSecret
-     * @param Headers $headers
-     * @param Cache $cache
-     */
-    public function __construct($apiId, $apiSecret, Headers $headers, $cache = null)
-    {
-        $this->apiId = $apiId;
-        $this->apiSecret = $apiSecret;
-        $this->headers = $headers;
-        $this->cache = $cache;
-    }
-
     /**
      * @param $body
      * @param $headers
@@ -40,9 +19,9 @@ abstract class ClientCommon implements Client
      * @return array
      *
      * @throws ApiSyntaxException
-     * @throws AuthenticationException
-     * @throws GeneralApiException
-     * @throws NotFoundException
+     * @throws ApiAuthenticationException
+     * @throws ApiGeneralException
+     * @throws ApiNotFoundException
      */
     protected function handleResponse($body, $headers, $status, $url)
     {
@@ -60,15 +39,15 @@ abstract class ClientCommon implements Client
                     throw new ApiSyntaxException($returnArray['message']);
                 case 401:
                 case 403:
-                    throw new AuthenticationException('Invalid credentials');
+                    throw new ApiAuthenticationException('Invalid credentials');
                 case 404:
-                    throw new NotFoundException($url);
+                    throw new ApiNotFoundException($url);
                     break;
                 default:
                     $errorDetail = isset($returnArray['message']) ? 'Message: '.$returnArray['message'] : '';
                     $xVarnish = $this->getResponseHeader($headers, 'X-Varnish');
                     $errorDetail .= !empty($xVarnish) ? "\nX-Varnish: ".$xVarnish : '';
-                    throw new GeneralApiException($errorDetail);
+                    throw new ApiGeneralException($errorDetail);
             }
         }
 
