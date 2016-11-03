@@ -4,16 +4,11 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
-use Bookboon\Api\Exception\ApiAuthenticationException;
-use Bookboon\Api\Exception\ApiGeneralException;
-use Bookboon\Api\Exception\ApiNotFoundException;
-use Bookboon\Api\Exception\ApiSyntaxException;
-use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 
 trait RequestTrait
 {
-    abstract protected function executeQuery($url, $type = self::HTTP_GET, $variables = array());
+    abstract protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array());
 
     /**
      * @return Cache|null
@@ -37,16 +32,16 @@ trait RequestTrait
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true)
+    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true)
     {
-        $queryUrl = static::API_URL . $relativeUrl;
+        $queryUrl = Client::API_URL . $relativeUrl;
         $postVariables = array();
 
-        if ($httpMethod == static::HTTP_GET && count($variables) !== 0) {
+        if ($httpMethod == Client::HTTP_GET && count($variables) !== 0) {
             $queryUrl .= '?' . http_build_query($variables);
         }
 
-        if ($httpMethod == static::HTTP_POST) {
+        if ($httpMethod == Client::HTTP_POST) {
             $postVariables = $variables;
         }
 
@@ -54,7 +49,7 @@ trait RequestTrait
             throw new UsageException('Location must begin with forward slash');
         }
 
-        if ($this->cache != null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
+        if ($this->getCache() != null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
             $result = $this->getCache()->get($hash);
 

@@ -20,13 +20,24 @@ class RedisCache implements Cache
      */
     protected $ttl;
 
-    public function __construct($server = 'localhost', $port = 6379, $ttl = 600)
+    /**
+     * RedisCache constructor.
+     * @param string $server
+     * @param int $port
+     * @param int $ttl
+     * @param int $timeout in seconds
+     */
+    public function __construct($server = 'localhost', $port = 6379, $ttl = 600, $timeout = 2)
     {
         $this->ttl = $ttl;
         $this->redis = new Redis();
         try {
-            $this->redis->connect($server, $port);
-            $this->redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
+            if ($this->redis->connect($server, $port, $timeout)) {
+                $this->redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
+            } else {
+                $this->redis = null;
+            }
+
         } catch (Exception $e) {
             $this->redis = null;
         }
@@ -44,7 +55,7 @@ class RedisCache implements Cache
 
     public function delete($key)
     {
-        // TODO: Implement delete() method.
+        return $this->redis->delete($key) === 1;
     }
 
     protected function getSerializerValue()
@@ -60,6 +71,6 @@ class RedisCache implements Cache
      */
     public function isInitialized()
     {
-        return $this->redis == null;
+        return $this->redis != null;
     }
 }

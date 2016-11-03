@@ -33,7 +33,7 @@ interface Cache
      *
      * @param string $key
      * @param $data
-     * @return bool
+     * @return bool if successful
      */
     public function save($key, $data);
 
@@ -41,7 +41,7 @@ interface Cache
      * Delete from cache by key
      *
      * @param $key
-     * @return mixed
+     * @return bool if successful
      */
     public function delete($key);
 

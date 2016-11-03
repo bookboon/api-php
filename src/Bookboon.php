@@ -24,14 +24,6 @@ use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\BookboonCurlClient;
 use Bookboon\Api\Exception\UsageException;
-use Exception;
-
-if (!function_exists('curl_init')) {
-    throw new Exception('Bookboon requires the curl PHP extension');
-}
-if (!function_exists('json_decode')) {
-    throw new Exception('Bookboon requires the json PHP extension');
-}
 
 class Bookboon
 {
@@ -50,7 +42,7 @@ class Bookboon
     public function __construct($appId, $appSecret, $headers = array(), $cache = null)
     {
         if (empty($appId) || empty($appSecret)) {
-            throw new UsageException('Empty appid or appkey');
+            throw new UsageException('Empty app id or app secret');
         }
 
         $this->headers = new Headers();

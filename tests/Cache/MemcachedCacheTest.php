@@ -5,11 +5,11 @@ namespace Bookboon\Api\Client;
 use Bookboon\Api\Cache\MemcachedCache;
 
 /**
- * Class MemcachedTest
+ * Class MemcachedCacheTest
  * @package Bookboon\Api\Client
  * @group cache
  */
-class MemcachedTest extends \PHPUnit_Framework_TestCase
+class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
 {
     public function testSuccessGet()
     {
