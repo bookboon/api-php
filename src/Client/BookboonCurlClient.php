@@ -2,10 +2,7 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Exception\ApiSyntaxException;
-use Bookboon\Api\Exception\AuthenticationException;
-use Bookboon\Api\Exception\GeneralApiException;
-use Bookboon\Api\Exception\NotFoundException;
+use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 
 class BookboonCurlClient implements Client
@@ -19,7 +16,7 @@ class BookboonCurlClient implements Client
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
-        CURLOPT_USERAGENT => 'bookboon-php-2.1',
+        CURLOPT_USERAGENT => 'bookboon-php-3',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
     );
@@ -27,38 +24,33 @@ class BookboonCurlClient implements Client
     /**
      * Makes the actual query call to the remote api.
      *
-     * @param string $url       The url relative to the address
-     * @param string $type      Bookboon::HTTP_GET or  Bookboon::HTTP_POST
-     * @param array  $variables array of post variables (key => value)
+     * @param string $url The url relative to the address
+     * @param string $type Bookboon::HTTP_GET or  Bookboon::HTTP_POST
+     * @param array $variables array of post variables (key => value)
+     * @oaram string $contentType
      *
-     * @throws ApiSyntaxException
-     * @throws AuthenticationException
-     * @throws GeneralApiException
-     * @throws NotFoundException
+     * @param string $contentType
+     * @return array
+     * @throws ApiGeneralException
      * @throws ApiTimeoutException
-     *
-     * @return array results of call, json decoded
      */
-    protected function executeQuery($url, $type = self::HTTP_GET, $variables = array())
+    protected function executeQuery($url, $type = self::HTTP_GET, $variables = array(), $contentType = self::CONTENT_TYPE_FORM)
     {
         $http = curl_init();
+        $headers = $this->getHeaders()->getAll();
 
         if ($type == self::HTTP_POST) {
-            if (isset($variables['json'])) {
-                $postableJson = json_encode($variables['json']);
-                curl_setopt($http, CURLOPT_POSTFIELDS, $postableJson);
+            $encodedVariables = $this->encodeByContentType($variables, $contentType);
+            $headers[] = "Content-Type: $contentType";
+            $headers[] = 'Content-Length: ' . sizeof($encodedVariables);
 
-                $this->headers->set('Content-Type', 'application/json');
-                $this->headers->set('Content-Length', sizeof($variables));
-            } else {
-                curl_setopt($http, CURLOPT_POST, count($variables));
-                curl_setopt($http, CURLOPT_POSTFIELDS, http_build_query($variables));
-            }
+            curl_setopt($http, CURLOPT_POST, true);
+            curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
         }
 
         curl_setopt($http, CURLOPT_URL, "https://$url");
         curl_setopt($http, CURLOPT_USERPWD, $this->apiId . ':' . $this->apiSecret);
-        curl_setopt($http, CURLOPT_HTTPHEADER, $this->headers->getAll());
+        curl_setopt($http, CURLOPT_HTTPHEADER, $headers);
 
         foreach (self::$CURL_OPTS as $key => $val) {
             curl_setopt($http, $key, $val);
@@ -74,7 +66,7 @@ class BookboonCurlClient implements Client
             if (curl_errno($http) == 28) {
                 throw new ApiTimeoutException();
             }
-            throw new GeneralApiException('Curl error number '.curl_errno($http));
+            throw new ApiGeneralException('Curl error number ' . curl_errno($http));
         }
 
         curl_close($http);

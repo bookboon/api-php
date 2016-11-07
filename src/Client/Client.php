@@ -11,6 +11,9 @@ interface Client
     const HTTP_GET = 'GET';
     const HTTP_POST = 'POST';
 
+    const CONTENT_TYPE_JSON = 'application/json';
+    const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
+
     const API_URL = 'bookboon.com/api';
 
     /**
@@ -29,12 +32,13 @@ interface Client
      * @param array  $variables       Array of variables
      * @param string $httpMethod      Override http method
      * @param bool   $shouldCache     manually disable object cache for query
+     * @param string $contentType     Request Content type
      *
      * @return array results of call
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true);
+    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true, $contentType = self::CONTENT_TYPE_FORM);
 
     /**
      * @return Headers
@@ -45,4 +49,10 @@ interface Client
      * @return Cache|null
      */
     public function getCache();
+
+    /**
+     * @param Cache $cache
+     * @return void
+     */
+    public function setCache(Cache $cache);
 }

@@ -27,11 +27,30 @@ trait ClientTrait
     }
 
     /**
+     * @param $variables
+     * @param $contentType
+     * @return string
+     */
+    protected function encodeByContentType(array $variables, $contentType)
+    {
+        return strpos($contentType, 'json') !== false ? json_encode($variables) : http_build_query($variables);
+    }
+
+    /**
      * @return Cache|null
      */
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * @param Cache $cache
+     * @return void
+     */
+    public function setCache(Cache $cache)
+    {
+        $this->cache = $cache;
     }
 
     /**

@@ -8,7 +8,14 @@ use Bookboon\Api\Exception\UsageException;
 
 trait RequestTrait
 {
-    abstract protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array());
+    /**
+     * @param $url
+     * @param string $type
+     * @param array $variables
+     * @param string $contentType
+     * @return mixed
+     */
+    abstract protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded');
 
     /**
      * @return Cache|null
@@ -27,12 +34,13 @@ trait RequestTrait
      * @param array  $variables       Array of variables
      * @param string $httpMethod      Override http method
      * @param bool   $shouldCache     manually disable object cache for query
+     * @param string $contentType     Request Content type
      *
      * @return array results of call
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true)
+    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true, $contentType = Client::CONTENT_TYPE_FORM)
     {
         $queryUrl = Client::API_URL . $relativeUrl;
         $postVariables = array();
@@ -68,6 +76,6 @@ trait RequestTrait
             return $result;
         }
 
-        return $this->executeQuery($queryUrl, $httpMethod, $postVariables);
+        return $this->executeQuery($queryUrl, $httpMethod, $postVariables, $contentType);
     }
 }
