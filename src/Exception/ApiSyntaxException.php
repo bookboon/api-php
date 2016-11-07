@@ -2,8 +2,6 @@
 
 namespace Bookboon\Api\Exception;
 
-use Exception;
-
-class ApiSyntaxException extends Exception
+class ApiSyntaxException extends BookboonException
 {
 }

@@ -2,8 +2,8 @@
 
 namespace Bookboon\Api\Entity;
 
-use Exception;
+use Bookboon\Api\Exception\BookboonException;
 
-class EntityDataException extends Exception
+class EntityDataException extends BookboonException
 {
 }

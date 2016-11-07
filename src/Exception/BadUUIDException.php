@@ -2,8 +2,6 @@
 
 namespace Bookboon\Api\Exception;
 
-use Exception;
-
-class BadUUIDException extends Exception
+class BadUUIDException extends BookboonException
 {
 }
