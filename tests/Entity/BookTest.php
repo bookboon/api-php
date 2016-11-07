@@ -92,7 +92,7 @@ class BookTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Bookboon\Api\Entity\EntityDataException
+     * @expectedException \Bookboon\Api\Exception\EntityDataException
      */
     public function testInvalidBook()
     {

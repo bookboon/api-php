@@ -45,7 +45,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Bookboon\Api\Entity\EntityDataException
+     * @expectedException \Bookboon\Api\Exception\EntityDataException
      */
     public function testInvalidCategory()
     {
