@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api\Entity;
 
-use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\EntityDataException;
 use Serializable;
 
 abstract class Entity implements Serializable
