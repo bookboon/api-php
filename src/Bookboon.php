@@ -39,7 +39,7 @@ class Bookboon
      * @param string $clientClass must implement Bookboon\Api\Client\Client
      * @throws UsageException
      */
-    public function __construct($appId, $appSecret, $headers = array(), $cache = null, $clientClass = 'Bookboon\Api\Client\BookboonCurlClient')
+    public function __construct($appId, $appSecret, array $headers = array(), $cache = null, $clientClass = 'Bookboon\Api\Client\BookboonCurlClient')
     {
         if (empty($appId) || empty($appSecret)) {
             throw new UsageException('Empty app id or app secret');
@@ -47,6 +47,10 @@ class Bookboon
 
         if (false === class_exists($clientClass) || false === in_array('Bookboon\Api\Client\Client', class_implements($clientClass))) {
             throw new UsageException('Invalid client class specified');
+        }
+
+        if (null !== $cache && false === in_array('Bookboon\Api\Cache\Cache', class_implements($cache))) {
+            throw new UsageException('Invalid cache class specified');
         }
 
         $this->headers = new Headers();
