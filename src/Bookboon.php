@@ -22,7 +22,6 @@ namespace Bookboon\Api;
 use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
-use Bookboon\Api\Client\BookboonCurlClient;
 use Bookboon\Api\Exception\UsageException;
 
 class Bookboon
@@ -37,12 +36,17 @@ class Bookboon
      * @param $appSecret
      * @param array $headers in format array("headername" => "value")
      * @param Cache $cache
+     * @param string $clientClass must implement Bookboon\Api\Client\Client
      * @throws UsageException
      */
-    public function __construct($appId, $appSecret, $headers = array(), $cache = null)
+    public function __construct($appId, $appSecret, $headers = array(), $cache = null, $clientClass = 'Bookboon\Api\Client\BookboonCurlClient')
     {
         if (empty($appId) || empty($appSecret)) {
             throw new UsageException('Empty app id or app secret');
+        }
+
+        if (false === class_exists($clientClass) || false === in_array('Bookboon\Api\Client\Client', class_implements($clientClass))) {
+            throw new UsageException('Invalid client class specified');
         }
 
         $this->headers = new Headers();
@@ -50,7 +54,7 @@ class Bookboon
             $this->headers->set($key, $value);
         }
 
-        $this->client = new BookboonCurlClient($appId, $appSecret, $this->headers, $cache);
+        $this->client = new $clientClass($appId, $appSecret, $this->headers, $cache);
     }
 
     /**
