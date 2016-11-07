@@ -58,19 +58,11 @@ trait RequestTrait
         }
 
         if ($this->getCache() != null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
-            $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
-            $result = $this->getCache()->get($hash);
+            $result = $this->getFromCache($queryUrl);
 
             if ($result === false) {
                 $result = $this->executeQuery($queryUrl, $httpMethod, $postVariables);
-                $this->getCache()->save($hash, $result);
-            } else {
-                $this->reportDeveloperInfo(array(
-                    'total_time' => 0,
-                    'http_code' => 'memcache',
-                    'size_download' => mb_strlen(json_encode($result)),
-                    'url' => 'https://'.$queryUrl,
-                ), array());
+                $this->saveInCache($queryUrl, $result);
             }
 
             return $result;
@@ -78,4 +70,37 @@ trait RequestTrait
 
         return $this->executeQuery($queryUrl, $httpMethod, $postVariables, $contentType);
     }
+
+    /**
+     * @param $queryUrl
+     * @param $result
+     * @return void
+     */
+    protected function saveInCache($queryUrl, $result)
+    {
+        $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
+        $this->getCache()->save($hash, $result);
+    }
+
+    /**
+     * @param $queryUrl
+     * @return array|bool
+     */
+    protected function getFromCache($queryUrl)
+    {
+        $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
+        $result = $this->getCache()->get($hash);
+
+        if ($result !== false) {
+            $this->reportDeveloperInfo(array(
+                'total_time' => 0,
+                'http_code' => 'cache',
+                'size_download' => mb_strlen(json_encode($result)),
+                'url' => "https://$queryUrl",
+            ), array());
+        }
+
+        return $result;
+    }
+
 }
