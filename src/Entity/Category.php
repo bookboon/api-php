@@ -89,6 +89,14 @@ class Category extends Entity
     }
 
     /**
+     * @return string slug
+     */
+    public function getSlug()
+    {
+        return $this->safeGet('_slug');
+    }
+
+    /**
      * @return string name of entity
      */
     public function getName()

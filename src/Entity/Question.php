@@ -15,14 +15,7 @@ class Question extends Entity
      */
     public static function get(Bookboon $bookboon, array $answerIds = array())
     {
-        $variables = array();
-        if (count($answerIds) > 0) {
-            for ($i = 0; $i < count($answerIds); ++$i) {
-                $variables["answer[$i]"] = $answerIds[$i];
-            }
-        }
-
-        $questions = $bookboon->rawRequest('/questions', $variables);
+        $questions = $bookboon->rawRequest('/questions', array('answer' => $answerIds));
 
         return Question::getEntitiesFromArray($questions);
     }

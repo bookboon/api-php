@@ -17,13 +17,22 @@ class Book extends Entity
      * Get Book object.
      *
      * @param Bookboon $bookboon
-     * @param string $bookId uuid for book
+     * @param string|array $bookId uuid for book
      * @param bool $extendedMetadata bool include reviews and similar books
-     * @return Book|bool
+     * @return Book|Book[]
      * @throws BadUUIDException
      */
     public static function get(Bookboon $bookboon, $bookId, $extendedMetadata = false)
     {
+        if (is_array($bookId)) {
+            $variables = array(
+                'id' => $bookId,
+                'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
+            );
+
+            return static::getEntitiesFromArray($bookboon->rawRequest("/books", $variables));
+        }
+
         if (Entity::isValidUUID($bookId) === false) {
             throw new BadUUIDException("UUID Not Formatted Correctly");
         }
@@ -77,13 +86,7 @@ class Book extends Entity
      */
     public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5)
     {
-        $variables = array('limit' => $limit);
-        if (count($bookIds) > 0) {
-            for ($i = 0; $i < count($bookIds); ++$i) {
-                $variables['get']["book[$i]"] = $bookIds[$i];
-            }
-        }
-        $recommendations = $bookboon->rawRequest('/recommendations', $variables);
+        $recommendations = $bookboon->rawRequest('/recommendations', array('limit' => $limit, 'book' => $bookIds));
 
         return Book::getEntitiesFromArray($recommendations);
     }
@@ -99,6 +102,14 @@ class Book extends Entity
     public function getId()
     {
         return $this->safeGet('_id');
+    }
+
+    /**
+     * @return string slug
+     */
+    public function getSlug()
+    {
+        return $this->safeGet('_slug');
     }
 
     /**
