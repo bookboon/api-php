@@ -1,18 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ross
- * Date: 07/11/16
- * Time: 14:38
- */
 
 namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
-use Bookboon\Api\Exception\IdentityException;
-use Bookboon\Api\Exception\InvalidStateException;
-use Bookboon\Api\Exception\UsageException;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiInvalidStateException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
@@ -38,7 +31,7 @@ class BookboonOauthClient implements Client
      * @param array $variables
      * @param string $contentType
      * @return mixed
-     * @throws IdentityException
+     * @throws ApiAuthenticationException
      */
     protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded')
     {
@@ -64,11 +57,19 @@ class BookboonOauthClient implements Client
         }
 
         catch (IdentityProviderException $e) {
-            throw new IdentityException("Identity not found");
+            throw new ApiAuthenticationException("Identity not found");
         }
     }
 
 
+    /**
+     *
+     *
+     * @param $redirectUri
+     * @param array $scopes
+     * @param null $appUserId
+     * @return string
+     */
     public function getAuthorizationUrl($redirectUri, $scopes = [], $appUserId = null)
     {
         $this->provider = new GenericProvider([
@@ -78,7 +79,7 @@ class BookboonOauthClient implements Client
             'urlAuthorize'            => self::API_URL . self::AUTHORIZE,
             'scopes'                  => $scopes,
             'urlAccessToken'          => self::API_URL . self::ACCESS_TOKEN,
-            'urlResourceOwnerDetails' => 'http://localhost:2000/api/_application'
+            'urlResourceOwnerDetails' => 'https://' . self::API_URL . '/_application'
         ]);
 
         $url = $this->provider->getAuthorizationUrl();
@@ -88,12 +89,18 @@ class BookboonOauthClient implements Client
         return $url;
     }
 
+    /**
+     * @param $code
+     * @param $state
+     * @return AccessToken
+     * @throws ApiInvalidStateException
+     */
     public function generateAccessToken($code, $state)
     {
         if (empty($state) || ($state !== $_SESSION['oauth2state'])) {
             unset($_SESSION['oauth2state']);
 
-            throw new InvalidStateException();
+            throw new ApiInvalidStateException();
         }
 
         $this->accessToken = $this->provider->getAccessToken('authorization_code', [
@@ -104,6 +111,9 @@ class BookboonOauthClient implements Client
     }
 
 
+    /**
+     * @return GenericProvider
+     */
     public function getOauthProvider()
     {
         return $this->provider;

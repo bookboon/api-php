@@ -44,14 +44,30 @@ trait ResponseTrait
                     throw new ApiNotFoundException($url);
                     break;
                 default:
-                    $errorDetail = isset($returnArray['message']) ? 'Message: '.$returnArray['message'] : '';
-                    $xVarnish = $this->getResponseHeader($headers, 'X-Varnish');
-                    $errorDetail .= !empty($xVarnish) ? "\nX-Varnish: ".$xVarnish : '';
-                    throw new ApiGeneralException($errorDetail);
+                    throw new ApiGeneralException($this->generalExceptionMessage($returnArray, $headers));
             }
         }
 
         return $returnArray;
+    }
+
+    private function generalExceptionMessage($responseArray, $headers)
+    {
+        $message = '';
+        if (isset($responseArray['message'], $responseArray['code'])) {
+            $message .= 'Code: ' . $responseArray['code'] . '    Message: ' . $responseArray['message'];
+        }
+
+        $xVarnish = $this->getResponseHeader($headers, 'X-Varnish');
+        if (!empty($xVarnish)) {
+            $message .= "    X-Varnish: $xVarnish";
+        }
+
+        $apiVersion = $this->getResponseHeader($headers, 'X-API-Version');
+        if (!empty($apiVersion)) {
+            $message .= "    X-API-Version: $apiVersion";
+        }
+        return $message;
     }
 
     /**

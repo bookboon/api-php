@@ -1,16 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ross
- * Date: 07/11/16
- * Time: 15:04
- */
 
 namespace Bookboon\Api\Client;
 
-
-use Bookboon\Api\Exception\InvalidClientException;
-
+use Bookboon\Api\Exception\UsageException;
 
 class ClientFactory
 {
@@ -35,17 +27,13 @@ class ClientFactory
     public function createClient($type)
     {
         switch ($type) {
-            case self::BASIC;
+            case self::BASIC:
                 return new BookboonCurlClient($this->appId, $this->appSecret, $this->headers, $this->cache);
-            break;
-            case self::OAUTH2;
+            case self::OAUTH2:
                 return new BookboonOauthClient($this->appId, $this->appSecret, $this->headers, $this->cache);
-            break;
             default:
-                throw new InvalidClientException("Invalid Client");
+                throw new UsageException("Invalid Client: $type");
         }
 
     }
-
-
 }
