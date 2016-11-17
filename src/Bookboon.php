@@ -22,45 +22,41 @@ namespace Bookboon\Api;
 use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
-use Bookboon\Api\Exception\UsageException;
+use Bookboon\Api\Client\OauthClient;
 
 class Bookboon
 {
     private $client;
-    private $headers;
 
     /**
      * Bookboon constructor.
      *
-     * @param $appId
-     * @param $appSecret
-     * @param array $headers in format array("headername" => "value")
-     * @param Cache $cache
-     * @param string $clientClass must implement Bookboon\Api\Client\Client
-     * @throws UsageException
+     * @param Client $client
      */
-    public function __construct($appId, $appSecret, array $headers = array(), $cache = null, $clientClass = 'Bookboon\Api\Client\BookboonCurlClient')
+    public function __construct(Client $client)
     {
-        if (empty($appId) || empty($appSecret)) {
-            throw new UsageException('Empty app id or app secret');
-        }
-
-        if (false === class_exists($clientClass) || false === in_array('Bookboon\Api\Client\Client', class_implements($clientClass))) {
-            throw new UsageException('Invalid client class specified');
-        }
-
-        if (null !== $cache && false === in_array('Bookboon\Api\Cache\Cache', class_implements($cache))) {
-            throw new UsageException('Invalid cache class specified');
-        }
-
-        $this->headers = new Headers();
-        foreach ($headers as $key => $value) {
-            $this->headers->set($key, $value);
-        }
-
-        $this->client = new $clientClass($appId, $appSecret, $this->headers, $cache);
+        $this->client = $client;
     }
 
+    /**
+     * @param $appId
+     * @param $appSecret
+     * @param array $headers
+     * @param array $scopes
+     * @param null $appUserId
+     * @param null $redirectUri
+     * @param Cache|null $cache
+     * @return Bookboon
+     */
+    public static function create($appId, $appSecret, array $headers = array(), array $scopes, $appUserId = null, $redirectUri = null, Cache $cache = null)
+    {
+        $headersObject = new Headers();
+        foreach ($headers as $key => $value) {
+            $headersObject->set($key, $value);
+        }
+
+        return new Bookboon(new OauthClient($appId, $appSecret, $headersObject, $redirectUri, $scopes, $appUserId, $cache));
+    }
     /**
      * @param $url
      * @param array $variables
@@ -68,7 +64,7 @@ class Bookboon
      * @param bool $shouldCache
      * @return array
      */
-    public function rawRequest($url, array $variables = array(),$httpMethod = Client::HTTP_GET, $shouldCache = true)
+    public function rawRequest($url, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true)
     {
         return $this->client->makeRequest($url, $variables, $httpMethod, $shouldCache);
     }
@@ -79,13 +75,5 @@ class Bookboon
     public function getClient()
     {
         return $this->client;
-    }
-
-    /**
-     * @return Headers
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
     }
 }

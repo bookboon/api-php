@@ -48,7 +48,7 @@ trait ClientTrait
      * @param Cache $cache
      * @return void
      */
-    public function setCache(Cache $cache)
+    public function setCache($cache)
     {
         $this->cache = $cache;
     }
@@ -59,5 +59,29 @@ trait ClientTrait
     public function getHeaders()
     {
         return $this->headers;
+    }
+
+    /**
+     * @param Headers $headers
+     */
+    public function setHeaders(Headers $headers)
+    {
+        $this->headers = $headers;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiId()
+    {
+        return $this->apiId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiSecret()
+    {
+        return $this->apiSecret;
     }
 }

@@ -14,16 +14,7 @@ interface Client
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
 
-    const API_URL = 'bookboon.com/api';
-
-    /**
-     * Client constructor.
-     * @param $apiId
-     * @param $apiSecret
-     * @param Headers $headers
-     * @param Cache|null $cache
-     */
-    public function __construct($apiId, $apiSecret, Headers $headers, $cache = null);
+    const API_URL = '10.54.8.30:2000/api';
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
@@ -46,13 +37,88 @@ interface Client
     public function getHeaders();
 
     /**
+     * @param Headers $headers
+     * @return void
+     */
+    public function setHeaders(Headers $headers);
+
+    /**
      * @return Cache|null
      */
     public function getCache();
 
     /**
-     * @param Cache $cache
+     * @param $cache
      * @return void
      */
-    public function setCache(Cache $cache);
+    public function setCache($cache);
+
+    /**
+     * @return string
+     */
+    public function getApiSecret();
+
+    /**
+     * @return string
+     */
+    public function getApiId();
+
+    /**
+     * @param $apiId
+     * @return void
+     */
+    public function setApiId($apiId);
+
+    /**
+     * @param $apiSecret
+     * @return string
+     */
+    public function setApiSecret($apiSecret);
+
+    /**
+     * @param array $scopes
+     * @return void
+     */
+    public function setScopes(array $scopes);
+
+    /**
+     * @return array
+     */
+    public function getScopes();
+
+    /**
+     * @param $redirectUri
+     * @return void
+     */
+    public function setRedirectUri($redirectUri);
+
+    /**
+     * @return string
+     */
+    public function getRedirectUri();
+
+    /**
+     * @param $code
+     * @param $state
+     * @return string
+     */
+    public function requestAccessToken($code, $state);
+
+    /**
+     * @return string
+     */
+    public function getAuthorizationUrl();
+
+    /**
+     * @param $appUserId
+     * @return void
+     */
+    public function setAppUserId($appUserId);
+
+    /**
+     * @return string
+     */
+    public function getAppUserId();
+
+
 }

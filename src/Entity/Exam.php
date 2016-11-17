@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\Client;
 use Bookboon\Api\Exception\BadUUIDException;
 
 class Exam extends Entity
@@ -22,6 +23,16 @@ class Exam extends Entity
         }
 
         return new static($bookboon->rawRequest("/exams/$examId"));
+    }
+
+    public static function start(Bookboon $bookboon, $examId)
+    {
+        return $bookboon->rawRequest("/exams/$examId", [], Client::HTTP_POST);
+    }
+
+    public static function finish(Bookboon $bookboon, $examId, $postVars)
+    {
+        return $bookboon->rawRequest("/exams/$examId/submit", $postVars, Client::HTTP_POST);
     }
 
     protected function isValid(array $array)

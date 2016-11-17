@@ -2,10 +2,12 @@
 
 namespace Bookboon\Api\Client;
 
+use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiTimeoutException;
+use Bookboon\Api\Exception\UsageException;
 
-class BookboonCurlClient implements Client
+class BasicAuthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
@@ -20,6 +22,14 @@ class BookboonCurlClient implements Client
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
     );
+
+    public function __construct($apiId, $apiSecret, Headers $headers, $cache)
+    {
+        $this->apiId = $apiId;
+        $this->apiSecret = $apiSecret;
+        $this->headers = $headers;
+        $this->cache = $cache;
+    }
 
     /**
      * Makes the actual query call to the remote api.
@@ -49,7 +59,7 @@ class BookboonCurlClient implements Client
         }
 
         curl_setopt($http, CURLOPT_URL, "https://$url");
-        curl_setopt($http, CURLOPT_USERPWD, $this->apiId . ':' . $this->apiSecret);
+        curl_setopt($http, CURLOPT_USERPWD, $this->getApiId() . ':' . $this->getApiSecret());
         curl_setopt($http, CURLOPT_HTTPHEADER, $headers);
 
         foreach (self::$CURL_OPTS as $key => $val) {
@@ -99,5 +109,93 @@ class BookboonCurlClient implements Client
             'curl' => $request,
             'data' => $data,
         );
+    }
+
+    public function getAuthorizationUrl()
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @param $code
+     * @param $state
+     * @return mixed
+     * @throws UsageException
+     */
+    public function requestAccessToken($code, $state)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @param $apiId
+     * @return void
+     */
+    public function setApiId($apiId)
+    {
+        $this->setApiId($apiId);
+    }
+
+    /**
+     * @param $apiSecret
+     * @return string
+     */
+    public function setApiSecret($apiSecret)
+    {
+        $this->setApiSecret($apiSecret);
+    }
+
+    /**
+     * @param array $scopes
+     * @throws UsageException
+     */
+    public function setScopes(array $scopes)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @return array
+     * @throws UsageException
+     */
+    public function getScopes()
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @param $redirectUri
+     * @throws UsageException
+     */
+    public function setRedirectUri($redirectUri)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @return string
+     * @throws UsageException
+     */
+    public function getRedirectUri()
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @param $appUserId
+     * @throws UsageException
+     */
+    public function setAppUserId($appUserId)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    /**
+     * @return string
+     * @throws UsageException
+     */
+    public function getAppUserId()
+    {
+        throw new UsageException("Not Supported");
     }
 }
