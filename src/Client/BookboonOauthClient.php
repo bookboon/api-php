@@ -10,9 +10,9 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
-use Bookboon\Api\Exception\IdentityException;
-use Bookboon\Api\Exception\InvalidStateException;
-use Bookboon\Api\Exception\UsageException;
+use Bookboon\Api\Exception\ApiAccessTokenExpired;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiInvalidStateException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
@@ -44,7 +44,6 @@ class BookboonOauthClient implements Client
     /** @var  GenericProvider */
     protected $provider;
 
-
     /**
      * ClientCommon constructor.
      * @param string $apiId
@@ -73,12 +72,13 @@ class BookboonOauthClient implements Client
      * @param array $variables
      * @param string $contentType
      * @return mixed
-     * @throws IdentityException
+     * @throws ApiAccessTokenExpired
+     * @throws ApiAuthenticationException
      */
     protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded')
     {
 
-        $this->accessToken = unserialize($_SESSION['access_token']);
+        $accessToken = $this->getAccessToken();
         $options = [];
         $url = 'http://' . $url;
 
@@ -91,13 +91,12 @@ class BookboonOauthClient implements Client
             $request = $this->getProvider()->getAuthenticatedRequest(
                 $type,
                 $url,
-                $this->accessToken
+                $accessToken
             );
 
-            if ($this->accessToken->hasExpired()) {
-                $this->accessToken = $this->getProvider()->getAccessToken('refresh_token', [
-                    'refresh_token' => $this->accessToken->getRefreshToken()
-                ]);
+            if ($accessToken->hasExpired()) {
+                throw new ApiAccessTokenExpired("Bookboon API Access Token Has Now Expired");
+
             }
 
             /** @var ResponseInterface*/
@@ -107,7 +106,7 @@ class BookboonOauthClient implements Client
         }
 
         catch (IdentityProviderException $e) {
-            throw new IdentityException("Identity not found");
+            throw new ApiAuthenticationException("Identity not found");
         }
     }
 
@@ -121,37 +120,73 @@ class BookboonOauthClient implements Client
     {
         $provider = $this->getProvider();
 
-        $url = $provider->getAuthorizationUrl();
+        $options = [];
 
-        $_SESSION['oauth2state'] = $provider->getState();
+        if (false === is_null($this->appUserId)) {
+            $options['app_user_id'] = $this->appUserId;
+        }
+
+        $url = $provider->getAuthorizationUrl($options);
 
         return $url;
     }
 
     /**
      * @param $code
-     * @param $state
+     * @param $stateParameter
+     * @param $stateSession
      * @return AccessToken
+     * @throws ApiAuthenticationException
+     * @throws ApiInvalidStateException
+     * @internal param $state
      * @internal param $redirectUri
      * @internal param array $scopes
      * @internal param $appId
      */
-    public function requestAccessToken($code, $state)
+    public function requestAccessToken($code, $stateParameter, $stateSession)
     {
-        if (empty($state) || ($state !== $_SESSION['oauth2state'])) {
-            unset($_SESSION['oauth2state']);
-            exit('Invalid state');
+        if (empty($stateParameter) || ($stateSession !== $stateSession)) {
+
+            throw new ApiInvalidStateException("State is invalid");
         }
 
         $provider = $this->getProvider();
 
-        $this->accessToken = $provider->getAccessToken('authorization_code', [
-            'code' => $code,
-        ]);
+        $options = ['code' => $code];
 
-        $_SESSION['access_token'] = serialize($this->accessToken);
+        if (false === is_null($this->appUserId)) {
+            $options['app_user_id'] = $this->appUserId;
+        }
+
+        try {
+            $this->accessToken = $provider->getAccessToken('authorization_code', $options);
+        }
+
+        catch (IdentityProviderException $e) {
+            throw new ApiAuthenticationException("Authorization Failed");
+        }
 
         return $this->accessToken;
+    }
+
+
+    /**
+     * @param AccessToken $accessToken
+     * @return AccessToken
+     */
+    public function refreshAccessToken(AccessToken $accessToken)
+    {
+        $this->accessToken = $this->getProvider()->getAccessToken('refresh_token', [
+            'refresh_token' => $this->accessToken->getRefreshToken()
+        ]);
+
+        return $accessToken;
+    }
+
+
+    public function generateState()
+    {
+        return $this->provider->getState();
     }
 
 
@@ -179,6 +214,22 @@ class BookboonOauthClient implements Client
 
         return $this->provider;
     }
+
+
+    /**
+     * @param AccessToken $accessToken
+     * @return mixed|void
+     * @throws ApiAccessTokenExpired
+     */
+    public function setAccessToken(AccessToken $accessToken)
+    {
+        if ($accessToken->hasExpired()) {
+            throw new ApiAccessTokenExpired("The api access token has expired");
+        }
+
+        $this->accessToken = $accessToken;
+    }
+
 
     /**
      * Return specific header value from string of headers.
@@ -260,4 +311,13 @@ class BookboonOauthClient implements Client
     {
         return $this->appUserId;
     }
+
+    /**
+     * @return AccessToken
+     */
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
+
 }

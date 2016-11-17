@@ -6,6 +6,7 @@ use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
+use League\OAuth2\Client\Token\AccessToken;
 
 class BookboonCurlClient implements Client
 {
@@ -118,11 +119,13 @@ class BookboonCurlClient implements Client
 
     /**
      * @param $code
-     * @param $state
+     * @param $stateParameter
+     * @param $stateSession
      * @return mixed
      * @throws UsageException
+     * @internal param $state
      */
-    public function requestAccessToken($code, $state)
+    public function requestAccessToken($code, $stateParameter, $stateSession)
     {
         throw new UsageException("Not Supported");
     }
@@ -195,6 +198,26 @@ class BookboonCurlClient implements Client
      * @throws UsageException
      */
     public function getAppUserId()
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    public function setAccessToken(AccessToken $accessToken)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    public function getAccessToken()
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    public function refreshAccessToken(AccessToken $accessToken)
+    {
+        throw new UsageException("Not Supported");
+    }
+
+    public function generateState()
     {
         throw new UsageException("Not Supported");
     }

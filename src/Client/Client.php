@@ -5,6 +5,7 @@ namespace Bookboon\Api\Client;
 
 use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\UsageException;
+use League\OAuth2\Client\Token\AccessToken;
 
 interface Client
 {
@@ -30,6 +31,54 @@ interface Client
      * @throws UsageException
      */
     public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true, $contentType = self::CONTENT_TYPE_FORM);
+
+    /**
+     * @param $code
+     * @param $stateParameter
+     * @param $stateSession
+     * @return string
+     * @internal param $state
+     */
+    public function requestAccessToken($code, $stateParameter, $stateSession );
+
+    /**
+     * @return mixed
+     */
+    public function generateState();
+
+    /**
+     * @param AccessToken $accessToken
+     * @return mixed
+     */
+    public function refreshAccessToken(AccessToken $accessToken);
+
+    /**
+     * @return string
+     */
+    public function getAuthorizationUrl();
+
+    /**
+     * @param $appUserId
+     * @return void
+     */
+    public function setAppUserId($appUserId);
+
+    /**
+     * @return string
+     */
+    public function getAppUserId();
+
+    /**
+     * @param AccessToken $accessToken
+     * @return mixed
+     */
+    public function setAccessToken(AccessToken $accessToken);
+
+    /**
+     * @return mixed
+     */
+    public function getAccessToken();
+
 
     /**
      * @return Headers
@@ -96,29 +145,5 @@ interface Client
      * @return string
      */
     public function getRedirectUri();
-
-    /**
-     * @param $code
-     * @param $state
-     * @return string
-     */
-    public function requestAccessToken($code, $state);
-
-    /**
-     * @return string
-     */
-    public function getAuthorizationUrl();
-
-    /**
-     * @param $appUserId
-     * @return void
-     */
-    public function setAppUserId($appUserId);
-
-    /**
-     * @return string
-     */
-    public function getAppUserId();
-
 
 }
