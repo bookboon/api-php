@@ -22,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  * Class BookboonOauthClient
  * @package Bookboon\Api\Client
  */
-class OauthClient implements Client
+class BookboonOauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 

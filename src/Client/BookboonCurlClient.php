@@ -7,7 +7,7 @@ use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 
-class BasicAuthClient implements Client
+class BookboonCurlClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
