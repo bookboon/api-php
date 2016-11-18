@@ -15,7 +15,7 @@ interface Client
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
 
-    const API_URL = '10.54.8.30:2000/api';
+    const API_URL = 'bookboon.com/api';
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
@@ -100,7 +100,7 @@ interface Client
      * @param $cache
      * @return void
      */
-    public function setCache($cache);
+    public function setCache(Cache $cache);
 
     /**
      * @return string

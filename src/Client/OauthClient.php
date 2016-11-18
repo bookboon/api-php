@@ -22,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  * Class BookboonOauthClient
  * @package Bookboon\Api\Client
  */
-class BookboonOauthClient implements Client
+class OauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
@@ -80,11 +80,17 @@ class BookboonOauthClient implements Client
 
         $accessToken = $this->getAccessToken();
         $options = [];
-        $url = 'http://' . $url;
+        $url = 'https://' . $url;
 
         if (count($variables) > 0) {
-
             $options['form_params'] = $variables;
+        }
+
+        $headers = $this->headers->getHeadersArray();
+
+        if (count($headers) > 0 ) {
+            $options['headers']  = $headers;
+
         }
 
         try {
@@ -206,10 +212,10 @@ class BookboonOauthClient implements Client
             'clientId'                => $this->getApiId(),
             'clientSecret'            => $this->getApiSecret(),
             'redirectUri'             => $this->redirect,
-            'urlAuthorize'            => 'http://' . self::API_URL . self::AUTHORIZE,
+            'urlAuthorize'            => 'https://' . self::API_URL . self::AUTHORIZE,
             'scopes'                  => $this->scopes,
-            'urlAccessToken'          => 'http://' . self::API_URL . self::ACCESS_TOKEN,
-            'urlResourceOwnerDetails' => 'http://bookboon.com/api/_application'
+            'urlAccessToken'          => 'https://' . self::API_URL . self::ACCESS_TOKEN,
+            'urlResourceOwnerDetails' => 'https://bookboon.com/api/_application'
         ]);
 
         return $this->provider;

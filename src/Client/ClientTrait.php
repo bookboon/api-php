@@ -48,7 +48,7 @@ trait ClientTrait
      * @param Cache $cache
      * @return void
      */
-    public function setCache($cache)
+    public function setCache(Cache $cache)
     {
         $this->cache = $cache;
     }

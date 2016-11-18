@@ -20,7 +20,6 @@ namespace Bookboon\Api;
  */
 
 use Bookboon\Api\Cache\Cache;
-use Bookboon\Api\Client\BookboonOauthClient;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
@@ -56,7 +55,7 @@ class Bookboon
             $headersObject->set($key, $value);
         }
 
-        return new Bookboon(new BookboonOauthClient($appId, $appSecret, $headersObject, $redirectUri, $scopes, $appUserId, $cache));
+        return new Bookboon(new OauthClient($appId, $appSecret, $headersObject, $redirectUri, $scopes, $appUserId, $cache));
     }
     /**
      * @param $url

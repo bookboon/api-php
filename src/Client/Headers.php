@@ -58,6 +58,14 @@ class Headers
     }
 
     /**
+     * @return array
+     */
+    public function getHeadersArray()
+    {
+        return $this->headers;
+    }
+
+    /**
      * Returns the remote address either directly or if set XFF header value.
      *
      * @return string The ip address

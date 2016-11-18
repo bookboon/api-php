@@ -8,7 +8,7 @@ use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessToken;
 
-class BookboonCurlClient implements Client
+class BasicAuthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
@@ -24,7 +24,7 @@ class BookboonCurlClient implements Client
         CURLOPT_SSL_VERIFYHOST => 2,
     );
 
-    public function __construct($apiId, $apiSecret, Headers $headers, $cache)
+    public function __construct($apiId, $apiSecret, Headers $headers,  Cache $cache)
     {
         $this->apiId = $apiId;
         $this->apiSecret = $apiSecret;
