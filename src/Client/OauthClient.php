@@ -57,13 +57,13 @@ class OauthClient implements Client
      */
     public function __construct($apiId, $apiSecret, Headers $headers, $redirectUri, array $scopes, $appUserId, $cache = null)
     {
-        $this->setApiId($apiId);
-        $this->setApiSecret($apiSecret);
-        $this->setHeaders($headers);
-        $this->setCache($cache);
-        $this->setRedirectUri($redirectUri);
-        $this->setScopes($scopes);
-        $this->setAppUserId($appUserId);
+        $this->apiId = $apiId;
+        $this->apiSecret = $apiSecret;
+        $this->headers = $headers;
+        $this->cache = $cache;
+        $this->redirect = $redirectUri;
+        $this->scopes = $scopes;
+        $this->appUserId = $appUserId;
     }
 
     /**
