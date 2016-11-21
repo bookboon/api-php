@@ -139,17 +139,16 @@ class OauthClient implements Client
 
     /**
      * @param $code
-     * @param $stateParameter
-     * @param $stateSession
      * @return AccessToken
      * @throws ApiAuthenticationException
-     * @throws ApiInvalidStateException
+     * @internal param $stateParameter
+     * @internal param $stateSession
      * @internal param $state
      * @internal param $redirectUri
      * @internal param array $scopes
      * @internal param $appId
      */
-    public function requestAccessToken($code, $stateParameter, $stateSession)
+    public function requestAccessToken($code)
     {
         $provider = $this->getProvider();
 

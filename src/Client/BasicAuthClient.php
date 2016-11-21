@@ -125,7 +125,7 @@ class BasicAuthClient implements Client
      * @throws UsageException
      * @internal param $state
      */
-    public function requestAccessToken($code, $stateParameter, $stateSession)
+    public function requestAccessToken($code)
     {
         throw new UsageException("Not Supported");
     }

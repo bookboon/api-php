@@ -39,7 +39,7 @@ interface Client
      * @return string
      * @internal param $state
      */
-    public function requestAccessToken($code, $stateParameter, $stateSession );
+    public function requestAccessToken($code);
 
     /**
      * @return mixed
