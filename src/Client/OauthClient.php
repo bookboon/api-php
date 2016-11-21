@@ -151,11 +151,6 @@ class OauthClient implements Client
      */
     public function requestAccessToken($code, $stateParameter, $stateSession)
     {
-        if (empty($stateParameter) || ($stateSession !== $stateSession)) {
-
-            throw new ApiInvalidStateException("State is invalid");
-        }
-
         $provider = $this->getProvider();
 
         $options = ['code' => $code];
@@ -234,6 +229,21 @@ class OauthClient implements Client
         }
 
         $this->accessToken = $accessToken;
+    }
+
+    /**
+     * @param $stateParameter
+     * @param $stateSession
+     * @return bool
+     * @throws ApiInvalidStateException
+     */
+    public function isCorrectState($stateParameter, $stateSession)
+    {
+        if (empty($stateParameter) || ($stateParameter !== $stateSession)) {
+            throw new ApiInvalidStateException("State is invalid");
+        }
+
+        return true;
     }
 
 

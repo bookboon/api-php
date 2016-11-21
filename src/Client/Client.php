@@ -146,4 +146,6 @@ interface Client
      */
     public function getRedirectUri();
 
+    public function isCorrectState($stateParameter, $stateSession);
+
 }

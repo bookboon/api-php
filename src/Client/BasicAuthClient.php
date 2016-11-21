@@ -221,4 +221,9 @@ class BasicAuthClient implements Client
     {
         throw new UsageException("Not Supported");
     }
+
+    public function isCorrectState($stateParameter, $stateSession)
+    {
+        throw new UsageException("Not Supported");
+    }
 }
