@@ -4,17 +4,21 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 
+/**
+ * Class AuthorTest
+ * @package Bookboon\Api\Entity
+ * @group entity
+ */
 class AuthorTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Author */
     private static $data = null;
 
     public static function setUpBeforeClass()
     {
-        $id = getenv('BOOKBOON_API_ID');
-        $key = getenv('BOOKBOON_API_KEY');
-
-        $bookboon = new Bookboon($id, $key);
-        self::$data = $bookboon->getAuthor('0908031c-ce02-9b86-11e6-6dd9aa4699d1');
+        include_once(__DIR__ . '/../Authentication.php');
+        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
+        self::$data = Author::get($bookboon, '0908031c-ce02-9b86-11e6-6dd9aa4699d1');
     }
 
     public function providerTestGetters()
@@ -41,7 +45,7 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Bookboon\Api\Entity\EntityDataException
+     * @expectedException \Bookboon\Api\Exception\EntityDataException
      */
     public function testInvalidAuthor()
     {

@@ -2,8 +2,47 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\BadUUIDException;
+
 class Author extends Entity
 {
+    /**
+     * Get Author.
+     *
+     * @param Bookboon $bookboon
+     * @param string $authorId
+     * @return Author
+     * @throws BadUUIDException
+     */
+    public static function get(Bookboon $bookboon, $authorId)
+    {
+        if (Entity::isValidUUID($authorId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
+        }
+
+        return new static($bookboon->rawRequest("/authors/$authorId"));
+    }
+
+    /**
+     * Get Author by book.
+     *
+     * @param Bookboon $bookboon
+     * @param string $bookId
+     * @return Author[]
+     * @throws BadUUIDException
+     */
+    public function getByBookId(Bookboon $bookboon, $bookId)
+    {
+        if (Entity::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
+        }
+
+        $authors = $bookboon->rawRequest("/books/$bookId/authors");
+
+        return static::getEntitiesFromArray($authors);
+    }
+
     protected function isValid(array $array)
     {
         return isset($array['_id'], $array['name'], $array['books']);

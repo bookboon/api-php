@@ -1,6 +1,6 @@
 <?php
 
-namespace Bookboon\Api;
+namespace Bookboon\Api\Cache;
 
 /*
  *  Copyright 2012 Bookboon.com Ltd.
@@ -20,9 +20,48 @@ namespace Bookboon\Api;
  */
 interface Cache
 {
+    /**
+     * Get data from cache
+     *
+     * @param $key
+     * @return string
+     */
     public function get($key);
 
+    /**
+     * Save in cache
+     *
+     * @param string $key
+     * @param $data
+     * @return bool if successful
+     */
     public function save($key, $data);
 
+    /**
+     * Delete from cache by key
+     *
+     * @param $key
+     * @return bool if successful
+     */
     public function delete($key);
+
+    /**
+     * @param string $url
+     * @param string $httpMethod
+     * @return bool
+     */
+    public function isCachable($url, $httpMethod);
+
+    /**
+     * @param string $url
+     * @param string $id
+     * @param array $headers
+     * @return string
+     */
+    public function hash($url, $id, array $headers);
+
+    /**
+     * @return bool
+     */
+    public function isInitialized();
 }
