@@ -333,7 +333,7 @@ class Book extends Entity
      */
     public function getSimilarBooks()
     {
-        return self::getEntitiesFromArray($this->safeget('similar', array()));
+        return self::getEntitiesFromArray($this->safeGet('similar', array()));
     }
 
     /**
