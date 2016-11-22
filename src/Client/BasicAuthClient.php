@@ -4,6 +4,7 @@ namespace Bookboon\Api\Client;
 
 use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\ApiGeneralException;
+use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -112,20 +113,23 @@ class BasicAuthClient implements Client
         );
     }
 
-    public function getAuthorizationUrl()
+    /**
+     * @param string|null $state
+     * @return string
+     * @throws UsageException
+     */
+    public function getAuthorizationUrl($state = null)
     {
         throw new UsageException("Not Supported");
     }
 
     /**
      * @param $code
-     * @param $stateParameter
-     * @param $stateSession
-     * @return mixed
+     * @param null $state
+     * @return string
      * @throws UsageException
-     * @internal param $state
      */
-    public function requestAccessToken($code)
+    public function requestAccessToken($code, $state = null)
     {
         throw new UsageException("Not Supported");
     }
@@ -222,6 +226,13 @@ class BasicAuthClient implements Client
         throw new UsageException("Not Supported");
     }
 
+    /**
+     * @param $stateParameter
+     * @param $stateSession
+     * @return bool
+     * @throws ApiInvalidStateException
+     * @throws UsageException
+     */
     public function isCorrectState($stateParameter, $stateSession)
     {
         throw new UsageException("Not Supported");

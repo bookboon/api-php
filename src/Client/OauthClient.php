@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ross
- * Date: 07/11/16
- * Time: 14:38
- */
 
 namespace Bookboon\Api\Client;
 
@@ -13,6 +7,8 @@ use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\ApiAccessTokenExpired;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
+use Bookboon\Api\Exception\UsageException;
+use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
@@ -53,7 +49,6 @@ class OauthClient implements Client
      * @param array $scopes
      * @param $appUserId
      * @param Cache $cache
-     * @internal param array $scope
      */
     public function __construct($apiId, $apiSecret, Headers $headers, $redirectUri, array $scopes, $appUserId, $cache = null)
     {
@@ -77,7 +72,6 @@ class OauthClient implements Client
      */
     protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded')
     {
-
         $accessToken = $this->getAccessToken();
         $options = [];
         $url = 'https://' . $url;
@@ -104,29 +98,33 @@ class OauthClient implements Client
                 throw new ApiAccessTokenExpired("Bookboon API Access Token Has Now Expired");
 
             }
-
-            /** @var ResponseInterface*/
-            $response = $this->provider->getHttpClient()->send($request, $options);
-
-            return $this->handleResponse($response->getBody()->getContents(), $response->getHeaders(), $response->getStatusCode(), $url);
         }
 
         catch (IdentityProviderException $e) {
             throw new ApiAuthenticationException("Identity not found");
         }
+
+        /** @var ResponseInterface*/
+        try {
+            $response = $this->provider->getHttpClient()->send($request, $options);
+        }
+
+        catch (RequestException $e) {
+            $response = $e->getResponse();
+        }
+
+        return $this->handleResponse($response->getBody()->getContents(), $response->getHeaders(), $response->getStatusCode(), $url);
     }
 
     /**
+     * @param string|null $state
      * @return string
-     * @internal param $redirectUri
-     * @internal param array $scopes
-     * @internal param null $appUserId
      */
-    public function getAuthorizationUrl()
+    public function getAuthorizationUrl($state = null)
     {
         $provider = $this->getProvider();
 
-        $options = [];
+        $options = $state != null ? [ 'state' => $state ]: [];
 
         if (false === is_null($this->appUserId)) {
             $options['app_user_id'] = $this->appUserId;
@@ -139,20 +137,19 @@ class OauthClient implements Client
 
     /**
      * @param $code
+     * @param null $state
      * @return AccessToken
      * @throws ApiAuthenticationException
-     * @internal param $stateParameter
-     * @internal param $stateSession
-     * @internal param $state
-     * @internal param $redirectUri
-     * @internal param array $scopes
-     * @internal param $appId
      */
-    public function requestAccessToken($code)
+    public function requestAccessToken($code, $state = null)
     {
         $provider = $this->getProvider();
 
         $options = ['code' => $code];
+
+        if ($state != null) {
+            $options['state'] = $state;
+        }
 
         if (false === is_null($this->appUserId)) {
             $options['app_user_id'] = $this->appUserId;
@@ -192,9 +189,6 @@ class OauthClient implements Client
 
     /**
      * @return GenericProvider
-     * @internal param $redirectUri
-     * @internal param $scopes
-     * @internal param null $appId
      */
     public function getProvider()
     {
@@ -235,6 +229,7 @@ class OauthClient implements Client
      * @param $stateSession
      * @return bool
      * @throws ApiInvalidStateException
+     * @throws UsageException
      */
     public function isCorrectState($stateParameter, $stateSession)
     {
@@ -256,7 +251,11 @@ class OauthClient implements Client
      */
     protected function getResponseHeader($headers, $name)
     {
-        // TODO: Implement getResponseHeader() method.
+        if (isset($headers[$name])) {
+            return $headers[$name];
+        }
+
+        return '';
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Client;
 
-
 use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Exception\UsageException;
 

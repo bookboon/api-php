@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Client;
 
-
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiNotFoundException;

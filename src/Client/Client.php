@@ -4,6 +4,8 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessToken;
 
@@ -34,15 +36,15 @@ interface Client
 
     /**
      * @param $code
-     * @param $stateParameter
-     * @param $stateSession
-     * @return string
-     * @internal param $state
+     * @param null $state
+     * @return AccessToken
+     * @throws ApiAuthenticationException
+     * @throws UsageException
      */
-    public function requestAccessToken($code);
+    public function requestAccessToken($code, $state = null);
 
     /**
-     * @return mixed
+     * @return string
      */
     public function generateState();
 
@@ -53,9 +55,11 @@ interface Client
     public function refreshAccessToken(AccessToken $accessToken);
 
     /**
+     * @param string|null $state
      * @return string
+     * @throws UsageException
      */
-    public function getAuthorizationUrl();
+    public function getAuthorizationUrl($state = null);
 
     /**
      * @param $appUserId
@@ -70,12 +74,12 @@ interface Client
 
     /**
      * @param AccessToken $accessToken
-     * @return mixed
+     * @return void
      */
     public function setAccessToken(AccessToken $accessToken);
 
     /**
-     * @return mixed
+     * @return AccessToken
      */
     public function getAccessToken();
 
@@ -146,6 +150,13 @@ interface Client
      */
     public function getRedirectUri();
 
+    /**
+     * @param $stateParameter
+     * @param $stateSession
+     * @return bool
+     * @throws ApiInvalidStateException
+     * @throws UsageException
+     */
     public function isCorrectState($stateParameter, $stateSession);
 
 }
