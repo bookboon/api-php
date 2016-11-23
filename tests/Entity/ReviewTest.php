@@ -2,8 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-use Bookboon\Api\Bookboon;
-
 /**
  * Class ReviewTest
  * @package Bookboon\Api\Entity
@@ -16,7 +14,7 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         include_once(__DIR__ . '/../Authentication.php');
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
+        $bookboon = \Authentication::getBookboon();
         self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 

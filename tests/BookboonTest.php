@@ -4,15 +4,26 @@ namespace Bookboon\Api;
 
 include_once(__DIR__ . '/Authentication.php');
 
+/**
+ * Class BookboonTest
+ * @package Bookboon\Api
+ * @group main
+ */
 class BookboonTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Bookboon */
+    private static $bookboon;
+
+    public static function setUpBeforeClass()
+    {
+        self::$bookboon = \Authentication::getBookboon();
+    }
     /**
      * @expectedException \Bookboon\Api\Exception\UsageException
      */
     public function testBadUrl()
     {
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
-        $bookboon->rawRequest('bah');
+        self::$bookboon->rawRequest('bah');
     }
 
     /**
@@ -20,8 +31,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testBadRequest()
     {
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
-        $bookboon->rawRequest('/search', array('get' => array('q' => '')));
+        self::$bookboon->rawRequest('/search', array('get' => array('q' => '')));
     }
 
     /**
@@ -29,8 +39,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotFound()
     {
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
-        $bookboon->rawRequest('/bah');
+        self::$bookboon->rawRequest('/bah');
     }
 
     /**
@@ -38,16 +47,16 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testBadAuthentication()
     {
-        $bookboon = new Bookboon('badid', 'badkey');
+        $bookboon = Bookboon::create("bad", "auth", array('basic'));
         $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \Bookboon\Api\Exception\UsageException
      */
     public function testEmpty()
     {
-        $bookboon = new Bookboon('badid', '');
+        $bookboon = Bookboon::create("", "", array('basic'));
         $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 }

@@ -17,7 +17,7 @@ class AnswerTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         include_once(__DIR__ . '/../Authentication.php');
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
+        $bookboon = \Authentication::getBookboon();
         self::$data = Question::get($bookboon);
     }
 

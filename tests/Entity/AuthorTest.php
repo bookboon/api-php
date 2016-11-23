@@ -17,7 +17,7 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         include_once(__DIR__ . '/../Authentication.php');
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
+        $bookboon = \Authentication::getBookboon();
         self::$data = Author::get($bookboon, '0908031c-ce02-9b86-11e6-6dd9aa4699d1');
     }
 

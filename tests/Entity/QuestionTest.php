@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Entity;
 
-use Bookboon\Api\Bookboon;
 
 /**
  * Class QuestionTest
@@ -12,14 +11,15 @@ use Bookboon\Api\Bookboon;
 class QuestionTest extends \PHPUnit_Framework_TestCase
 {
     private static $data = null;
+    private static $bookboon = null;
     private static $API_ID;
     private static $API_KEY;
 
     public static function setUpBeforeClass()
     {
         include_once(__DIR__ . '/../Authentication.php');
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
-        self::$data = Question::get($bookboon);
+        self::$bookboon = \Authentication::getBookboon();
+        self::$data = Question::get(self::$bookboon);
     }
 
     public function testGetText()
@@ -40,9 +40,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $answers = $firstQuestion->getAnswers();
         $firstAnswer = $answers[0];
 
-        $bookboon = new Bookboon(\Authentication::getApiId(), \Authentication::getApiSecret());
-
-        $questions = Question::get($bookboon, array($firstAnswer->getId()));
+        $questions = Question::get(self::$bookboon, array($firstAnswer->getId()));
         $this->assertGreaterThan(1, count($questions));
     }
 
