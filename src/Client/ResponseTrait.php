@@ -38,7 +38,15 @@ trait ResponseTrait
                     throw new ApiSyntaxException($returnArray['message']);
                 case 401:
                 case 403:
-                    throw new ApiAuthenticationException('Invalid credentials');
+                    $message = 'Invalid credentials';
+                    if (isset($returnArray['message'])) {
+                        $message = $returnArray['message'];
+                    }
+                    if (isset($returnArray['hint'])) {
+                        $message .= ': ' . $returnArray['hint'];
+                    }
+
+                    throw new ApiAuthenticationException($message);
                 case 404:
                     throw new ApiNotFoundException($url);
                     break;
