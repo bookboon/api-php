@@ -52,6 +52,16 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
         return $result;
     }
 
+    private function getLocationHeaderFromBody($body)
+    {
+        $bodyArray = explode("\r\n", $body);
+        foreach ($bodyArray as $line) {
+            if (strcasecmp("location:", substr($line, 0, 9)) === 0) {
+                return substr($line, 10);
+            }
+        }
+        return false;
+    }
     /**
      * @depends testAuthorizationCodeUrlSuccessful
      * @param $url
@@ -62,10 +72,11 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_exec($curl);
-        $url = curl_getinfo($curl, CURLINFO_REDIRECT_URL);
+        curl_setopt($curl, CURLOPT_HEADER, true);
+        $body = curl_exec($curl);
+        $redirectUrl = $this->getLocationHeaderFromBody($body);
 
-        parse_str(parse_url($url)['query'], $redirectData);
+        parse_str(parse_url($redirectUrl)['query'], $redirectData);
         $code = $redirectData['code'];
 
         $this->assertEquals(302, curl_getinfo($curl, CURLINFO_HTTP_CODE));
