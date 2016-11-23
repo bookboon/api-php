@@ -58,7 +58,7 @@ trait ResponseTrait
         return $returnArray;
     }
 
-    private function generalExceptionMessage($responseArray, $headers)
+    protected function generalExceptionMessage($responseArray, $headers)
     {
         $message = '';
         if (isset($responseArray['message'], $responseArray['code'])) {

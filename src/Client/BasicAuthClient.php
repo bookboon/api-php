@@ -27,16 +27,16 @@ class BasicAuthClient implements Client
         CURLOPT_SSL_VERIFYHOST => 2,
     );
 
-    public function __construct($apiId, $apiSecret, Headers $headers,  Cache $cache)
+    public function __construct($apiId, $apiSecret, Headers $headers, Cache $cache = null)
     {
         if (empty($apiId) || empty($apiSecret)) {
             throw new UsageException("Key and secret are required");
         }
 
-        $this->apiId = $apiId;
-        $this->apiSecret = $apiSecret;
-        $this->headers = $headers;
-        $this->cache = $cache;
+        $this->setApiId($apiId);
+        $this->setApiSecret($apiSecret);
+        $this->setCache($cache);
+        $this->setHeaders($headers);
     }
 
     /**
@@ -59,11 +59,13 @@ class BasicAuthClient implements Client
 
         if ($type == self::HTTP_POST) {
             $encodedVariables = $this->encodeByContentType($variables, $contentType);
-            $headers[] = "Content-Type: $contentType";
-            $headers[] = 'Content-Length: ' . sizeof($encodedVariables);
-
-            curl_setopt($http, CURLOPT_POST, true);
-            curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
+            if ($contentType == self::CONTENT_TYPE_JSON) {
+                $headers[] = "Content-Type: $contentType";
+                $headers[] = 'Content-Length: ' . sizeof($encodedVariables);
+            } else {
+                curl_setopt($http, CURLOPT_POST, true);
+                curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
+            }
         }
 
         curl_setopt($http, CURLOPT_URL, Client::API_PROTOCOL . "://$url");
@@ -142,22 +144,15 @@ class BasicAuthClient implements Client
     }
 
     /**
-     * @param $apiId
-     * @return void
-     */
-    public function setApiId($apiId)
-    {
-        $this->setApiId($apiId);
-    }
-
-    /**
-     * @param $apiSecret
+     * @param $variables
+     * @param $contentType
      * @return string
      */
-    public function setApiSecret($apiSecret)
+    protected function encodeByContentType(array $variables, $contentType)
     {
-        $this->setApiSecret($apiSecret);
+        return strpos($contentType, 'json') !== false ? json_encode($variables) : http_build_query($variables);
     }
+
 
     /**
      * @param array $scopes

@@ -4,6 +4,7 @@ namespace Bookboon\Api\Client\Oauth;
 
 
 use Bookboon\Api\Client\Client;
+use League\OAuth2\Client\Grant\AbstractGrant;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericResourceOwner;
@@ -199,5 +200,10 @@ class BookboonProvider extends AbstractProvider
     protected function getAccessTokenMethod()
     {
         return self::METHOD_POST;
+    }
+
+    public function generateRandomState()
+    {
+        return $this->getRandomState();
     }
 }

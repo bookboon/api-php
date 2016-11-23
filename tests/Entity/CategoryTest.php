@@ -16,8 +16,8 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        include_once(__DIR__ . '/../Authentication.php');
-        self::$bookboon = \Authentication::getBookboon();
+        include_once(__DIR__ . '/../Helpers.php');
+        self::$bookboon = \Helpers::getBookboon();
         self::$data = Category::get(self::$bookboon, '062adfac-844b-4e8c-9242-a1620108325e');
     }
 

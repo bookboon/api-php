@@ -13,8 +13,8 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        include_once(__DIR__ . '/../Authentication.php');
-        $bookboon = \Authentication::getBookboon();
+        include_once(__DIR__ . '/../Helpers.php');
+        $bookboon = \Helpers::getBookboon();
         self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 

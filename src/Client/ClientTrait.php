@@ -12,31 +12,6 @@ trait ClientTrait
     protected $cache;
 
     /**
-     * ClientCommon constructor.
-     * @param string $apiId
-     * @param string $apiSecret
-     * @param Headers $headers
-     * @param Cache $cache
-     */
-    public function __construct($apiId, $apiSecret, Headers $headers, $cache = null)
-    {
-        $this->apiId = $apiId;
-        $this->apiSecret = $apiSecret;
-        $this->headers = $headers;
-        $this->cache = $cache;
-    }
-
-    /**
-     * @param $variables
-     * @param $contentType
-     * @return string
-     */
-    protected function encodeByContentType(array $variables, $contentType)
-    {
-        return strpos($contentType, 'json') !== false ? json_encode($variables) : http_build_query($variables);
-    }
-
-    /**
      * @return Cache|null
      */
     public function getCache()
@@ -48,7 +23,7 @@ trait ClientTrait
      * @param Cache $cache
      * @return void
      */
-    public function setCache(Cache $cache)
+    public function setCache(Cache $cache = null)
     {
         $this->cache = $cache;
     }
@@ -78,10 +53,28 @@ trait ClientTrait
     }
 
     /**
+     * @param $apiId
+     * @return void
+     */
+    public function setApiId($apiId)
+    {
+        $this->apiId = $apiId;
+    }
+
+    /**
      * @return string
      */
     public function getApiSecret()
     {
         return $this->apiSecret;
+    }
+
+    /**
+     * @param $apiSecret
+     * @return string
+     */
+    public function setApiSecret($apiSecret)
+    {
+        $this->apiSecret = $apiSecret;
     }
 }

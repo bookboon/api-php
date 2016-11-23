@@ -22,9 +22,16 @@ trait RequestTrait
     abstract public function getCache();
 
     /**
+     * @return string
+     */
+    abstract public function getApiId();
+
+    /**
      * @return Headers
      */
     abstract public function getHeaders();
+
+    abstract protected function reportDeveloperInfo($request, $data);
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
@@ -77,7 +84,7 @@ trait RequestTrait
      */
     protected function saveInCache($queryUrl, $result)
     {
-        $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
+        $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
         $this->getCache()->save($hash, $result);
     }
 
@@ -87,7 +94,7 @@ trait RequestTrait
      */
     protected function getFromCache($queryUrl)
     {
-        $hash = $this->getCache()->hash($queryUrl, $this->apiId, $this->getHeaders()->getAll());
+        $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
         $result = $this->getCache()->get($hash);
 
         if ($result !== false) {

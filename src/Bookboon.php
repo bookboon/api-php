@@ -55,7 +55,7 @@ class Bookboon
             $headersObject->set($key, $value);
         }
 
-        return new Bookboon(new OauthClient($appId, $appSecret, $headersObject, $redirectUri, $scopes, $appUserId, $cache));
+        return new Bookboon(new OauthClient($appId, $appSecret, $headersObject, $scopes, $cache, $redirectUri, $appUserId));
     }
     /**
      * @param $url

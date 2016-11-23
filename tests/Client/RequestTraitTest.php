@@ -1,10 +1,4 @@
 <?php
-/**
- * Bookboon Api
- *
- * Creator: Lasse Mammen <lkm@bookboon.com>
- * Date: 03/11/2016
- */
 
 namespace Bookboon\Api\Client;
 
@@ -72,14 +66,77 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array("postval1" => "ptest1"), $this->returnValues[2]);
     }
 
+    private function getCacheMock()
+    {
+        return $this->getMock('\Bookboon\Api\Cache\Cache');
+    }
+
+    public function testMakeRequestNotCached()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+
+        $cacheMock = $this->getCacheMock();
+        $cacheMock->method("get")->willReturn(false);
+        $cacheMock->method("isCachable")->willReturn(true);
+
+        $mock->method('getCache')
+            ->willReturn($cacheMock);
+
+        $mock->method('getHeaders')->willReturn(new Headers());
+        $mock->method('executeQuery')
+            ->will($this->returnCallback(array($this, 'callingBack')));
+
+        $result = $mock->makeRequest('/plain_get');
+
+        $this->assertNull($result);
+        $this->assertEquals(Client::API_URL . '/plain_get', $this->returnValues[0]);
+    }
+
+    public function testMakeRequestCached()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+
+        $cacheMock = $this->getCacheMock();
+        $cacheMock->method("get")->willReturn("cached return");
+        $cacheMock->method("isCachable")->willReturn(true);
+
+        $mock->method('getCache')->willReturn($cacheMock);
+        $mock->method('getHeaders')->willReturn(new Headers());
+
+        $result = $mock->makeRequest('/plain_get');
+
+        $this->assertEquals("cached return", $result);
+    }
+
+
     public function testGetCacheNotFound()
     {
-        $this->markTestIncomplete();
+        $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+
+        $cacheMock = $this->getCacheMock();
+        $cacheMock->method("get")->willReturn(false);
+        $cacheMock->method("isCachable")->willReturn(true);
+
+        $mock->method('getCache')->willReturn($cacheMock);
+        $mock->method('getHeaders')->willReturn(new Headers());
+
+        $result = \Helpers::invokeMethod($mock, 'getFromCache', array('/random/' . uniqid('cache', true)));
+        $this->assertFalse($result);
     }
 
     public function testGetCacheFound()
     {
-        $this->markTestIncomplete();
+        $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+
+        $cacheMock = $this->getCacheMock();
+        $cacheMock->method("get")->willReturn("test");
+        $cacheMock->method("isCachable")->willReturn(true);
+
+        $mock->method('getCache')->willReturn($cacheMock);
+        $mock->method('getHeaders')->willReturn(new Headers());
+
+        $result = \Helpers::invokeMethod($mock, 'getFromCache', array('/random/' . uniqid('cache', true)));
+        $this->assertEquals("test", $result);
     }
 }
 

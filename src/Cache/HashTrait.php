@@ -45,4 +45,9 @@ trait HashTrait
 
         return false;
     }
+
+    /**
+     * @return bool
+     */
+    abstract function isInitialized();
 }

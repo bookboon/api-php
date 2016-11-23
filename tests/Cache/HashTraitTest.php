@@ -39,4 +39,28 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEquals($hash1, $hash2);
     }
+
+    public function testRequestIsCacheable()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
+        $mock->method("isInitialized")->willReturn(true);
+
+        $result = $mock->isCachable("/test/url", Client::HTTP_GET);
+        $this->assertTrue($result);
+    }
+
+    public function testRequestIsCacheableUninitiazlied()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
+
+        $result = $mock->isCachable("/test/url", Client::HTTP_GET);
+        $this->assertFalse($result);
+    }
+
+    public function testRequestNotCacheblePost()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
+        $result = $mock->isCachable("/test/url", Client::HTTP_POST);
+        $this->assertFalse($result);
+    }
 }

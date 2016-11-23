@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api;
 
-include_once(__DIR__ . '/Authentication.php');
+include_once(__DIR__ . '/Helpers.php');
 
 /**
  * Class BookboonTest
@@ -16,7 +16,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$bookboon = \Authentication::getBookboon();
+        self::$bookboon = \Helpers::getBookboon();
     }
     /**
      * @expectedException \Bookboon\Api\Exception\UsageException
@@ -58,5 +58,19 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
     {
         $bookboon = Bookboon::create("", "", array('basic'));
         $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
+    }
+
+    public function testGetClient()
+    {
+        $bookboon = Bookboon::create("bad", "auth", array('basic'));
+        $this->assertInstanceOf('\Bookboon\Api\Client\Client', $bookboon->getClient());
+    }
+
+    public function testCreateHeaders()
+    {
+        $bookboon = Bookboon::create("bad", "auth", array('basic'), array("X-Test-Header" => "Test Value"));
+        $result = $bookboon->getClient()->getHeaders()->get("X-Test-Header");
+
+        $this->assertEquals("Test Value", $result);
     }
 }

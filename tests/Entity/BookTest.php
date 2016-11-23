@@ -21,8 +21,8 @@ class BookTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        include_once(__DIR__ . '/../Authentication.php');
-        self::$bookboon = \Authentication::getBookboon();
+        include_once(__DIR__ . '/../Helpers.php');
+        self::$bookboon = \Helpers::getBookboon();
         self::$data = Book::get(self::$bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
     }
 

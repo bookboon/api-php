@@ -43,25 +43,31 @@ class OauthClient implements Client
      * @param string $apiId
      * @param string $apiSecret
      * @param Headers $headers
-     * @param $redirectUri
      * @param array $scopes
-     * @param $appUserId
      * @param Cache $cache
+     * @param $redirectUri
+     * @param $appUserId
      * @throws UsageException
      */
-    public function __construct($apiId, $apiSecret, Headers $headers, $redirectUri, array $scopes, $appUserId, $cache = null)
+    public function __construct($apiId, $apiSecret, Headers $headers, array $scopes, Cache $cache = null, $redirectUri = null, $appUserId = null)
     {
         if (empty($apiId)) {
             throw new UsageException("Client id is required");
         }
 
-        $this->apiId = $apiId;
-        $this->apiSecret = $apiSecret;
-        $this->headers = $headers;
-        $this->cache = $cache;
-        $this->redirect = $redirectUri;
-        $this->scopes = $scopes;
-        $this->appUserId = $appUserId;
+        $this->setApiId($apiId);
+        $this->setApiSecret($apiSecret);
+        $this->setCache($cache);
+        $this->setHeaders($headers);
+        $this->setRedirectUri($redirectUri);
+        $this->setScopes($scopes);
+        $this->setAppUserId($appUserId);
+
+        $this->provider =  new BookboonProvider([
+            'clientId'                => $this->getApiId(),
+            'clientSecret'            => $this->getApiSecret(),
+            'scopes'                  => $this->scopes
+        ]);
     }
 
     /**
@@ -91,7 +97,7 @@ class OauthClient implements Client
         }
 
         try {
-            $request = $this->getProvider()->getAuthenticatedRequest(
+            $request = $this->provider->getAuthenticatedRequest(
                 $type,
                 $url,
                 $this->getAccessToken()
@@ -125,7 +131,7 @@ class OauthClient implements Client
      */
     public function getAuthorizationUrl($state = null)
     {
-        $provider = $this->getProvider();
+        $provider = $this->provider;
 
         $options = $state != null ? [ 'state' => $state ]: [];
 
@@ -147,7 +153,7 @@ class OauthClient implements Client
      */
     public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE)
     {
-        $provider = $this->getProvider();
+        $provider = $this->provider;
         $options = null === $code ? [] : ['code' => $code];
 
         if ($type == OauthGrants::AUTHORIZATION_CODE && empty($code)) {
@@ -176,8 +182,8 @@ class OauthClient implements Client
      */
     public function refreshAccessToken(AccessToken $accessToken)
     {
-        $this->accessToken = $this->getProvider()->getAccessToken('refresh_token', [
-            'refresh_token' => $this->accessToken->getRefreshToken()
+        $this->accessToken = $this->provider->getAccessToken('refresh_token', [
+            'refresh_token' => $accessToken->getRefreshToken()
         ]);
 
         return $accessToken;
@@ -186,26 +192,7 @@ class OauthClient implements Client
 
     public function generateState()
     {
-        return $this->provider->getState();
-    }
-
-
-    /**
-     * @return BookboonProvider
-     */
-    public function getProvider()
-    {
-        if ($this->provider instanceof BookboonProvider) {
-            return $this->provider;
-        }
-
-        $this->provider =  new BookboonProvider([
-            'clientId'                => $this->getApiId(),
-            'clientSecret'            => $this->getApiSecret(),
-            'scopes'                  => $this->scopes
-        ]);
-
-        return $this->provider;
+        return $this->provider->generateRandomState();
     }
 
 
@@ -259,24 +246,6 @@ class OauthClient implements Client
         }
 
         return '';
-    }
-
-    /**
-     * @param $apiId
-     * @return void
-     */
-    public function setApiId($apiId)
-    {
-        $this->apiId = $apiId;
-    }
-
-    /**
-     * @param $apiSecret
-     * @return string
-     */
-    public function setApiSecret($apiSecret)
-    {
-        $this->apiSecret = $apiSecret;
     }
 
     /**
@@ -337,4 +306,8 @@ class OauthClient implements Client
         return $this->accessToken;
     }
 
+    protected function reportDeveloperInfo($request, $data)
+    {
+        // TODO: Implement reportDeveloperInfo() method.
+    }
 }
