@@ -155,42 +155,6 @@ class BasicAuthClient implements Client
 
 
     /**
-     * @param array $scopes
-     * @throws UsageException
-     */
-    public function setScopes(array $scopes)
-    {
-        throw new UsageException("Not Supported");
-    }
-
-    /**
-     * @return array
-     * @throws UsageException
-     */
-    public function getScopes()
-    {
-        throw new UsageException("Not Supported");
-    }
-
-    /**
-     * @param $redirectUri
-     * @throws UsageException
-     */
-    public function setRedirectUri($redirectUri)
-    {
-        throw new UsageException("Not Supported");
-    }
-
-    /**
-     * @return string
-     * @throws UsageException
-     */
-    public function getRedirectUri()
-    {
-        throw new UsageException("Not Supported");
-    }
-
-    /**
      * @param $appUserId
      * @throws UsageException
      */

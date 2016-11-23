@@ -47,7 +47,7 @@ trait ClientTrait
     /**
      * @return string
      */
-    public function getApiId()
+    protected function getApiId()
     {
         return $this->apiId;
     }
@@ -56,7 +56,7 @@ trait ClientTrait
      * @param $apiId
      * @return void
      */
-    public function setApiId($apiId)
+    protected function setApiId($apiId)
     {
         $this->apiId = $apiId;
     }
@@ -64,7 +64,7 @@ trait ClientTrait
     /**
      * @return string
      */
-    public function getApiSecret()
+    protected function getApiSecret()
     {
         return $this->apiSecret;
     }
@@ -73,7 +73,7 @@ trait ClientTrait
      * @param $apiSecret
      * @return string
      */
-    public function setApiSecret($apiSecret)
+    protected function setApiSecret($apiSecret)
     {
         $this->apiSecret = $apiSecret;
     }

@@ -15,8 +15,6 @@ class ClientTraitTest extends \PHPUnit_Framework_TestCase
     public function providerSetterGetter()
     {
         return [
-            ["setApiId", "getApiId", "test value"],
-            ["setApiSecret", "getApiSecret", "test secret"],
             ["setHeaders", "getHeaders", new Headers()],
             ["setCache", "getCache", $this->getMock('\Bookboon\Api\Cache\Cache')]
         ];

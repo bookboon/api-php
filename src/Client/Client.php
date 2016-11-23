@@ -85,7 +85,6 @@ interface Client
      */
     public function getAccessToken();
 
-
     /**
      * @return Headers
      */
@@ -107,50 +106,6 @@ interface Client
      * @return void
      */
     public function setCache(Cache $cache);
-
-    /**
-     * @return string
-     */
-    public function getApiSecret();
-
-    /**
-     * @return string
-     */
-    public function getApiId();
-
-    /**
-     * @param $apiId
-     * @return void
-     */
-    public function setApiId($apiId);
-
-    /**
-     * @param $apiSecret
-     * @return string
-     */
-    public function setApiSecret($apiSecret);
-
-    /**
-     * @param array $scopes
-     * @return void
-     */
-    public function setScopes(array $scopes);
-
-    /**
-     * @return array
-     */
-    public function getScopes();
-
-    /**
-     * @param $redirectUri
-     * @return void
-     */
-    public function setRedirectUri($redirectUri);
-
-    /**
-     * @return string
-     */
-    public function getRedirectUri();
 
     /**
      * @param $stateParameter

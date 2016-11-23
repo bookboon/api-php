@@ -26,12 +26,6 @@ class OauthClient implements Client
     /** @var AccessToken */
     private $accessToken;
 
-    /** @var array */
-    protected $scopes;
-
-    /** @var string */
-    protected $redirect;
-
     /** @var string */
     protected $appUserId;
 
@@ -55,19 +49,16 @@ class OauthClient implements Client
             throw new UsageException("Client id is required");
         }
 
-        $this->setApiId($apiId);
-        $this->setApiSecret($apiSecret);
+        $this->provider = new BookboonProvider([
+            'clientId'      => $apiId,
+            'clientSecret'  => $apiSecret,
+            'scopes'        => $scopes,
+            'redirectUri'   => $redirectUri
+        ]);
+
         $this->setCache($cache);
         $this->setHeaders($headers);
-        $this->setRedirectUri($redirectUri);
-        $this->setScopes($scopes);
         $this->setAppUserId($appUserId);
-
-        $this->provider =  new BookboonProvider([
-            'clientId'                => $this->getApiId(),
-            'clientSecret'            => $this->getApiSecret(),
-            'scopes'                  => $this->scopes
-        ]);
     }
 
     /**
@@ -246,40 +237,6 @@ class OauthClient implements Client
         }
 
         return '';
-    }
-
-    /**
-     * @param array $scopes
-     * @return void
-     */
-    public function setScopes(array $scopes)
-    {
-        $this->scopes = $scopes;
-    }
-
-    /**
-     * @return array
-     */
-    public function getScopes()
-    {
-        return $this->scopes;
-    }
-
-    /**
-     * @param $redirectUri
-     * @return void
-     */
-    public function setRedirectUri($redirectUri)
-    {
-        $this->redirect = $redirectUri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRedirectUri()
-    {
-        $this->redirect;
     }
 
     /**
