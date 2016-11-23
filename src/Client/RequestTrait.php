@@ -95,7 +95,7 @@ trait RequestTrait
                 'total_time' => 0,
                 'http_code' => 'cache',
                 'size_download' => mb_strlen(json_encode($result)),
-                'url' => "https://$queryUrl",
+                'url' => Client::API_PROTOCOL . "://" . $queryUrl,
             ), array());
         }
 

@@ -4,13 +4,14 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Client\Oauth\BookboonProvider;
+use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAccessTokenExpired;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
 
@@ -22,22 +23,19 @@ class OauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
-    const AUTHORIZE = '/authorize';
-    const ACCESS_TOKEN = '/access_token';
-
-    /** @var  AccessToken */
+    /** @var AccessToken */
     private $accessToken;
 
     /** @var array */
     protected $scopes;
 
-    /** @var  string */
+    /** @var string */
     protected $redirect;
 
-    /** @var  string */
+    /** @var string */
     protected $appUserId;
 
-    /** @var  GenericProvider */
+    /** @var BookboonProvider */
     protected $provider;
 
     /**
@@ -49,9 +47,14 @@ class OauthClient implements Client
      * @param array $scopes
      * @param $appUserId
      * @param Cache $cache
+     * @throws UsageException
      */
     public function __construct($apiId, $apiSecret, Headers $headers, $redirectUri, array $scopes, $appUserId, $cache = null)
     {
+        if (empty($apiId)) {
+            throw new UsageException("Client id is required");
+        }
+
         $this->apiId = $apiId;
         $this->apiSecret = $apiSecret;
         $this->headers = $headers;
@@ -70,31 +73,31 @@ class OauthClient implements Client
      * @throws ApiAccessTokenExpired
      * @throws ApiAuthenticationException
      */
-    protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded')
+    protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_FORM)
     {
-        $accessToken = $this->getAccessToken();
-        $options = [];
-        $url = 'https://' . $url;
-
-        if (count($variables) > 0) {
-            $options['form_params'] = $variables;
+        if (!($this->getAccessToken() instanceof AccessToken)) {
+            throw new ApiAuthenticationException("Not authenticated");
         }
 
-        $headers = $this->headers->getHeadersArray();
+        $options = [
+            'allow_redirects' => false,
+            'headers' => $this->headers->getHeadersArray()
+        ];
+        $url = Client::API_PROTOCOL . '://' . $url;
 
-        if (count($headers) > 0 ) {
-            $options['headers']  = $headers;
-
+        if (count($variables) > 0 && $type == Client::HTTP_POST) {
+            $postType = $contentType == Client::CONTENT_TYPE_JSON ? 'json' : 'form_params';
+            $options[$postType] = $variables;
         }
 
         try {
             $request = $this->getProvider()->getAuthenticatedRequest(
                 $type,
                 $url,
-                $accessToken
+                $this->getAccessToken()
             );
 
-            if ($accessToken->hasExpired()) {
+            if ($this->getAccessToken()->hasExpired()) {
                 throw new ApiAccessTokenExpired("Bookboon API Access Token Has Now Expired");
 
             }
@@ -137,26 +140,26 @@ class OauthClient implements Client
 
     /**
      * @param $code
-     * @param null $state
+     * @param null|string $type
      * @return AccessToken
      * @throws ApiAuthenticationException
+     * @throws UsageException
      */
-    public function requestAccessToken($code, $state = null)
+    public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE)
     {
         $provider = $this->getProvider();
+        $options = null === $code ? [] : ['code' => $code];
 
-        $options = ['code' => $code];
-
-        if ($state != null) {
-            $options['state'] = $state;
+        if ($type == OauthGrants::AUTHORIZATION_CODE && empty($code)) {
+            throw new UsageException("This oauth flow requires a code");
         }
 
-        if (false === is_null($this->appUserId)) {
+        if (null === $this->appUserId) {
             $options['app_user_id'] = $this->appUserId;
         }
 
         try {
-            $this->accessToken = $provider->getAccessToken('authorization_code', $options);
+            $this->accessToken = $provider->getAccessToken($type, $options);
         }
 
         catch (IdentityProviderException $e) {
@@ -188,22 +191,18 @@ class OauthClient implements Client
 
 
     /**
-     * @return GenericProvider
+     * @return BookboonProvider
      */
     public function getProvider()
     {
-        if ($this->provider instanceof GenericProvider) {
+        if ($this->provider instanceof BookboonProvider) {
             return $this->provider;
         }
 
-        $this->provider =  new GenericProvider([
+        $this->provider =  new BookboonProvider([
             'clientId'                => $this->getApiId(),
             'clientSecret'            => $this->getApiSecret(),
-            'redirectUri'             => $this->redirect,
-            'urlAuthorize'            => 'https://' . self::API_URL . self::AUTHORIZE,
-            'scopes'                  => $this->scopes,
-            'urlAccessToken'          => 'https://' . self::API_URL . self::ACCESS_TOKEN,
-            'urlResourceOwnerDetails' => 'https://bookboon.com/api/_application'
+            'scopes'                  => $this->scopes
         ]);
 
         return $this->provider;
@@ -251,6 +250,10 @@ class OauthClient implements Client
      */
     protected function getResponseHeader($headers, $name)
     {
+        if (isset($headers[$name][0])) {
+            return $headers[$name][0];
+        }
+
         if (isset($headers[$name])) {
             return $headers[$name];
         }

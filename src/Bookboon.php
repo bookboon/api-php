@@ -41,14 +41,14 @@ class Bookboon
     /**
      * @param $appId
      * @param $appSecret
-     * @param array $headers
      * @param array $scopes
+     * @param array $headers
      * @param null $appUserId
      * @param null $redirectUri
      * @param Cache|null $cache
      * @return Bookboon
      */
-    public static function create($appId, $appSecret, array $headers = array(), array $scopes, $appUserId = null, $redirectUri = null, Cache $cache = null)
+    public static function create($appId, $appSecret, array $scopes, array $headers = [], $appUserId = null, $redirectUri = null, Cache $cache = null)
     {
         $headersObject = new Headers();
         foreach ($headers as $key => $value) {
@@ -64,7 +64,7 @@ class Bookboon
      * @param bool $shouldCache
      * @return array
      */
-    public function rawRequest($url, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true)
+    public function rawRequest($url, array $variables = [], $httpMethod = Client::HTTP_GET, $shouldCache = true)
     {
         return $this->client->makeRequest($url, $variables, $httpMethod, $shouldCache);
     }

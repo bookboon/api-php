@@ -4,6 +4,7 @@ namespace Bookboon\Api\Client;
 
 
 use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
@@ -17,6 +18,7 @@ interface Client
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
 
+    const API_PROTOCOL = 'https';
     const API_URL = 'bookboon.com/api';
 
     /**
@@ -36,12 +38,12 @@ interface Client
 
     /**
      * @param $code
-     * @param null $state
+     * @param null|string $type
      * @return AccessToken
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken($code, $state = null);
+    public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE);
 
     /**
      * @return string

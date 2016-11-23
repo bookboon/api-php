@@ -3,6 +3,8 @@
 namespace Bookboon\Api\Client;
 
 use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Client\Oauth\OauthGrants;
+use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
@@ -27,6 +29,10 @@ class BasicAuthClient implements Client
 
     public function __construct($apiId, $apiSecret, Headers $headers,  Cache $cache)
     {
+        if (empty($apiId) || empty($apiSecret)) {
+            throw new UsageException("Key and secret are required");
+        }
+
         $this->apiId = $apiId;
         $this->apiSecret = $apiSecret;
         $this->headers = $headers;
@@ -60,7 +66,7 @@ class BasicAuthClient implements Client
             curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
         }
 
-        curl_setopt($http, CURLOPT_URL, "https://$url");
+        curl_setopt($http, CURLOPT_URL, Client::API_PROTOCOL . "://$url");
         curl_setopt($http, CURLOPT_USERPWD, $this->getApiId() . ':' . $this->getApiSecret());
         curl_setopt($http, CURLOPT_HTTPHEADER, $headers);
 
@@ -125,11 +131,12 @@ class BasicAuthClient implements Client
 
     /**
      * @param $code
-     * @param null $state
-     * @return string
+     * @param null|string $type
+     * @return AccessToken
+     * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken($code, $state = null)
+    public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE)
     {
         throw new UsageException("Not Supported");
     }
