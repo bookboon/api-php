@@ -46,7 +46,7 @@ trait RequestTrait
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true, $contentType = Client::CONTENT_TYPE_FORM)
+    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true, $contentType = Client::CONTENT_TYPE_JSON)
     {
         $queryUrl = Client::API_URL . $relativeUrl;
         $postVariables = array();

@@ -70,7 +70,7 @@ class OauthClient implements Client
      * @throws ApiAccessTokenExpired
      * @throws ApiAuthenticationException
      */
-    protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_FORM)
+    protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_JSON)
     {
         if (!($this->getAccessToken() instanceof AccessToken)) {
             throw new ApiAuthenticationException("Not authenticated");
