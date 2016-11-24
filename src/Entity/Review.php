@@ -29,20 +29,33 @@ class Review extends Entity
     }
 
     /**
+     * @param array $review
+     * @return static
+     */
+    public static function create($review = [])
+    {
+        return new static($review);
+    }
+
+
+    /**
      * submit a book review helper method.
      *
      * @param Bookboon $bookboon
      * @param $bookId
-     * @param Review $review
      *
      */
-    public function submit(Bookboon $bookboon, $bookId, Review $review)
+    public function submit(Bookboon $bookboon, $bookId)
     {
         if (Entity::isValidUUID($bookId)) {
-            $bookboon->rawRequest("/books/$bookId/review", $review->getData(), Client::HTTP_POST);
+            $bookboon->rawRequest("/books/$bookId/review", $this->getData(), Client::HTTP_POST);
         }
     }
 
+    /**
+     * @param array $array
+     * @return bool
+     */
     protected function isValid(array $array)
     {
         return isset($array['comment'], $array['rating']);
@@ -72,6 +85,9 @@ class Review extends Entity
         return $this->safeGet('comment');
     }
 
+    /**
+     * @return mixed
+     */
     public function getRating()
     {
         return $this->safeGet('rating');
