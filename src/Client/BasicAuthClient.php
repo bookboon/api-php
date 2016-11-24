@@ -58,15 +58,15 @@ class BasicAuthClient implements Client
         $http = curl_init();
         $headers = $this->getHeaders()->getAll();
 
+
         if ($type == self::HTTP_POST) {
             $encodedVariables = $this->encodeByContentType($variables, $contentType);
-            if ($contentType == self::CONTENT_TYPE_JSON) {
-                $headers[] = "Content-Type: $contentType";
-                $headers[] = 'Content-Length: ' . sizeof($encodedVariables);
-            } else {
-                curl_setopt($http, CURLOPT_POST, true);
-                curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
-            }
+
+            $headers[] = "Content-Type: $contentType";
+            $headers[] = 'Content-Length: ' . strlen($encodedVariables);
+
+            curl_setopt($http, CURLOPT_POSTFIELDS, $encodedVariables);
+            curl_setopt($http, CURLOPT_CUSTOMREQUEST, $type);
         }
 
         curl_setopt($http, CURLOPT_USERAGENT, $this->getUserAgentString());

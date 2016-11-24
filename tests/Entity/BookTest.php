@@ -3,6 +3,8 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BasicAuthClient;
+use Bookboon\Api\Client\Headers;
 use Client\OauthGrant;
 
 /**
@@ -105,12 +107,16 @@ class BookTest extends \PHPUnit_Framework_TestCase
         $book = new Book(array('blah'));
     }
 
-    /**
-     * @group down
-     */
-    public function testBookDownload()
+    public function testBookDownloadOauth()
     {
         $url = Book::getDownloadUrl(self::$bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', array('handle' => 'phpunit'));
+        $this->assertContains('/download/', $url);
+    }
+
+    public function testBookDownloadBasic()
+    {
+        $bookboon = new Bookboon(new BasicAuthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers()));
+        $url = Book::getDownloadUrl($bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', array('handle' => 'phpunit'));
         $this->assertContains('/download/', $url);
     }
 
