@@ -23,6 +23,8 @@ class OauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
+    const C_VERSION = '1.0';
+
     /** @var AccessToken */
     private $accessToken;
 
@@ -80,8 +82,8 @@ class OauthClient implements Client
             'allow_redirects' => false,
             'headers' => $this->headers->getHeadersArray()
         ];
-        $options['headers']['User-Agent'] = Client::VERSION . ' OAuthClient/1.0';
-
+        $options['headers']['User-Agent'] = $this->getUserAgentString();
+        
         $url = Client::API_PROTOCOL . '://' . $url;
 
         if (count($variables) > 0 && $type == Client::HTTP_POST) {
@@ -268,5 +270,10 @@ class OauthClient implements Client
     protected function reportDeveloperInfo($request, $data)
     {
         // TODO: Implement reportDeveloperInfo() method.
+    }
+
+    protected function getComponentVersion()
+    {
+        return self::C_VERSION;
     }
 }

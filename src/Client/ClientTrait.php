@@ -11,6 +11,20 @@ trait ClientTrait
     protected $headers;
     protected $cache;
 
+    abstract protected function getComponentVersion();
+
+    protected function getUserAgentString()
+    {
+        if (defined('HHVM_VERSION')) {
+            $runtime = 'HHVM/' . HHVM_VERSION;
+        } else {
+            $runtime = 'PHP/' . phpversion();
+        }
+
+        $component = substr(get_class($this), strrpos(get_class($this), '\\') + 1);
+        return Client::VERSION . ' ' . $runtime . ' ' . $component . '/' . $this->getComponentVersion();
+    }
+
     /**
      * @return Cache|null
      */

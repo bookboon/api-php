@@ -15,6 +15,8 @@ class BasicAuthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
+    const C_VERSION = '2.0';
+
     protected static $CURL_REQUESTS;
 
     public static $CURL_OPTS = array(
@@ -22,7 +24,6 @@ class BasicAuthClient implements Client
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
-        CURLOPT_USERAGENT => Client::VERSION . ' BasicAuthClient/2.0',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
     );
@@ -68,6 +69,7 @@ class BasicAuthClient implements Client
             }
         }
 
+        curl_setopt($http, CURLOPT_USERAGENT, $this->getUserAgentString());
         curl_setopt($http, CURLOPT_URL, Client::API_PROTOCOL . "://$url");
         curl_setopt($http, CURLOPT_USERPWD, $this->getApiId() . ':' . $this->getApiSecret());
         curl_setopt($http, CURLOPT_HTTPHEADER, $headers);
@@ -202,5 +204,10 @@ class BasicAuthClient implements Client
     public function isCorrectState($stateParameter, $stateSession)
     {
         throw new UsageException("Not Supported");
+    }
+
+    protected function getComponentVersion()
+    {
+        return self::C_VERSION;
     }
 }
