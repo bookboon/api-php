@@ -22,7 +22,7 @@ class BasicAuthClient implements Client
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
-        CURLOPT_USERAGENT => 'bookboon-php-3',
+        CURLOPT_USERAGENT => Client::VERSION . ' BasicAuthClient/2.0',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
     );

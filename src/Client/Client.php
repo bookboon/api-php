@@ -21,6 +21,8 @@ interface Client
     const API_PROTOCOL = 'https';
     const API_URL = 'bookboon.com/api';
 
+    const VERSION = 'Bookboon-PHP/3.0 PHP/' . PHP_VERSION_ID;
+
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
      *

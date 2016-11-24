@@ -80,6 +80,8 @@ class OauthClient implements Client
             'allow_redirects' => false,
             'headers' => $this->headers->getHeadersArray()
         ];
+        $options['headers']['User-Agent'] = Client::VERSION . ' OAuthClient/1.0';
+
         $url = Client::API_PROTOCOL . '://' . $url;
 
         if (count($variables) > 0 && $type == Client::HTTP_POST) {
