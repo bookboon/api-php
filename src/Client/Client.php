@@ -39,13 +39,13 @@ interface Client
     public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true, $contentType = self::CONTENT_TYPE_FORM);
 
     /**
-     * @param $code
+     * @param array $options
      * @param null|string $type
      * @return AccessToken
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE);
+    public function requestAccessToken(array $options = array(), $type = OauthGrants::AUTHORIZATION_CODE);
 
     /**
      * @return string
@@ -59,11 +59,11 @@ interface Client
     public function refreshAccessToken(AccessToken $accessToken);
 
     /**
-     * @param string|null $state
+     * * @param array $options
      * @return string
      * @throws UsageException
      */
-    public function getAuthorizationUrl($state = null);
+    public function getAuthorizationUrl(array $options = array());
 
     /**
      * @param $appUserId

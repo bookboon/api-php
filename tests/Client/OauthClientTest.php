@@ -15,7 +15,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
     public function testClientCredentialsGrantSuccessful()
     {
         $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->requestAccessToken(null, OauthGrants::CLIENT_CREDENTIALS);
+        $result = $client->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
     }
 
@@ -25,7 +25,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
     public function testClientCredentialsGrantUnsuccessful()
     {
         $client = new OauthClient(\Helpers::getApiId(), "BAD SECRET", new Headers(), array("basic"));
-        $result = $client->requestAccessToken(null, OauthGrants::CLIENT_CREDENTIALS);
+        $result = $client->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
     }
 
@@ -93,7 +93,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
     public function testAuthorizationCodeTokenSuccessful($code)
     {
         $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->requestAccessToken($code, OauthGrants::AUTHORIZATION_CODE);
+        $result = $client->requestAccessToken(array("code" => $code), OauthGrants::AUTHORIZATION_CODE);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
 
         return $result;
@@ -125,7 +125,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
     public function testAuthorizationCodeTokenMissingCode()
     {
         $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->requestAccessToken("", OauthGrants::AUTHORIZATION_CODE);
+        $result = $client->requestAccessToken(array(), OauthGrants::AUTHORIZATION_CODE);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
 
         return $result;

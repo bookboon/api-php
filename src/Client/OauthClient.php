@@ -121,16 +121,14 @@ class OauthClient implements Client
     }
 
     /**
-     * @param string|null $state
+     * @param array $options
      * @return string
      */
-    public function getAuthorizationUrl($state = null)
+    public function getAuthorizationUrl(array $options = array())
     {
         $provider = $this->provider;
 
-        $options = $state != null ? [ 'state' => $state ]: [];
-
-        if (false === is_null($this->appUserId)) {
+        if (null != $this->appUserId && false === isset($options['app_user_id'])) {
             $options['app_user_id'] = $this->appUserId;
         }
 
@@ -140,18 +138,17 @@ class OauthClient implements Client
     }
 
     /**
-     * @param $code
+     * @param array $options
      * @param null|string $type
      * @return AccessToken
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken($code = null, $type = OauthGrants::AUTHORIZATION_CODE)
+    public function requestAccessToken(array $options = array(), $type = OauthGrants::AUTHORIZATION_CODE)
     {
         $provider = $this->provider;
-        $options = null === $code ? [] : ['code' => $code];
 
-        if ($type == OauthGrants::AUTHORIZATION_CODE && empty($code)) {
+        if ($type == OauthGrants::AUTHORIZATION_CODE && !isset($options["code"])) {
             throw new UsageException("This oauth flow requires a code");
         }
 

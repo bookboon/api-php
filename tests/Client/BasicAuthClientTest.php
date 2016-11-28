@@ -74,6 +74,6 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotSupportedMethods($method)
     {
-        self::$client->$method("a", "b");
+        self::$client->$method(array("a"), "b");
     }
 }

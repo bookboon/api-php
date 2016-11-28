@@ -19,7 +19,7 @@ class Helpers
     public static function getBookboon()
     {
         $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), array('basic', 'download_book.pdf', 'download_category'));
-        $bookboon->getClient()->requestAccessToken(null, OauthGrants::CLIENT_CREDENTIALS);
+        $bookboon->getClient()->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
 
         return $bookboon;
     }
