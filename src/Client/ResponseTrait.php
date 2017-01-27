@@ -47,6 +47,7 @@ trait ResponseTrait
                     }
 
                     throw new ApiAuthenticationException($message);
+                case 410:
                 case 404:
                     throw new ApiNotFoundException($url);
                     break;
