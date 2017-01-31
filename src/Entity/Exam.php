@@ -25,6 +25,17 @@ class Exam extends Entity
         return new static($bookboon->rawRequest("/exams/$examId"));
     }
 
+    public static function getByBookId(Bookboon $bookboon, $bookId)
+    {
+        if (Entity::isValidUUID($bookId) === false) {
+            throw new BadUUIDException("UUID Not Formatted Correctly");
+        }
+
+        $exams = $bookboon->rawRequest("/books/$bookId/exams");
+
+        return Exam::getEntitiesFromArray($exams);
+    }
+
     public static function start(Bookboon $bookboon, $examId)
     {
         return $bookboon->rawRequest("/exams/$examId", [], Client::HTTP_POST);
