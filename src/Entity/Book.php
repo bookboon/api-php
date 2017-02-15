@@ -25,7 +25,7 @@ class Book extends Entity
      */
     public static function get(Bookboon $bookboon, $bookId, $extendedMetadata = false)
     {
-        return new static($bookboon->rawRequest("/books/$bookId", array('extendedMetadata' => $extendedMetadata ? 'true' : 'false')));
+        return static::objectTransformer($bookboon->rawRequest("/books/$bookId", array('extendedMetadata' => $extendedMetadata ? 'true' : 'false')));
     }
 
     /**
@@ -45,6 +45,31 @@ class Book extends Entity
 
         return static::getEntitiesFromArray($bookboon->rawRequest("/books", $variables));
     }
+
+    /**
+     * @param array $objectArray
+     * @return Book
+     */
+    private static function objectTransformer(array $objectArray)
+    {
+        $className = 'Bookboon\Api\Entity\\' . ucfirst($objectArray['_type']) . 'Book';
+        return new $className($objectArray);
+    }
+
+    /**
+     * @param array $array
+     * @return Book[]
+     */
+    public static function getEntitiesFromArray(array $array)
+    {
+        $entities = array();
+        foreach ($array as $object) {
+            $entities[] = self::objectTransformer($object);
+        }
+
+        return $entities;
+    }
+
 
     /**
      * Get the download url.
