@@ -1,11 +1,8 @@
 <?php
 
-namespace Entity;
-
+namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
-use Bookboon\Api\Entity\Book;
-use Bookboon\Api\Entity\Entity;
 
 class Frontpage extends Entity
 {
@@ -22,7 +19,7 @@ class Frontpage extends Entity
      */
     public static function get(Bookboon $bookboon)
     {
-        return new static($bookboon->rawRequest("/frontpage"));
+        return Frontpage::getEntitiesFromArray($bookboon->rawRequest("/frontpage"));
     }
 
     protected function isValid(array $array)
