@@ -12,6 +12,8 @@ class Book extends Entity
     const FORMAT_EPUB = 'epub';
     const FORMAT_MOBI = 'mobi';
     const FORMAT_VIDEO = 'video';
+    const FORMAT_M4B = 'm4b';
+    const FORMAT_M3U = 'm3u';
 
     /**
      * Get Book object.
