@@ -17,14 +17,9 @@ class Category extends Entity
      * @param Bookboon $bookboon
      * @param string $categoryId
      * @return Category|bool
-     * @throws BadUUIDException
      */
     public static function get(Bookboon $bookboon, $categoryId)
     {
-        if (Entity::isValidUUID($categoryId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
-        }
-
         return new static($bookboon->rawRequest("/categories/$categoryId"));
     }
 

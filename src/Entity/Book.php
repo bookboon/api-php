@@ -19,25 +19,29 @@ class Book extends Entity
      * @param Bookboon $bookboon
      * @param string|array $bookId uuid for book
      * @param bool $extendedMetadata bool include reviews and similar books
-     * @return Book|Book[]
-     * @throws BadUUIDException
+     * @return Book
      */
     public static function get(Bookboon $bookboon, $bookId, $extendedMetadata = false)
     {
-        if (is_array($bookId)) {
-            $variables = array(
-                'id' => $bookId,
-                'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
-            );
-
-            return static::getEntitiesFromArray($bookboon->rawRequest("/books", $variables));
-        }
-
-        if (Entity::isValidUUID($bookId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
-        }
-
         return new static($bookboon->rawRequest("/books/$bookId", array('extendedMetadata' => $extendedMetadata ? 'true' : 'false')));
+    }
+
+    /**
+     * Get many books
+     *
+     * @param Bookboon $bookboon
+     * @param string[] $bookIds
+     * @param bool $extendedMetadata
+     * @return Book[]
+     */
+    public static function getMultiple(Bookboon $bookboon, array $bookIds, $extendedMetadata = false)
+    {
+        $variables = array(
+            'id' => $bookIds,
+            'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
+        );
+
+        return static::getEntitiesFromArray($bookboon->rawRequest("/books", $variables));
     }
 
     /**
