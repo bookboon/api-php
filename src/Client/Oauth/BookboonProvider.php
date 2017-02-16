@@ -194,6 +194,39 @@ class BookboonProvider extends AbstractProvider
         }
     }
 
+    protected function getAuthorizationParameters(array $options)
+    {
+        if (empty($options['state'])) {
+            $options['state'] = $this->getRandomState();
+        }
+
+        if (empty($options['scope'])) {
+            $options['scope'] = $this->getDefaultScopes();
+        }
+
+        $options += [
+            'response_type'   => 'code',
+            'approval_prompt' => 'auto'
+        ];
+
+        if (is_array($options['scope'])) {
+            $separator = $this->getScopeSeparator();
+            $options['scope'] = implode($separator, $options['scope']);
+        }
+
+        $this->state = $options['state'];
+
+        if (false === isset($options['client_id'])) {
+            $options['client_id'] = $this->clientId;
+        }
+
+        if (false === isset($options['redirect_uri'])) {
+            $options['redirect_uri'] = $this->redirectUri;
+        }
+
+        return $options;
+    }
+
     /**
      * @inheritdoc
      */
