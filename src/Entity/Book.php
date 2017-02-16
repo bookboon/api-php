@@ -4,10 +4,15 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\Client;
-use Bookboon\Api\Exception\BadUUIDException;
 
 class Book extends Entity
 {
+    const _OWN_TYPE = '';
+
+    const TYPE_AUDIO = 'audio';
+    const TYPE_PDF = 'pdf';
+    const TYPE_VIDEO = 'video';
+
     const FORMAT_PDF = 'pdf';
     const FORMAT_EPUB = 'epub';
     const FORMAT_MOBI = 'mobi';
@@ -40,6 +45,23 @@ class Book extends Entity
     {
         $variables = array(
             'id' => $bookIds,
+            'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
+        );
+
+        return static::getEntitiesFromArray($bookboon->rawRequest("/books", $variables));
+    }
+
+    /**
+     * Get many books
+     *
+     * @param Bookboon $bookboon
+     * @param bool $extendedMetadata
+     * @return Book[]
+     */
+    public static function getAll(Bookboon $bookboon, $extendedMetadata = false)
+    {
+        $variables = array(
+            'bookType' => static::_OWN_TYPE,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         );
 
