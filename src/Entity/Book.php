@@ -133,13 +133,14 @@ class Book extends Entity
      * Recommendations.
      *
      * @param Bookboon $bookboon
+     * @param string $bookType
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
      * @return Book[]
      */
-    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5)
+    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5, $bookType = 'pdf')
     {
-        $recommendations = $bookboon->rawRequest('/recommendations', array('limit' => $limit, 'book' => $bookIds));
+        $recommendations = $bookboon->rawRequest('/recommendations', array('limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType));
 
         return Book::getEntitiesFromArray($recommendations);
     }
