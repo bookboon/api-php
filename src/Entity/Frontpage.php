@@ -27,7 +27,7 @@ class Frontpage extends Entity
      * Get specific frontpage
      *
      * @param Bookboon $bookboon
-     * @param $slug
+     * @param string $slug
      * @return Frontpage
      * @throws UsageException
      */
@@ -45,6 +45,23 @@ class Frontpage extends Entity
     protected function isValid(array $array)
     {
         return isset($array['_slug'], $array['title'], $array['books']);
+    }
+
+    /**
+     * @param string $slug
+     * @return bool
+     */
+    public static function isValidSlug($slug)
+    {
+        return in_array(
+            $slug,
+            [
+                static::SLUG_MOST_POPULAR,
+                static::SLUG_NEW_TITLES,
+                static::SLUG_EDITORS_PICKS,
+                static::SLUG_HIGHEST_RATED
+            ]
+        );
     }
 
     /**
