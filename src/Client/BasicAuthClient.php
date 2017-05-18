@@ -49,7 +49,7 @@ class BasicAuthClient implements Client
      * @oaram string $contentType
      *
      * @param string $contentType
-     * @return array
+     * @return BookboonResponse
      * @throws ApiGeneralException
      * @throws ApiTimeoutException
      */
@@ -93,7 +93,14 @@ class BasicAuthClient implements Client
 
         curl_close($http);
 
-        return $this->handleResponse(substr($response, $headersSize), substr($response, 0, $headersSize), $httpStatus, $url);
+        $responseArray = $this->handleResponse(
+            substr($response, $headersSize),
+            substr($response, 0, $headersSize),
+            $httpStatus,
+            $url
+        );
+
+        return new BookboonResponse($responseArray, $headers);
     }
 
     /**

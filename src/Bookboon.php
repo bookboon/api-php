@@ -20,9 +20,11 @@ namespace Bookboon\Api;
  */
 
 use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
+use Psr\Http\Message\ResponseInterface;
 
 class Bookboon
 {
@@ -62,7 +64,7 @@ class Bookboon
      * @param array $variables
      * @param $httpMethod
      * @param bool $shouldCache
-     * @return array
+     * @return BookboonResponse
      */
     public function rawRequest($url, array $variables = [], $httpMethod = Client::HTTP_GET, $shouldCache = true)
     {

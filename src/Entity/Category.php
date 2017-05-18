@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Exception\BadUUIDException;
 
@@ -16,11 +17,21 @@ class Category extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $categoryId
-     * @return Category|bool
+     * @return BookboonResponse
      */
     public static function get(Bookboon $bookboon, $categoryId)
     {
-        return new static($bookboon->rawRequest("/categories/$categoryId"));
+        $bResponse = $bookboon->rawRequest("/categories/$categoryId");
+
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    new static($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     /**
@@ -29,17 +40,27 @@ class Category extends Entity
      * @param Bookboon $bookboon
      * @param array $blacklistedCategoryIds
      * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
-     * @return Category[]
+     * @return BookboonResponse
      */
     public static function getTree(Bookboon $bookboon, array $blacklistedCategoryIds = array(), $depth = 2)
     {
-        $categories = $bookboon->rawRequest('/categories', array('depth' => $depth));
+        $bResponse = $bookboon->rawRequest('/categories', array('depth' => $depth));
+
+        $categories = $bResponse->getReturnArray();
 
         if (count($blacklistedCategoryIds) !== 0) {
             self::recursiveBlacklist($categories, $blacklistedCategoryIds);
         }
 
-        return Category::getEntitiesFromArray($categories);
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    Category::getEntitiesFromArray($categories)
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     private static function recursiveBlacklist(&$categories, $blacklistedCategoryIds)
@@ -65,9 +86,9 @@ class Category extends Entity
      */
     public static function getDownloadUrl(Bookboon $bookboon, $categoryId, array $variables)
     {
-        $download = $bookboon->rawRequest("/categories/$categoryId/download", $variables, Client::HTTP_POST);
+        $bResponse = $bookboon->rawRequest("/categories/$categoryId/download", $variables, Client::HTTP_POST);
 
-        return $download['url'];
+        return $bResponse->getReturnArray()['url'];
     }
 
     protected function isValid(array $array)

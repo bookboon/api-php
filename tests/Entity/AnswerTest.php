@@ -18,7 +18,7 @@ class AnswerTest extends \PHPUnit_Framework_TestCase
     {
         include_once(__DIR__ . '/../Helpers.php');
         $bookboon = \Helpers::getBookboon();
-        self::$data = Question::get($bookboon);
+        self::$data = Question::get($bookboon)->getEntityStore()->get();
     }
 
     public function testGetText()

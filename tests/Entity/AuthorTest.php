@@ -18,7 +18,7 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
     {
         include_once(__DIR__ . '/../Helpers.php');
         $bookboon = \Helpers::getBookboon();
-        self::$data = Author::get($bookboon, '0908031c-ce02-9b86-11e6-6dd9aa4699d1');
+        self::$data = Author::get($bookboon, '0908031c-ce02-9b86-11e6-6dd9aa4699d1')->getEntityStore()->get();
     }
 
     public function providerTestGetters()
