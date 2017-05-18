@@ -3,16 +3,15 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Exception\BadUUIDException;
 
 class Author extends Entity
 {
     /**
-     * Get Author.
-     *
      * @param Bookboon $bookboon
-     * @param string $authorId
-     * @return Author
+     * @param $authorId
+     * @return BookboonResponse
      * @throws BadUUIDException
      */
     public static function get(Bookboon $bookboon, $authorId)
@@ -21,7 +20,17 @@ class Author extends Entity
             throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
-        return new static($bookboon->rawRequest("/authors/$authorId"));
+        $bResponse = $bookboon->rawRequest("/authors/$authorId");
+
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    new static($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     /**
@@ -29,7 +38,7 @@ class Author extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $bookId
-     * @return Author[]
+     * @return BookboonResponse
      * @throws BadUUIDException
      */
     public function getByBookId(Bookboon $bookboon, $bookId)
@@ -38,9 +47,17 @@ class Author extends Entity
             throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
-        $authors = $bookboon->rawRequest("/books/$bookId/authors");
+        $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
 
-        return static::getEntitiesFromArray($authors);
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    static::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     protected function isValid(array $array)

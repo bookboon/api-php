@@ -117,7 +117,14 @@ class OauthClient implements Client
             $response = $e->getResponse();
         }
 
-        return $this->handleResponse($response->getBody()->getContents(), $response->getHeaders(), $response->getStatusCode(), $url);
+        $responseArray = $this->handleResponse(
+            $response->getBody()->getContents(),
+            $response->getHeaders(),
+            $response->getStatusCode(),
+            $url
+        );
+
+        return new BookboonResponse($responseArray, $response->getHeaders());
     }
 
     /**

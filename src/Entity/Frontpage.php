@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Exception\UsageException;
 
 class Frontpage extends Entity
@@ -16,11 +17,21 @@ class Frontpage extends Entity
      * Get all front page books
      *
      * @param Bookboon $bookboon
-     * @return Frontpage[]
+     * @return BookboonResponse
      */
     public static function get(Bookboon $bookboon)
     {
-        return Frontpage::getEntitiesFromArray($bookboon->rawRequest("/frontpage"));
+        $bResponse = $bookboon->rawRequest("/frontpage");
+
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    Frontpage::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     /**

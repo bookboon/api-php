@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BookboonResponse;
 
 class Question extends Entity
 {
@@ -11,13 +12,21 @@ class Question extends Entity
      *
      * @param Bookboon $bookboon
      * @param array $answerIds array of answer ids, can be empty
-     * @return Question[]
+     * @return BookboonResponse
      */
     public static function get(Bookboon $bookboon, array $answerIds = array())
     {
-        $questions = $bookboon->rawRequest('/questions', array('answer' => $answerIds));
+        $bResponse =  $bookboon->rawRequest('/questions', array('answer' => $answerIds));
 
-        return Question::getEntitiesFromArray($questions);
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    Question::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     protected function isValid(array $array)

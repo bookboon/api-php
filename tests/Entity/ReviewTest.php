@@ -15,7 +15,7 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
     {
         include_once(__DIR__ . '/../Helpers.php');
         $bookboon = \Helpers::getBookboon();
-        self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58');
+        self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58')->getEntityStore()->get();
     }
 
     public function testGetAuthor()

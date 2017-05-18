@@ -19,7 +19,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
     {
         include_once(__DIR__ . '/../Helpers.php');
         self::$bookboon = \Helpers::getBookboon();
-        self::$data = Question::get(self::$bookboon);
+        self::$data = Question::get(self::$bookboon)->getEntityStore()->get();
     }
 
     public function testGetText()
@@ -40,7 +40,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $answers = $firstQuestion->getAnswers();
         $firstAnswer = $answers[0];
 
-        $questions = Question::get(self::$bookboon, array($firstAnswer->getId()));
+        $questions = Question::get(self::$bookboon, array($firstAnswer->getId()))->getEntityStore()->get();
         $this->assertGreaterThan(1, count($questions));
     }
 

@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\Client;
 use Bookboon\Api\Exception\BadUUIDException;
 
@@ -13,7 +14,7 @@ class Review extends Entity
      * Get Reviews for specified Book.
      *
      * @param $bookId
-     * @return array of Review objects
+     * @return BookboonResponse
      *
      * @throws BadUUIDException
      */
@@ -23,9 +24,17 @@ class Review extends Entity
             throw new BadUUIDException("UUID Not Formatted Correctly");
         }
 
-        $reviews = $bookboon->rawRequest("/books/$bookId/review");
+        $bResponse = $bookboon->rawRequest("/books/$bookId/review");
 
-        return Review::getEntitiesFromArray($reviews);
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    Review::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
     }
 
     /**
