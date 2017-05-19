@@ -44,7 +44,9 @@ class Frontpage extends Entity
      */
     public static function getBySlug(Bookboon $bookboon, $slug)
     {
-        foreach (self::get($bookboon) as $frontpage) {
+        $frontpageArray =  self::get($bookboon)->getEntityStore()->get();
+
+        foreach ($frontpageArray as $frontpage) {
             if ($frontpage->getSlug() === $slug) {
                 return $frontpage;
             }
