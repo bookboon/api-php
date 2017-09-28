@@ -77,10 +77,10 @@ class Book extends Entity
      * @param bool $extendedMetadata
      * @return BookboonResponse
      */
-    public static function getAll(Bookboon $bookboon, $extendedMetadata = false)
+    public static function getAll(Bookboon $bookboon, $extendedMetadata = false, $type = self::_OWN_TYPE)
     {
         $variables = array(
-            'bookType' => static::_OWN_TYPE,
+            'bookType' => $type,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         );
 
