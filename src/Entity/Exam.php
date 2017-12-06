@@ -53,7 +53,7 @@ class Exam extends Entity
         $bResponse->setEntityStore(
             new EntityStore(
                 [
-                    Exam::getEntitiesFromArray($exams)
+                    Exam::getEntitiesFromArray($bResponse->getReturnArray())
                 ]
             )
         );
