@@ -17,8 +17,11 @@ class BookboonProvider extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
-    const AUTHORIZE = '/authorize';
-    const ACCESS_TOKEN = '/access_token';
+
+    const AUTHORIZE = '/login/authorize';
+    const ACCESS_TOKEN = '/login/access_token';
+    const PROTOCOL = 'https';
+    const HOST = 'bookboon.com';
 
     /**
      * @var string
@@ -80,7 +83,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getBaseAuthorizationUrl()
     {
-        return Client::API_PROTOCOL . '://' . Client::API_URL . self::AUTHORIZE;
+        return self::PROTOCOL . '://' . self::HOST . self::AUTHORIZE;
     }
 
     /**
@@ -93,7 +96,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getBaseAccessTokenUrl(array $params)
     {
-        return Client::API_PROTOCOL . '://' . Client::API_URL . self::ACCESS_TOKEN;
+        return self::PROTOCOL . '://' . self::HOST . self::ACCESS_TOKEN;
     }
 
     /**
@@ -104,7 +107,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return Client::API_PROTOCOL . '://' . Client::API_URL . '/_application';
+        return self::HOST . '://' . self::HOST . '/login/userinfo';
     }
 
     /**
