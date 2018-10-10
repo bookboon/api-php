@@ -69,7 +69,7 @@ class Exam extends Entity
 
     protected function isValid(array $array)
     {
-        return isset($array['_id'], $array['title'], $array['book'], $array['passScore'], $array['timeSeconds']);
+        return isset($array['_id'], $array['title'], $array['passScore'], $array['timeSeconds']);
     }
 
     /**
