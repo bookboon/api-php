@@ -44,10 +44,6 @@ class Exam extends Entity
      */
     public static function getByBookId(Bookboon $bookboon, $bookId)
     {
-        if (false === Entity::isValidUUID($bookId)) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
-        }
-
         $bResponse = $bookboon->rawRequest("/books/$bookId/exams");
 
         $bResponse->setEntityStore(
