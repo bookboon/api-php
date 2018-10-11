@@ -4,6 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
+use Bookboon\Api\Client\Client;
 
 class Question extends Entity
 {
@@ -12,11 +13,37 @@ class Question extends Entity
      *
      * @param Bookboon $bookboon
      * @param array $answerIds array of answer ids, can be empty
+     * @param string $rootSegmentId
      * @return BookboonResponse
      */
-    public static function get(Bookboon $bookboon, array $answerIds = array())
+    public static function get(Bookboon $bookboon, array $answerIds = array(), $rootSegmentId = '')
     {
-        $bResponse =  $bookboon->rawRequest('/questions', array('answer' => $answerIds));
+        $url = $rootSegmentId == '' ? '/questions' : '/questions/' . $rootSegmentId;
+        $bResponse =  $bookboon->rawRequest($url, array('answer' => $answerIds));
+
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    Question::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
+    }
+
+    /**
+     * Post Questions.
+     *
+     * @param Bookboon $bookboon
+     * @param array $answerIds
+     * @param string $rootSegmentId
+     * @return BookboonResponse
+     */
+    public static function send(Bookboon $bookboon, array $answerIds = array(), $rootSegmentId = '')
+    {
+        $url = $rootSegmentId == '' ? '/questions' : '/questions/' . $rootSegmentId;
+        $bResponse =  $bookboon->rawRequest($url, array('answer' => $answerIds), Client::HTTP_POST);
 
         $bResponse->setEntityStore(
             new EntityStore(
