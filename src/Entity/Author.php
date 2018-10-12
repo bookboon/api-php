@@ -43,10 +43,6 @@ class Author extends Entity
      */
     public function getByBookId(Bookboon $bookboon, $bookId)
     {
-        if (Entity::isValidUUID($bookId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
-        }
-
         $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
 
         $bResponse->setEntityStore(
@@ -140,7 +136,7 @@ class Author extends Entity
      */
     public function getProfile()
     {
-        return $this->safeGet('profile');
+        return $this->safeGet('profileText');
     }
 
     /**

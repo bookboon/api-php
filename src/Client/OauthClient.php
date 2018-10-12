@@ -23,7 +23,7 @@ class OauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
-    const C_VERSION = '1.0';
+    const C_VERSION = '2.0';
 
     /** @var AccessToken */
     private $accessToken;
