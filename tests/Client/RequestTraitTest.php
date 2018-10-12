@@ -68,7 +68,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
 
     private function getCacheMock()
     {
-        return $this->getMock('\Bookboon\Api\Cache\Cache');
+        return $this->getMockBuilder('\Bookboon\Api\Cache\Cache')->getMock();
     }
 
     public function testMakeRequestNotCached()

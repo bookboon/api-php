@@ -45,9 +45,21 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthorizationCodeUrlSuccessful()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->getAuthorizationUrl();
-        $this->assertStringStartsWith("https://bookboon.com/api/authorize?", $result);
+        $client = new OauthClient(
+            \Helpers::getApiId(),
+            \Helpers::getApiSecret(),
+            new Headers(),
+            array("basic"),
+            null,
+            "http://subsites-local.bookboon.com/skeleton/web/exam/authorize"
+        );
+
+        $result = $client->getAuthorizationUrl(array(
+            'app_user_id' => 'test',
+            'response_type' => 'custom_flow'
+        ));
+
+        $this->assertStringStartsWith("https://bookboon.com/login/authorize?", $result);
 
         return $result;
     }
