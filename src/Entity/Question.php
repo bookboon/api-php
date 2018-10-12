@@ -36,23 +36,14 @@ class Question extends Entity
      * Post Questions.
      *
      * @param Bookboon $bookboon
-     * @param array $answerIds
+     * @param array $variables
      * @param string $rootSegmentId
      * @return BookboonResponse
      */
-    public static function send(Bookboon $bookboon, array $answerIds = array(), $rootSegmentId = '')
+    public static function send(Bookboon $bookboon, array $variables = array(), $rootSegmentId = '')
     {
         $url = $rootSegmentId == '' ? '/questions' : '/questions/' . $rootSegmentId;
-        $bResponse =  $bookboon->rawRequest($url, array('answer' => $answerIds), Client::HTTP_POST);
-
-        $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Question::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
-        );
-
+        $bResponse = $bookboon->rawRequest($url, $variables, Client::HTTP_POST);
         return $bResponse;
     }
 
