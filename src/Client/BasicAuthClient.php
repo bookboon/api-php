@@ -167,7 +167,7 @@ class BasicAuthClient implements Client
      * @param $appUserId
      * @throws UsageException
      */
-    public function setAppUserId($appUserId)
+    public function setAct($appUserId)
     {
         throw new UsageException("Not Supported");
     }
@@ -176,7 +176,7 @@ class BasicAuthClient implements Client
      * @return string
      * @throws UsageException
      */
-    public function getAppUserId()
+    public function getAct()
     {
         throw new UsageException("Not Supported");
     }
