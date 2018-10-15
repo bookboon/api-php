@@ -29,7 +29,7 @@ class OauthClient implements Client
     private $accessToken;
 
     /** @var string */
-    protected $appUserId;
+    protected $act;
 
     /** @var BookboonProvider */
     protected $provider;
@@ -60,7 +60,7 @@ class OauthClient implements Client
 
         $this->setCache($cache);
         $this->setHeaders($headers);
-        $this->setAppUserId($appUserId);
+        $this->setAct($appUserId);
     }
 
     /**
@@ -135,8 +135,8 @@ class OauthClient implements Client
     {
         $provider = $this->provider;
 
-        if (null != $this->appUserId && false === isset($options['app_user_id'])) {
-            $options['app_user_id'] = $this->appUserId;
+        if (null != $this->act && false === isset($options['act'])) {
+            $options['act'] = $this->act;
         }
 
         $url = $provider->getAuthorizationUrl($options);
@@ -159,8 +159,8 @@ class OauthClient implements Client
             throw new UsageException("This oauth flow requires a code");
         }
 
-        if (null === $this->appUserId) {
-            $options['app_user_id'] = $this->appUserId;
+        if (null === $this->act) {
+            $options['act'] = $this->act;
         }
 
         try {
@@ -168,6 +168,7 @@ class OauthClient implements Client
         }
 
         catch (IdentityProviderException $e) {
+            //TODO: Parse and send this with exception (string) $e->getResponseBody()->getBody()
             throw new ApiAuthenticationException("Authorization Failed");
         }
 
@@ -248,19 +249,19 @@ class OauthClient implements Client
     }
 
     /**
-     * @param $appUserId
+     * @param $act
      */
-    public function setAppUserId($appUserId)
+    public function setAct($act)
     {
-        $this->appUserId = $appUserId;
+        $this->act = $act;
     }
 
     /**
      * @return string
      */
-    public function getAppUserId()
+    public function getAct()
     {
-        return $this->appUserId;
+        return $this->act;
     }
 
     /**

@@ -58,8 +58,8 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
     public function providerNotSupported()
     {
         return [
-            ["setAppUserId"],
-            ["getAppUserId"],
+            ["setAct"],
+            ["getAct"],
             ["getAccessToken"],
             ["isCorrectState"],
             ["generateState"],

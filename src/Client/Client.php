@@ -69,12 +69,12 @@ interface Client
      * @param $appUserId
      * @return void
      */
-    public function setAppUserId($appUserId);
+    public function setAct($appUserId);
 
     /**
      * @return string
      */
-    public function getAppUserId();
+    public function getAct();
 
     /**
      * @param AccessToken $accessToken
