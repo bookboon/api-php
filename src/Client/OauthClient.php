@@ -54,7 +54,7 @@ class OauthClient implements Client
         $this->provider = new BookboonProvider([
             'clientId'      => $apiId,
             'clientSecret'  => $apiSecret,
-            'scopes'        => $scopes,
+            'scope'         => $scopes,
             'redirectUri'   => $redirectUri
         ]);
 
@@ -157,10 +157,6 @@ class OauthClient implements Client
 
         if ($type == OauthGrants::AUTHORIZATION_CODE && !isset($options["code"])) {
             throw new UsageException("This oauth flow requires a code");
-        }
-
-        if (null === $this->act) {
-            $options['act'] = $this->act;
         }
 
         try {
