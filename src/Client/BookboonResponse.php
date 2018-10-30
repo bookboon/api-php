@@ -9,27 +9,27 @@ class BookboonResponse
     /**
      * @var array
      */
-    protected $returnArray;
+    protected $responseArray;
 
     /**
      * @var array
      */
-    protected $headers;
+    protected $responseHeaders;
 
     /**
-     * @var array
+     * @var EntityStore
      */
     protected $entityStore;
 
     /**
      * BookboonResponse constructor.
-     * @param $returnArray
-     * @param $headers
+     * @param array $responseArray
+     * @param array $responseHeaders
      */
-    public function __construct($returnArray, $headers)
+    public function __construct(array $responseArray, array $responseHeaders)
     {
-        $this->returnArray = $returnArray;
-        $this->headers = $headers;
+        $this->responseArray = $responseArray;
+        $this->responseHeaders = $responseHeaders;
     }
 
     /**
@@ -37,7 +37,8 @@ class BookboonResponse
      */
     public function getHeaders()
     {
-        return $this->headers;
+
+        return $this->responseHeaders;
     }
 
     /**
@@ -45,11 +46,11 @@ class BookboonResponse
      */
     public function getReturnArray()
     {
-        return $this->returnArray;
+        return $this->responseArray;
     }
 
     /**
-     * @return array
+     * @return EntityStore
      */
     public function getEntityStore()
     {
@@ -57,7 +58,7 @@ class BookboonResponse
     }
 
     /**
-     * @param $entityStore
+     * @param EntityStore $entityStore
      */
     public function setEntityStore(EntityStore $entityStore)
     {

@@ -23,7 +23,9 @@ class OauthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
-    const C_VERSION = '2.0';
+    const C_VERSION = '2.1';
+
+    protected $_apiUri;
 
     /** @var AccessToken */
     private $accessToken;
@@ -41,12 +43,23 @@ class OauthClient implements Client
      * @param Headers $headers
      * @param array $scopes
      * @param Cache $cache
-     * @param $redirectUri
-     * @param $appUserId
+     * @param string $redirectUri
+     * @param string $appUserId
+     * @param string|null $authServiceUri
+     * @param string|null $apiUri
      * @throws UsageException
      */
-    public function __construct($apiId, $apiSecret, Headers $headers, array $scopes, Cache $cache = null, $redirectUri = null, $appUserId = null)
-    {
+    public function __construct(
+        $apiId,
+        $apiSecret,
+        Headers $headers,
+        array $scopes,
+        Cache $cache = null,
+        $redirectUri = null,
+        $appUserId = null,
+        $authServiceUri = null,
+        $apiUri = null
+    ) {
         if (empty($apiId)) {
             throw new UsageException("Client id is required");
         }
@@ -55,24 +68,31 @@ class OauthClient implements Client
             'clientId'      => $apiId,
             'clientSecret'  => $apiSecret,
             'scope'         => $scopes,
-            'redirectUri'   => $redirectUri
+            'redirectUri'   => $redirectUri,
+            'baseUri'       => $authServiceUri
         ]);
 
         $this->setCache($cache);
         $this->setHeaders($headers);
         $this->setAct($appUserId);
+
+        $this->_apiUri = $this->parseUriOrDefault($apiUri);
     }
 
     /**
-     * @param $url
+     * @param string $uri
      * @param string $type
      * @param array $variables
      * @param string $contentType
-     * @return mixed
+     * @return BookboonResponse
      * @throws ApiAccessTokenExpired
      * @throws ApiAuthenticationException
+     * @throws \Bookboon\Api\Exception\ApiGeneralException
+     * @throws \Bookboon\Api\Exception\ApiNotFoundException
+     * @throws \Bookboon\Api\Exception\ApiSyntaxException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_JSON)
+    protected function executeQuery($uri, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_JSON)
     {
         if (!($this->getAccessToken() instanceof AccessToken)) {
             throw new ApiAuthenticationException("Not authenticated");
@@ -83,8 +103,6 @@ class OauthClient implements Client
             'headers' => $this->headers->getHeadersArray()
         ];
         $options['headers']['User-Agent'] = $this->getUserAgentString();
-        
-        $url = Client::API_PROTOCOL . '://' . $url;
 
         if (count($variables) > 0 && $type == Client::HTTP_POST) {
             $postType = $contentType == Client::CONTENT_TYPE_JSON ? 'json' : 'form_params';
@@ -94,7 +112,7 @@ class OauthClient implements Client
         try {
             $request = $this->provider->getAuthenticatedRequest(
                 $type,
-                $url,
+                $uri,
                 $this->getAccessToken()
             );
 
@@ -103,7 +121,6 @@ class OauthClient implements Client
 
             }
         }
-
         catch (IdentityProviderException $e) {
             throw new ApiAuthenticationException("Identity not found");
         }
@@ -121,7 +138,7 @@ class OauthClient implements Client
             $response->getBody()->getContents(),
             $response->getHeaders(),
             $response->getStatusCode(),
-            $url
+            $uri
         );
 
         return new BookboonResponse($responseArray, $response->getHeaders());
@@ -194,7 +211,7 @@ class OauthClient implements Client
 
     /**
      * @param AccessToken $accessToken
-     * @return mixed|void
+     * @return void
      * @throws ApiAccessTokenExpired
      */
     public function setAccessToken(AccessToken $accessToken)
@@ -209,9 +226,8 @@ class OauthClient implements Client
     /**
      * @param $stateParameter
      * @param $stateSession
-     * @return bool
+     * @return boolean
      * @throws ApiInvalidStateException
-     * @throws UsageException
      */
     public function isCorrectState($stateParameter, $stateSession)
     {
@@ -268,13 +284,29 @@ class OauthClient implements Client
         return $this->accessToken;
     }
 
+    /**
+     * @param $request
+     * @param $data
+     * @return void
+     */
     protected function reportDeveloperInfo($request, $data)
     {
         // TODO: Implement reportDeveloperInfo() method.
     }
 
+    /**
+     * @return string
+     */
     protected function getComponentVersion()
     {
         return self::C_VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBaseApiUri()
+    {
+        return $this->_apiUri;
     }
 }

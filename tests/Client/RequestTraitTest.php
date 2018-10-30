@@ -20,43 +20,47 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
     public function testPlainGet()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+        $mock->method("getBaseApiUri")->willReturn(Client::API_HOST . Client::API_PATH);
 
         $mock->method('executeQuery')
              ->will($this->returnCallback(array($this, 'callingBack')));
 
         $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(Client::API_URL . '/plain_get', $this->returnValues[0]);
+        $this->assertEquals(Client::API_HOST . Client::API_PATH . '/plain_get', $this->returnValues[0]);
     }
 
     public function testGetWithQueryString()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+        $mock->method("getBaseApiUri")->willReturn(Client::API_HOST . Client::API_PATH);
 
         $mock->method('executeQuery')
             ->will($this->returnCallback(array($this, 'callingBack')));
 
         $mock->makeRequest('/get_query_string', array("query2" => "test1"));
 
-        $this->assertEquals(Client::API_URL . '/get_query_string?query2=test1', $this->returnValues[0]);
+        $this->assertEquals(Client::API_HOST . Client::API_PATH . '/get_query_string?query2=test1', $this->returnValues[0]);
     }
 
     public function testPlainPost()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+        $mock->method("getBaseApiUri")->willReturn(Client::API_HOST . Client::API_PATH);
 
         $mock->method('executeQuery')
             ->will($this->returnCallback(array($this, 'callingBack')));
 
         $mock->makeRequest('/plain_post', array(), Client::HTTP_POST);
 
-        $this->assertEquals(Client::API_URL . '/plain_post', $this->returnValues[0]);
+        $this->assertEquals(Client::API_HOST . Client::API_PATH . '/plain_post', $this->returnValues[0]);
         $this->assertEquals(Client::HTTP_POST, $this->returnValues[1]);
     }
 
     public function testPlainPostWithValues()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+        $mock->method("getBaseApiUri")->willReturn(Client::API_HOST . Client::API_PATH);
 
         $mock->method('executeQuery')
             ->will($this->returnCallback(array($this, 'callingBack')));
@@ -74,6 +78,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
     public function testMakeRequestNotCached()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
+        $mock->method("getBaseApiUri")->willReturn(Client::API_HOST . Client::API_PATH);
 
         $cacheMock = $this->getCacheMock();
         $cacheMock->method("get")->willReturn(false);
@@ -89,7 +94,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
         $result = $mock->makeRequest('/plain_get');
 
         $this->assertNull($result);
-        $this->assertEquals(Client::API_URL . '/plain_get', $this->returnValues[0]);
+        $this->assertEquals(Client::API_HOST . Client::API_PATH . '/plain_get', $this->returnValues[0]);
     }
 
     public function testMakeRequestCached()
