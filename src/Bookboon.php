@@ -41,30 +41,42 @@ class Bookboon
     }
 
     /**
-     * @param $appId
-     * @param $appSecret
+     * @param string $appId
+     * @param string $appSecret
      * @param array $scopes
      * @param array $headers
-     * @param null $appUserId
-     * @param null $redirectUri
+     * @param string|null $appUserId
+     * @param string|null $redirectUri
      * @param Cache|null $cache
      * @return Bookboon
+     * @throws Exception\UsageException
      */
-    public static function create($appId, $appSecret, array $scopes, array $headers = [], $appUserId = null, $redirectUri = null, Cache $cache = null)
-    {
+    public static function create(
+        $appId,
+        $appSecret,
+        array $scopes,
+        array $headers = [],
+        $appUserId = null,
+        $redirectUri = null,
+        Cache $cache = null
+    ) {
         $headersObject = new Headers();
         foreach ($headers as $key => $value) {
             $headersObject->set($key, $value);
         }
 
-        return new Bookboon(new OauthClient($appId, $appSecret, $headersObject, $scopes, $cache, $redirectUri, $appUserId));
+        return new Bookboon(
+            new OauthClient($appId, $appSecret, $headersObject, $scopes, $cache, $redirectUri, $appUserId)
+        );
     }
+
     /**
-     * @param $url
+     * @param string $url
      * @param array $variables
-     * @param $httpMethod
-     * @param bool $shouldCache
+     * @param string $httpMethod
+     * @param boolean $shouldCache
      * @return BookboonResponse
+     * @throws Exception\UsageException
      */
     public function rawRequest($url, array $variables = [], $httpMethod = Client::HTTP_GET, $shouldCache = true)
     {
