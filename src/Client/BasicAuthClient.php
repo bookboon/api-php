@@ -15,7 +15,7 @@ class BasicAuthClient implements Client
 {
     use ClientTrait, ResponseTrait, RequestTrait;
 
-    const C_VERSION = '2.0';
+    const C_VERSION = '2.1';
 
     protected static $CURL_REQUESTS;
 
@@ -28,7 +28,18 @@ class BasicAuthClient implements Client
         CURLOPT_SSL_VERIFYHOST => 2,
     );
 
-    public function __construct($apiId, $apiSecret, Headers $headers, Cache $cache = null)
+    protected $_apiUri;
+
+    /**
+     * BasicAuthClient constructor.
+     * @param string $apiId
+     * @param string $apiSecret
+     * @param Headers $headers
+     * @param Cache|null $cache
+     * @param string|null $apiUri
+     * @throws UsageException
+     */
+    public function __construct($apiId, $apiSecret, Headers $headers, Cache $cache = null, $apiUri = null)
     {
         if (empty($apiId) || empty($apiSecret)) {
             throw new UsageException("Key and secret are required");
@@ -38,23 +49,32 @@ class BasicAuthClient implements Client
         $this->setApiSecret($apiSecret);
         $this->setCache($cache);
         $this->setHeaders($headers);
+
+        $this->_apiUri = $this->parseUriOrDefault($apiUri);
     }
 
     /**
      * Makes the actual query call to the remote api.
      *
-     * @param string $url The url relative to the address
+     * @param string $uri The url relative to the address
      * @param string $type Bookboon::HTTP_GET or  Bookboon::HTTP_POST
      * @param array $variables array of post variables (key => value)
-     * @oaram string $contentType
-     *
      * @param string $contentType
      * @return BookboonResponse
+     * @throws ApiAuthenticationException
      * @throws ApiGeneralException
      * @throws ApiTimeoutException
+     * @throws \Bookboon\Api\Exception\ApiNotFoundException
+     * @throws \Bookboon\Api\Exception\ApiSyntaxException
+     * @oaram string $contentType
+     *
      */
-    protected function executeQuery($url, $type = self::HTTP_GET, $variables = array(), $contentType = self::CONTENT_TYPE_FORM)
-    {
+    protected function executeQuery(
+        $uri,
+        $type = self::HTTP_GET,
+        $variables = array(),
+        $contentType = self::CONTENT_TYPE_FORM
+    ) {
         $http = curl_init();
         $headers = $this->getHeaders()->getAll();
 
@@ -70,7 +90,7 @@ class BasicAuthClient implements Client
         }
 
         curl_setopt($http, CURLOPT_USERAGENT, $this->getUserAgentString());
-        curl_setopt($http, CURLOPT_URL, Client::API_PROTOCOL . "://$url");
+        curl_setopt($http, CURLOPT_URL, $uri);
         curl_setopt($http, CURLOPT_USERPWD, $this->getApiId() . ':' . $this->getApiSecret());
         curl_setopt($http, CURLOPT_HTTPHEADER, $headers);
 
@@ -97,7 +117,7 @@ class BasicAuthClient implements Client
             substr($response, $headersSize),
             substr($response, 0, $headersSize),
             $httpStatus,
-            $url
+            $uri
         );
 
         return new BookboonResponse($responseArray, $headers);
@@ -153,8 +173,8 @@ class BasicAuthClient implements Client
     }
 
     /**
-     * @param $variables
-     * @param $contentType
+     * @param array $variables
+     * @param string $contentType
      * @return string
      */
     protected function encodeByContentType(array $variables, $contentType)
@@ -164,7 +184,7 @@ class BasicAuthClient implements Client
 
 
     /**
-     * @param $appUserId
+     * @param string $appUserId
      * @throws UsageException
      */
     public function setAct($appUserId)
@@ -202,10 +222,9 @@ class BasicAuthClient implements Client
     }
 
     /**
-     * @param $stateParameter
-     * @param $stateSession
-     * @return bool
-     * @throws ApiInvalidStateException
+     * @param string $stateParameter
+     * @param string  $stateSession
+     * @return boolean
      * @throws UsageException
      */
     public function isCorrectState($stateParameter, $stateSession)
@@ -213,8 +232,19 @@ class BasicAuthClient implements Client
         throw new UsageException("Not Supported");
     }
 
+    /**
+     * @return string
+     */
     protected function getComponentVersion()
     {
         return self::C_VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBaseApiUri()
+    {
+        return $this->_apiUri;
     }
 }

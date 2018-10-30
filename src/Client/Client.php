@@ -19,9 +19,10 @@ interface Client
     const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
 
     const API_PROTOCOL = 'https';
-    const API_URL = 'bookboon.com/api';
+    const API_HOST = 'bookboon.com';
+    const API_PATH = '/api';
 
-    const VERSION = 'Bookboon-PHP/3.0';
+    const VERSION = 'Bookboon-PHP/3.1';
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.

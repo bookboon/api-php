@@ -23,7 +23,7 @@ class BookboonProvider extends AbstractProvider
 
     public function __construct(array $options = [], array $collaborators = [])
     {
-        if (isset($options['baseUri'])) {
+        if (isset($options['baseUri']) && $options['baseUri'] != "") {
             $parts = explode('://', $options['baseUri']);
             $this->protocol = $parts[0];
             $this->host = $parts[1];

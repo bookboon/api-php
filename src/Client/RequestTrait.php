@@ -8,13 +8,18 @@ use Bookboon\Api\Exception\UsageException;
 trait RequestTrait
 {
     /**
-     * @param $url
+     * @param string $uri
      * @param string $type
      * @param array $variables
      * @param string $contentType
      * @return mixed
      */
-    abstract protected function executeQuery($url, $type = Client::HTTP_GET, $variables = array(), $contentType = 'application/x-www-form-urlencoded');
+    abstract protected function executeQuery(
+        $uri,
+        $type = Client::HTTP_GET,
+        $variables = array(),
+        $contentType = Client::CONTENT_TYPE_FORM
+    );
 
     /**
      * @return Cache|null
@@ -48,7 +53,11 @@ trait RequestTrait
      */
     public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true, $contentType = Client::CONTENT_TYPE_JSON)
     {
-        $queryUrl = Client::API_URL . $relativeUrl;
+        if (strpos($relativeUrl, '/') !== 0) {
+            throw new UsageException('Location must begin with forward slash');
+        }
+
+        $queryUrl = $this->getBaseApiUri() . $relativeUrl;
         $postVariables = array();
 
         if ($httpMethod == Client::HTTP_GET && count($variables) !== 0) {
@@ -59,9 +68,6 @@ trait RequestTrait
             $postVariables = $variables;
         }
 
-        if (substr($relativeUrl, 0, 1) !== '/') {
-            throw new UsageException('Location must begin with forward slash');
-        }
 
         if ($this->getCache() != null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $result = $this->getFromCache($queryUrl);
@@ -108,5 +114,37 @@ trait RequestTrait
 
         return $result;
     }
+
+    /**
+     * @param string $uri
+     * @return string
+     * @throws UsageException
+     */
+    protected function parseUriOrDefault($uri)
+    {
+        $protocol = Client::API_PROTOCOL;
+        $host = Client::API_HOST;
+        $path = Client::API_PATH;
+
+        if (!empty($uri)) {
+            $parts = explode('://', $uri);
+            $protocol = $parts[0];
+            $host = $parts[1];
+            if (strpos($host, '/') !== false) {
+                throw new UsageException('URI must not contain forward slashes');
+            }
+        }
+
+        if ($protocol != 'http' && $protocol != 'https') {
+            throw new UsageException('Invalid protocol specified in URI');
+        }
+
+        return "${protocol}://${host}${path}";
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getBaseApiUri();
 
 }
