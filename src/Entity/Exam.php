@@ -57,6 +57,27 @@ class Exam extends Entity
         return $bResponse;
     }
 
+    /**
+     * Get many exams
+     *
+     * @param Bookboon $bookboon
+     * @return BookboonResponse
+     */
+    public static function getAll(Bookboon $bookboon)
+    {
+        $bResponse = $bookboon->rawRequest("/exams");
+
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    static::getEntitiesFromArray($bResponse->getReturnArray())
+                ]
+            )
+        );
+
+        return $bResponse;
+    }
+
     public static function start(Bookboon $bookboon, $examId)
     {
         return $bookboon->rawRequest("/exams/$examId", [], Client::HTTP_POST)->getReturnArray();
