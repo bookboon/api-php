@@ -9,6 +9,7 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 
@@ -68,7 +69,7 @@ class BookboonProvider extends AbstractProvider
      * @param AccessToken $token
      * @return string
      */
-    public function getResourceOwnerDetailsUrl(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessTokenInterface $token)
     {
         return $this->protocol . "://" . $this->host . "/login/userinfo";
     }
@@ -137,7 +138,7 @@ class BookboonProvider extends AbstractProvider
      * @param  AccessToken $token
      * @return ResourceOwnerInterface
      */
-    protected function createResourceOwner(array $response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessTokenInterface $token)
     {
         return new BookboonResourceOwner($response);
     }
