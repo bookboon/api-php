@@ -62,6 +62,22 @@ class Author extends Entity
     }
 
     /**
+     * @return string
+     *
+     */
+    public function getProfileImage() {
+        return $this->safeGet('profileImage', '');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountry()
+    {
+        return $this->safeGet('country', '');
+    }
+
+    /**
      * @return string UUID of entity
      */
     public function getId()
