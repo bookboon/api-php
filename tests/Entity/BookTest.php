@@ -47,6 +47,7 @@ class BookTest extends \PHPUnit_Framework_TestCase
             'getAbstract' => array('getAbstract'),
             'getEdition' => array('getEdition'),
             'getPages' => array('getPages'),
+            'getPriceLevel' => array('getPriceLevel'),
             'getRatingCount' => array('getRatingCount'),
             'getRatingAverage' => array('getRatingAverage'),
             'getFormats' => array('getFormats'),

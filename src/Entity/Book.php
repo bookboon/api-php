@@ -393,6 +393,11 @@ class Book extends Entity
         return $this->safeGet('price');
     }
 
+    public function getPriceLevel()
+    {
+        return $this->safeGet('priceLevel');
+    }
+
     /**
      * Return book version.
      *
