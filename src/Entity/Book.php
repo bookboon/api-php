@@ -394,6 +394,16 @@ class Book extends Entity
     }
 
     /**
+     * Return price level set on book.
+     *
+     * @return int
+     */
+    public function getPremiumLevel()
+    {
+        return $this->safeGet('premiumLevel');
+    }
+
+    /**
      * Return book version.
      *
      * @return int version
