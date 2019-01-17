@@ -66,9 +66,11 @@ class MemcachedCache implements Cache
      *
      * @return bool
      */
-    public function save($key, $data)
+    public function save($key, $data, ?int $ttl = null)
     {
-        return $this->cache->set($key, $data, $this->ttl);
+        $ttl = $ttl ?? $this->ttl;
+
+        return $this->cache->set($key, $data, $ttl);
     }
 
     /**

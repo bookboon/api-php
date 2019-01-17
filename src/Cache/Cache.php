@@ -35,7 +35,7 @@ interface Cache
      * @param $data
      * @return bool if successful
      */
-    public function save($key, $data);
+    public function save($key, $data, ?int $ttl = null);
 
     /**
      * Delete from cache by key
