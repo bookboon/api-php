@@ -48,9 +48,11 @@ class RedisCache implements Cache
         return $this->redis !== null ? $this->redis->get($key) : false;
     }
 
-    public function save($key, $data)
+    public function save($key, $data, ?int $ttl = null)
     {
-        return $this->redis !== null ? $this->redis->setex($key, $this->ttl, $data) : false;
+        $ttl = $ttl ?? $this->ttl;
+
+        return $this->redis !== null ? $this->redis->setex($key, $ttl, $data) : false;
     }
 
     public function delete($key)
