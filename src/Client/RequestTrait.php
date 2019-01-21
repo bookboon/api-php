@@ -68,8 +68,8 @@ trait RequestTrait
             $postVariables = $variables;
         }
 
+        if ($this->getCache() !== null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
 
-        if ($this->getCache() != null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $result = $this->getFromCache($queryUrl);
 
             if ($result === false) {

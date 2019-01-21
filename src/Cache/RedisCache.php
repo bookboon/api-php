@@ -43,11 +43,26 @@ class RedisCache implements Cache
         }
     }
 
+    /**
+     * Get a cached object.
+     *
+     * @param $key
+     *
+     * @return mixed False is not found
+     */
     public function get($key)
     {
         return $this->redis !== null ? $this->redis->get($key) : false;
     }
 
+    /**
+     * Save in cache
+     *
+     * @param string $key
+     * @param $data
+     * @param int|null $ttl
+     * @return bool if successful
+     */
     public function save($key, $data, ?int $ttl = null)
     {
         $ttl = $ttl ?? $this->ttl;
@@ -55,9 +70,24 @@ class RedisCache implements Cache
         return $this->redis !== null ? $this->redis->setex($key, $ttl, $data) : false;
     }
 
+    /**
+     * Delete a cached object.
+     *
+     * @param $key
+     *
+     * @return bool if successful true
+     */
     public function delete($key)
     {
         return $this->redis->delete($key) === 1;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInitialized()
+    {
+        return $this->redis !== null;
     }
 
     protected function getSerializerValue()
@@ -66,13 +96,5 @@ class RedisCache implements Cache
             return \Redis::SERIALIZER_PHP;
         }
         return defined('Redis::SERIALIZER_IGBINARY') ? \Redis::SERIALIZER_IGBINARY : \Redis::SERIALIZER_PHP;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInitialized()
-    {
-        return $this->redis != null;
     }
 }
