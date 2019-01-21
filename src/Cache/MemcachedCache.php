@@ -59,12 +59,12 @@ class MemcachedCache implements Cache
     }
 
     /**
-     * Save an object.
+     * Save in cache
      *
-     * @param $key
+     * @param string $key
      * @param $data
-     *
-     * @return bool
+     * @param int|null $ttl
+     * @return bool if successful
      */
     public function save($key, $data, ?int $ttl = null)
     {
@@ -90,6 +90,6 @@ class MemcachedCache implements Cache
      */
     public function isInitialized()
     {
-        return $this->cache == null;
+        return $this->cache !== null;
     }
 }

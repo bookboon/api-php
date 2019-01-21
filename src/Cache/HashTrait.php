@@ -39,11 +39,7 @@ trait HashTrait
      */
     public function isCachable($url, $httpMethod)
     {
-        if ($httpMethod === Client::HTTP_GET && $this->isInitialized()) {
-            return true;
-        }
-
-        return false;
+        return $httpMethod === Client::HTTP_GET && $this->isInitialized();
     }
 
     /**

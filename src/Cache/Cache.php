@@ -33,6 +33,7 @@ interface Cache
      *
      * @param string $key
      * @param $data
+     * @param int|null $ttl
      * @return bool if successful
      */
     public function save($key, $data, ?int $ttl = null);
