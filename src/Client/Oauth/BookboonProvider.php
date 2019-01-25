@@ -2,13 +2,12 @@
 
 namespace Bookboon\Api\Client\Oauth;
 
-
-use App\Security\BookboonResourceOwner;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 
@@ -29,7 +28,7 @@ class BookboonProvider extends AbstractProvider
             $this->host = $parts[1];
         }
 
-        if ($this->protocol != 'http' && $this->protocol != 'https') {
+        if ($this->protocol !== 'http' && $this->protocol !== 'https') {
             throw new UsageException('Invalid protocol');
         }
 
@@ -82,7 +81,8 @@ class BookboonProvider extends AbstractProvider
     /**
      * @param mixed $grant
      * @param array $options
-     * @return AccessToken
+     * @return AccessTokenInterface
+     * @throws IdentityProviderException
      */
     public function getAccessToken($grant, array $options = [])
     {
@@ -120,11 +120,11 @@ class BookboonProvider extends AbstractProvider
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
-        if (isset($data['error'])) {
+        if (is_array($data) && isset($data['error'])) {
             throw new IdentityProviderException(
-                $data['error'] ?: $response->getReasonPhrase(),
+                $data['error'] ?? $response->getReasonPhrase(),
                 $response->getStatusCode(),
-                $response
+                $response->getBody()
             );
         }
     }

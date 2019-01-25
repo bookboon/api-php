@@ -16,7 +16,7 @@ class ClientTraitTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["setHeaders", "getHeaders", new Headers()],
-            ["setCache", "getCache", $this->getMock('\Bookboon\Api\Cache\Cache')]
+            ["setCache", "getCache", $this->getMock('\Bookboon\Api\Cache\CacheInterface')]
         ];
     }
 

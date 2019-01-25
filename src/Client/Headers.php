@@ -12,11 +12,11 @@ class Headers
     const HEADER_LANGUAGE = 'Accept-Language';
     const HEADER_XFF = 'X-Forwarded-For';
 
-    private $headers = array();
+    private $headers = [];
 
     public function __construct()
     {
-        $this->set(static::HEADER_XFF, $this->getRemoteAddress());
+        $this->set(static::HEADER_XFF, $this->getRemoteAddress() ?? '');
     }
 
     /**
@@ -24,8 +24,9 @@ class Headers
      *
      * @param string $header
      * @param string $value
+     * @return void
      */
-    public function set($header, $value)
+    public function set(string $header, string $value) : void
     {
         $this->headers[$header] = $value;
     }
@@ -33,13 +34,13 @@ class Headers
     /**
      * Get specific header.
      *
-     * @param $header
+     * @param string $header
      *
-     * @return bool|string false if header is not set or string value of header
+     * @return string|null false if header is not set or string value of header
      */
-    public function get($header)
+    public function get(string $header) : ?string
     {
-        return isset($this->headers[$header]) ? $this->headers[$header] : false;
+        return $this->headers[$header] ?? null;
     }
 
     /**
@@ -47,9 +48,9 @@ class Headers
      *
      * @return array
      */
-    public function getAll()
+    public function getAll() : array
     {
-        $headers = array();
+        $headers = [];
         foreach ($this->headers as $h => $v) {
             $headers[] = $h.': '.$v;
         }
@@ -60,7 +61,7 @@ class Headers
     /**
      * @return array
      */
-    public function getHeadersArray()
+    public function getHeadersArray() : array
     {
         return $this->headers;
     }
@@ -68,11 +69,11 @@ class Headers
     /**
      * Returns the remote address either directly or if set XFF header value.
      *
-     * @return string The ip address
+     * @return string|null The ip address
      */
-    private function getRemoteAddress()
+    private function getRemoteAddress() : ?string
     {
-        $hostname = false;
+        $hostname = null;
 
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $hostname = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
@@ -80,6 +81,11 @@ class Headers
 
         if (function_exists('apache_request_headers')) {
             $headers = apache_request_headers();
+
+            if ($headers === false) {
+                return $hostname;
+            }
+
             foreach ($headers as $k => $v) {
                 if (strcasecmp($k, 'x-forwarded-for')) {
                     continue;

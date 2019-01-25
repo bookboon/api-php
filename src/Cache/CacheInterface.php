@@ -18,40 +18,43 @@ namespace Bookboon\Api\Cache;
  *  limitations under the License.
  *
  */
-interface Cache
+
+use Bookboon\Api\Client\BookboonResponse;
+
+interface CacheInterface
 {
     /**
      * Get data from cache
      *
-     * @param $key
-     * @return string
+     * @param string $key
+     * @return mixed if not found is false
      */
-    public function get($key);
+    public function get(string $key);
 
     /**
      * Save in cache
      *
      * @param string $key
-     * @param $data
+     * @param mixed $data
      * @param int|null $ttl
      * @return bool if successful
      */
-    public function save($key, $data, ?int $ttl = null);
+    public function save(string $key, $data, ?int $ttl = null) : bool;
 
     /**
      * Delete from cache by key
      *
-     * @param $key
+     * @param string $key
      * @return bool if successful
      */
-    public function delete($key);
+    public function delete(string $key): bool;
 
     /**
      * @param string $url
      * @param string $httpMethod
      * @return bool
      */
-    public function isCachable($url, $httpMethod);
+    public function isCachable(string $url, string $httpMethod) : bool;
 
     /**
      * @param string $url
@@ -59,10 +62,10 @@ interface Cache
      * @param array $headers
      * @return string
      */
-    public function hash($url, $id, array $headers);
+    public function hash(string $url, string $id, array $headers) : string;
 
     /**
      * @return bool
      */
-    public function isInitialized();
+    public function isInitialized() : bool;
 }

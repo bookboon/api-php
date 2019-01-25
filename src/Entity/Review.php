@@ -4,24 +4,25 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
-use Bookboon\Api\Client\Client;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\BadUUIDException;
 
 class Review extends Entity
 {
-
     /**
      * Get Reviews for specified Book.
      *
-     * @param $bookId
+     * @param Bookboon $bookboon
+     * @param string $bookId
      * @return BookboonResponse
      *
      * @throws BadUUIDException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getByBookId(Bookboon $bookboon, $bookId)
+    public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
         if (Entity::isValidUUID($bookId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
+            throw new BadUUIDException();
         }
 
         $bResponse = $bookboon->rawRequest("/books/$bookId/review");
@@ -40,8 +41,9 @@ class Review extends Entity
     /**
      * @param array $review
      * @return static
+     * @throws \Bookboon\Api\Exception\EntityDataException
      */
-    public static function create($review = [])
+    public static function create(array $review = []) : Review
     {
         return new static($review);
     }
@@ -51,13 +53,15 @@ class Review extends Entity
      * submit a book review helper method.
      *
      * @param Bookboon $bookboon
-     * @param $bookId
+     * @param string $bookId
      *
+     * @throws \Bookboon\Api\Exception\UsageException
+     * @return void
      */
-    public function submit(Bookboon $bookboon, $bookId)
+    public function submit(Bookboon $bookboon, string $bookId) : void
     {
         if (Entity::isValidUUID($bookId)) {
-            $bookboon->rawRequest("/books/$bookId/review", $this->getData(), Client::HTTP_POST);
+            $bookboon->rawRequest("/books/$bookId/review", $this->getData(), ClientInterface::HTTP_POST);
         }
     }
 
@@ -65,7 +69,7 @@ class Review extends Entity
      * @param array $array
      * @return bool
      */
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['comment'], $array['rating']);
     }

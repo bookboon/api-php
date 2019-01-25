@@ -4,7 +4,7 @@ namespace Bookboon\Api\Entity;
 
 class Detail extends Entity
 {
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['title'], $array['body']);
     }

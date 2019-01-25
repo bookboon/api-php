@@ -24,12 +24,12 @@ if (!class_exists('Memcached')) {
     throw new \Exception('Bookboon_Memcached requires the memcached PHP extension');
 }
 
-class MemcachedCache implements Cache
+class MemcachedCache implements CacheInterface
 {
     use HashTrait;
 
     private $ttl = 600;
-    private $cache = null;
+    private $cache;
 
     /**
      * Memcached constructor.
@@ -49,11 +49,10 @@ class MemcachedCache implements Cache
     /**
      * Get a cached object.
      *
-     * @param $key
-     *
-     * @return mixed False is not found
+     * @param string $key
+     * @return string|false null is not found
      */
-    public function get($key)
+    public function get(string $key)
     {
         return $this->cache->get($key);
     }
@@ -62,11 +61,10 @@ class MemcachedCache implements Cache
      * Save in cache
      *
      * @param string $key
-     * @param $data
      * @param int|null $ttl
      * @return bool if successful
      */
-    public function save($key, $data, ?int $ttl = null)
+    public function save(string $key, $data, ?int $ttl = null) : bool
     {
         $ttl = $ttl ?? $this->ttl;
 
@@ -76,11 +74,11 @@ class MemcachedCache implements Cache
     /**
      * Delete a cached object.
      *
-     * @param $key
+     * @param string $key
      *
      * @return bool if successful true
      */
-    public function delete($key)
+    public function delete(string $key) : bool
     {
         return $this->cache->delete($key);
     }
@@ -88,7 +86,7 @@ class MemcachedCache implements Cache
     /**
      * @return bool
      */
-    public function isInitialized()
+    public function isInitialized() : bool
     {
         return $this->cache !== null;
     }

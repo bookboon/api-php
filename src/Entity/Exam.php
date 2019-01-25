@@ -4,7 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
-use Bookboon\Api\Client\Client;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\BadUUIDException;
 
 class Exam extends Entity
@@ -16,11 +16,13 @@ class Exam extends Entity
      * @param string $examId
      * @return BookboonResponse
      * @throws BadUUIDException
+     * @throws \Bookboon\Api\Exception\EntityDataException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, $examId)
+    public static function get(Bookboon $bookboon, string $examId) : BookboonResponse
     {
         if (Entity::isValidUUID($examId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
+            throw new BadUUIDException();
         }
 
         $bResponse = $bookboon->rawRequest("/exams/$examId");
@@ -38,11 +40,11 @@ class Exam extends Entity
 
     /**
      * @param Bookboon $bookboon
-     * @param $bookId
+     * @param string $bookId
      * @return BookboonResponse
-     * @throws BadUUIDException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getByBookId(Bookboon $bookboon, $bookId)
+    public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/books/$bookId/exams");
 
@@ -62,8 +64,9 @@ class Exam extends Entity
      *
      * @param Bookboon $bookboon
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getAll(Bookboon $bookboon)
+    public static function getAll(Bookboon $bookboon) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/exams");
 
@@ -80,15 +83,19 @@ class Exam extends Entity
 
     public static function start(Bookboon $bookboon, $examId)
     {
-        return $bookboon->rawRequest("/exams/$examId", [], Client::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest("/exams/$examId", [], ClientInterface::HTTP_POST)->getReturnArray();
     }
 
     public static function finish(Bookboon $bookboon, $examId, $postVars)
     {
-        return $bookboon->rawRequest("/exams/$examId/submit", $postVars, Client::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest("/exams/$examId/submit", $postVars, ClientInterface::HTTP_POST)->getReturnArray();
     }
 
-    protected function isValid(array $array)
+    /**
+     * @param array $array
+     * @return bool
+     */
+    protected function isValid(array $array) : bool
     {
         return isset($array['_id'], $array['title'], $array['passScore'], $array['timeSeconds']);
     }
@@ -129,10 +136,11 @@ class Exam extends Entity
      * Return book to which the exam is related
      *
      * @return Book
+     * @throws \Bookboon\Api\Exception\EntityDataException
      */
     public function getBook()
     {
-        return Book::getEntitiesFromArray($this->safeGet('book', array()));
+        return new Book($this->safeGet('book', []));
     }
 
     /**

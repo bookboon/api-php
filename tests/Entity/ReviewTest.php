@@ -47,6 +47,6 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidReview()
     {
-        $review = new Review(array('blah'));
+        $review = new Review(['blah']);
     }
 }

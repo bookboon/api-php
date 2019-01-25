@@ -31,7 +31,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testBadRequest()
     {
-        self::$bookboon->rawRequest('/search', array('get' => array('q' => '')));
+        self::$bookboon->rawRequest('/search', ['get' => ['q' => '']]);
     }
 
     /**
@@ -47,7 +47,7 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testBadAuthentication()
     {
-        $bookboon = Bookboon::create("bad", "auth", array('basic'));
+        $bookboon = Bookboon::create("bad", "auth", ['basic']);
         $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 
@@ -56,19 +56,19 @@ class BookboonTest extends \PHPUnit_Framework_TestCase
      */
     public function testEmpty()
     {
-        $bookboon = Bookboon::create("", "", array('basic'));
+        $bookboon = Bookboon::create("", "", ['basic']);
         $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 
     public function testGetClient()
     {
-        $bookboon = Bookboon::create("bad", "auth", array('basic'));
-        $this->assertInstanceOf('\Bookboon\Api\Client\Client', $bookboon->getClient());
+        $bookboon = Bookboon::create("bad", "auth", ['basic']);
+        $this->assertInstanceOf('\Bookboon\Api\Client\ClientInterface', $bookboon->getClient());
     }
 
     public function testCreateHeaders()
     {
-        $bookboon = Bookboon::create("bad", "auth", array('basic'), array("X-Test-Header" => "Test Value"));
+        $bookboon = Bookboon::create("bad", "auth", ['basic'], ["X-Test-Header" => "Test Value"]);
         $result = $bookboon->getClient()->getHeaders()->get("X-Test-Header");
 
         $this->assertEquals("Test Value", $result);

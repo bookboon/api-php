@@ -36,24 +36,24 @@ class BookTest extends \PHPUnit_Framework_TestCase
 
     public function providerTestGetters()
     {
-        return array(
-            'getTitle' => array('getTitle'),
-            'getHomepage' => array('getHomepage'),
-            'getAuthors' => array('getAuthors'),
-            'getIsbn' => array('getIsbn'),
-            'getLanguageName' => array('getLanguageName'),
-            'getLanguageCode' => array('getLanguageCode'),
-            'getPublished' => array('getPublished'),
-            'getAbstract' => array('getAbstract'),
-            'getEdition' => array('getEdition'),
-            'getPages' => array('getPages'),
-            'getPriceLevel' => array('getPriceLevel'),
-            'getRatingCount' => array('getRatingCount'),
-            'getRatingAverage' => array('getRatingAverage'),
-            'getFormats' => array('getFormats'),
-            'getVersion' => array('getVersion'),
-            'getDetails' => array('getDetails'),
-        );
+        return [
+            'getTitle' => ['getTitle'],
+            'getHomepage' => ['getHomepage'],
+            'getAuthors' => ['getAuthors'],
+            'getIsbn' => ['getIsbn'],
+            'getLanguageName' => ['getLanguageName'],
+            'getLanguageCode' => ['getLanguageCode'],
+            'getPublished' => ['getPublished'],
+            'getAbstract' => ['getAbstract'],
+            'getEdition' => ['getEdition'],
+            'getPages' => ['getPages'],
+            'getPriceLevel' => ['getPriceLevel'],
+            'getRatingCount' => ['getRatingCount'],
+            'getRatingAverage' => ['getRatingAverage'],
+            'getFormats' => ['getFormats'],
+            'getVersion' => ['getVersion'],
+            'getDetails' => ['getDetails'],
+        ];
     }
 
     /**
@@ -105,19 +105,19 @@ class BookTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidBook()
     {
-        $book = new Book(array('blah'));
+        $book = new Book(['blah']);
     }
 
     public function testBookDownloadOauth()
     {
-        $url = Book::getDownloadUrl(self::$bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', array('handle' => 'phpunit'));
+        $url = Book::getDownloadUrl(self::$bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', ['handle' => 'phpunit']);
         $this->assertContains('/download/', $url);
     }
 
     public function testBookDownloadBasic()
     {
         $bookboon = new Bookboon(new BasicAuthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers()));
-        $url = Book::getDownloadUrl($bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', array('handle' => 'phpunit'));
+        $url = Book::getDownloadUrl($bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', ['handle' => 'phpunit']);
         $this->assertContains('/download/', $url);
     }
 
@@ -137,7 +137,7 @@ class BookTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecommendationsSpecific()
     {
-        $recommendations = Book::recommendations(self::$bookboon, array('3bf58559-034f-4676-bb5f-a2c101015a58'), 8)->getEntityStore()->get();
+        $recommendations = Book::recommendations(self::$bookboon, ['3bf58559-034f-4676-bb5f-a2c101015a58'], 8)->getEntityStore()->get();
         $this->assertCount(8, $recommendations);
     }
 }

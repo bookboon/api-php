@@ -23,11 +23,11 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
 
     public function providerTestGetters()
     {
-        return array(
-            'getName' => array('getName'),
-            'getProfile' => array('getProfile'),
-            'getBooks' => array('getBooks'),
-        );
+        return [
+            'getName' => ['getName'],
+            'getProfile' => ['getProfile'],
+            'getBooks' => ['getBooks'],
+        ];
     }
 
     /**
@@ -49,6 +49,6 @@ class AuthorTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidAuthor()
     {
-        $author = new Author(array('blah'));
+        $author = new Author(['blah']);
     }
 }

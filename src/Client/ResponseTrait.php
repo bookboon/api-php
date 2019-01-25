@@ -10,10 +10,10 @@ use Bookboon\Api\Exception\ApiSyntaxException;
 trait ResponseTrait
 {
     /**
-     * @param $body
-     * @param $headers
-     * @param $status
-     * @param $url
+     * @param string $body
+     * @param array $headers
+     * @param int $status
+     * @param string $url
      *
      * @return array
      *
@@ -22,7 +22,7 @@ trait ResponseTrait
      * @throws ApiGeneralException
      * @throws ApiNotFoundException
      */
-    protected function handleResponse($body, $headers, $status, $url)
+    protected function handleResponse(string $body, array $headers, int $status, string $url)
     {
         $returnArray = json_decode($body, true);
 
@@ -52,14 +52,19 @@ trait ResponseTrait
                     throw new ApiNotFoundException($url);
                     break;
                 default:
-                    throw new ApiGeneralException($this->generalExceptionMessage($returnArray, $headers));
+                    throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers));
             }
         }
 
         return $returnArray;
     }
 
-    protected function generalExceptionMessage($responseArray, $headers)
+    /**
+     * @param array $responseArray
+     * @param array $headers
+     * @return string
+     */
+    protected function generalExceptionMessage(array $responseArray, array $headers)
     {
         $message = '';
         if (isset($responseArray['message'], $responseArray['code'])) {
@@ -81,10 +86,10 @@ trait ResponseTrait
     /**
      * Return specific header value from string of headers.
      *
-     * @param string $headers
+     * @param array $headers
      * @param string $name
      *
      * @return string result
      */
-    abstract protected function getResponseHeader($headers, $name);
+    abstract protected function getResponseHeader(array $headers, string $name);
 }

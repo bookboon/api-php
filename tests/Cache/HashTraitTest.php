@@ -14,8 +14,8 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
 
-        $hash1 = $mock->hash('/test', "WHATEVSID", array());
-        $hash2 = $mock->hash('/test', "WHATEVSID", array());
+        $hash1 = $mock->hash('/test', "WHATEVSID", []);
+        $hash2 = $mock->hash('/test', "WHATEVSID", []);
 
         $this->assertEquals($hash1, $hash2);
     }
@@ -24,8 +24,8 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
 
-        $hash1 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_XFF => 'One ip'));
-        $hash2 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_XFF => 'Different ip'));
+        $hash1 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_XFF => 'One ip']);
+        $hash2 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_XFF => 'Different ip']);
 
         $this->assertEquals($hash1, $hash2);
     }
@@ -34,8 +34,18 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
 
-        $hash1 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_XFF => 'One ip', Headers::HEADER_BRANDING => 'branding-test-1'));
-        $hash2 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_XFF => 'Different ip', Headers::HEADER_BRANDING => 'branding-test-2'));
+        $hash1 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_XFF => 'One ip', Headers::HEADER_BRANDING => 'branding-test-1']);
+        $hash2 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_XFF => 'Different ip', Headers::HEADER_BRANDING => 'branding-test-2']);
+
+        $this->assertNotEquals($hash1, $hash2);
+    }
+
+    public function testHashLanguageHeader()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
+
+        $hash1 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_LANGUAGE => 'en, de', Headers::HEADER_BRANDING => 'branding-test']);
+        $hash2 = $mock->hash('/test', "WHATEVSID", [Headers::HEADER_LANGUAGE => 'de, en', Headers::HEADER_BRANDING => 'branding-test']);
 
         $this->assertNotEquals($hash1, $hash2);
     }
@@ -45,7 +55,7 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
         $mock->method("isInitialized")->willReturn(true);
 
-        $result = $mock->isCachable("/test/url", Client::HTTP_GET);
+        $result = $mock->isCachable("/test/url", ClientInterface::HTTP_GET);
         $this->assertTrue($result);
     }
 
@@ -53,14 +63,14 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
 
-        $result = $mock->isCachable("/test/url", Client::HTTP_GET);
+        $result = $mock->isCachable("/test/url", ClientInterface::HTTP_GET);
         $this->assertFalse($result);
     }
 
     public function testRequestNotCacheblePost()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
-        $result = $mock->isCachable("/test/url", Client::HTTP_POST);
+        $result = $mock->isCachable("/test/url", ClientInterface::HTTP_POST);
         $this->assertFalse($result);
     }
 }

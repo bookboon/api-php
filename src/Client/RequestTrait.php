@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\Cache;
+use Bookboon\Api\Cache\CacheInterface;
 use Bookboon\Api\Exception\UsageException;
 
 trait RequestTrait
@@ -12,29 +12,29 @@ trait RequestTrait
      * @param string $type
      * @param array $variables
      * @param string $contentType
-     * @return mixed
+     * @return BookboonResponse
      */
     abstract protected function executeQuery(
-        $uri,
-        $type = Client::HTTP_GET,
-        $variables = array(),
-        $contentType = Client::CONTENT_TYPE_FORM
-    );
+        string $uri,
+        string $type = ClientInterface::HTTP_GET,
+        array $variables = [],
+        string $contentType = ClientInterface::CONTENT_TYPE_FORM
+    ) : BookboonResponse;
 
     /**
-     * @return Cache|null
+     * @return CacheInterface|null
      */
-    abstract public function getCache();
+    abstract public function getCache() : ?CacheInterface;
 
     /**
      * @return string
      */
-    abstract public function getApiId();
+    abstract public function getApiId() : string;
 
     /**
      * @return Headers
      */
-    abstract public function getHeaders();
+    abstract public function getHeaders() : Headers;
 
     abstract protected function reportDeveloperInfo($request, $data);
 
@@ -47,24 +47,29 @@ trait RequestTrait
      * @param bool   $shouldCache     manually disable object cache for query
      * @param string $contentType     Request Content type
      *
-     * @return array results of call
+     * @return BookboonResponse results of call
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = Client::HTTP_GET, $shouldCache = true, $contentType = Client::CONTENT_TYPE_JSON)
-    {
+    public function makeRequest(
+        string $relativeUrl,
+        array $variables = [],
+        string $httpMethod = ClientInterface::HTTP_GET,
+        bool $shouldCache = true,
+        string $contentType = ClientInterface::CONTENT_TYPE_JSON
+    ) : BookboonResponse {
         if (strpos($relativeUrl, '/') !== 0) {
             throw new UsageException('Location must begin with forward slash');
         }
 
         $queryUrl = $this->getBaseApiUri() . $relativeUrl;
-        $postVariables = array();
+        $postVariables = [];
 
-        if ($httpMethod == Client::HTTP_GET && count($variables) !== 0) {
+        if ($httpMethod === ClientInterface::HTTP_GET && count($variables) !== 0) {
             $queryUrl .= '?' . http_build_query($variables);
         }
 
-        if ($httpMethod == Client::HTTP_POST) {
+        if ($httpMethod === ClientInterface::HTTP_POST) {
             $postVariables = $variables;
         }
 
@@ -72,7 +77,7 @@ trait RequestTrait
 
             $result = $this->getFromCache($queryUrl);
 
-            if ($result === false) {
+            if ($result === null) {
                 $result = $this->executeQuery($queryUrl, $httpMethod, $postVariables);
                 $this->saveInCache($queryUrl, $result);
             }
@@ -84,33 +89,35 @@ trait RequestTrait
     }
 
     /**
-     * @param $queryUrl
-     * @param $result
+     * @param string $queryUrl
+     * @param BookboonResponse $result
      * @return void
      */
-    protected function saveInCache($queryUrl, $result)
+    protected function saveInCache(string $queryUrl, BookboonResponse $result)
     {
         $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
         $this->getCache()->save($hash, $result);
     }
 
     /**
-     * @param $queryUrl
-     * @return array|bool
+     * @param string $queryUrl
+     * @return BookboonResponse|null
      */
-    protected function getFromCache($queryUrl)
+    protected function getFromCache(string $queryUrl) : ?BookboonResponse
     {
         $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
         $result = $this->getCache()->get($hash);
 
-        if ($result !== false) {
-            $this->reportDeveloperInfo(array(
-                'total_time' => 0,
-                'http_code' => 'cache',
-                'size_download' => mb_strlen(json_encode($result)),
-                'url' => Client::API_PROTOCOL . "://" . $queryUrl,
-            ), array());
+        if (!($result instanceof BookboonResponse)) {
+            return null;
         }
+
+        $this->reportDeveloperInfo([
+            'total_time' => 0,
+            'http_code' => 'cache',
+            'size_download' => mb_strlen(json_encode($result->getReturnArray())),
+            'url' => ClientInterface::API_PROTOCOL . '://' . $queryUrl,
+        ], []);
 
         return $result;
     }
@@ -120,11 +127,11 @@ trait RequestTrait
      * @return string
      * @throws UsageException
      */
-    protected function parseUriOrDefault($uri)
+    protected function parseUriOrDefault(?string $uri) : string
     {
-        $protocol = Client::API_PROTOCOL;
-        $host = Client::API_HOST;
-        $path = Client::API_PATH;
+        $protocol = ClientInterface::API_PROTOCOL;
+        $host = ClientInterface::API_HOST;
+        $path = ClientInterface::API_PATH;
 
         if (!empty($uri)) {
             $parts = explode('://', $uri);
@@ -145,6 +152,6 @@ trait RequestTrait
     /**
      * @return string
      */
-    abstract protected function getBaseApiUri();
+    abstract protected function getBaseApiUri() : string;
 
 }

@@ -42,7 +42,7 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
     public function testNonExistingHeader()
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0";
-        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', array($headers, 'Location'));
+        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
 
         $this->assertEmpty($result);
     }
@@ -50,7 +50,7 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
     public function testValidHeader()
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: http://bookboon.com";
-        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', array($headers, 'Location'));
+        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
 
         $this->assertEquals('http://bookboon.com', $result);
     }
@@ -58,13 +58,13 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
     public function providerNotSupported()
     {
         return [
-            ["setAct"],
-            ["getAct"],
-            ["getAccessToken"],
-            ["isCorrectState"],
-            ["generateState"],
-            ["getAuthorizationUrl"],
-            ["requestAccessToken"]
+            ['setAct'],
+            ['getAct'],
+            ['getAccessToken'],
+            ['isCorrectState'],
+            ['generateState'],
+            ['getAuthorizationUrl'],
+            ['requestAccessToken']
         ];
     }
 
@@ -74,6 +74,10 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotSupportedMethods($method)
     {
-        self::$client->$method(array("a"), "b");
+        $param = ['a'];
+        if (in_array($method, ['setAct', 'isCorrectState'])) {
+            $param = 'a';
+        }
+        self::$client->$method($param, "b");
     }
 }

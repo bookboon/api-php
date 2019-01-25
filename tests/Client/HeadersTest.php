@@ -7,17 +7,15 @@ namespace Bookboon\Api\Client;
  * Class HeadersTest
  * @package Client
  * @group client
+ * @group header
  */
 class HeadersTest extends \PHPUnit_Framework_TestCase
 {
-    /*
-     * IP
-     */
     public function testInvalidXFFIP()
     {
         $_SERVER['REMOTE_ADDR'] = '127.';
         $headers = new Headers();
-        $this->assertFalse($headers->get(Headers::HEADER_XFF));
+        $this->assertEmpty($headers->get(Headers::HEADER_XFF));
     }
 
     public function testValidXFFIP()

@@ -6,12 +6,12 @@ namespace Bookboon\Api\Cache;
 use Exception;
 use Redis;
 
-class RedisCache implements Cache
+class RedisCache implements CacheInterface
 {
     use HashTrait;
 
     /**
-     * @var Redis
+     * @var Redis|null
      */
     protected $redis;
 
@@ -27,13 +27,13 @@ class RedisCache implements Cache
      * @param int $ttl
      * @param int $timeout in seconds
      */
-    public function __construct($server = 'localhost', $port = 6379, $ttl = 600, $timeout = 2)
+    public function __construct(string $server = 'localhost', int $port = 6379, int $ttl = 600, int $timeout = 2)
     {
         $this->ttl = $ttl;
         $this->redis = new Redis();
         try {
             if ($this->redis->connect($server, $port, $timeout)) {
-                $this->redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
+                $this->redis->setOption(Redis::OPT_SERIALIZER, (string) $this->getSerializerValue());
             } else {
                 $this->redis = null;
             }
@@ -46,11 +46,11 @@ class RedisCache implements Cache
     /**
      * Get a cached object.
      *
-     * @param $key
+     * @param string $key
      *
      * @return mixed False is not found
      */
-    public function get($key)
+    public function get(string $key)
     {
         return $this->redis !== null ? $this->redis->get($key) : false;
     }
@@ -59,11 +59,10 @@ class RedisCache implements Cache
      * Save in cache
      *
      * @param string $key
-     * @param $data
      * @param int|null $ttl
      * @return bool if successful
      */
-    public function save($key, $data, ?int $ttl = null)
+    public function save(string $key, $data, ?int $ttl = null) : bool
     {
         $ttl = $ttl ?? $this->ttl;
 
@@ -73,11 +72,10 @@ class RedisCache implements Cache
     /**
      * Delete a cached object.
      *
-     * @param $key
-     *
+     * @param string $key
      * @return bool if successful true
      */
-    public function delete($key)
+    public function delete(string $key) : bool
     {
         return $this->redis->delete($key) === 1;
     }
@@ -85,12 +83,12 @@ class RedisCache implements Cache
     /**
      * @return bool
      */
-    public function isInitialized()
+    public function isInitialized() : bool
     {
         return $this->redis !== null;
     }
 
-    protected function getSerializerValue()
+    protected function getSerializerValue() : int
     {
         if (defined('HHVM_VERSION')) {
             return \Redis::SERIALIZER_PHP;

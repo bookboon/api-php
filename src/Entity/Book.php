@@ -4,7 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
-use Bookboon\Api\Client\Client;
+use Bookboon\Api\Client\ClientInterface;
 
 class Book extends Entity
 {
@@ -23,13 +23,14 @@ class Book extends Entity
 
     /**
      * @param Bookboon $bookboon
-     * @param $bookId
+     * @param string $bookId
      * @param bool $extendedMetadata
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, $bookId, $extendedMetadata = false)
+    public static function get(Bookboon $bookboon, string $bookId, bool $extendedMetadata = false) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/books/$bookId", array('extendedMetadata' => $extendedMetadata ? 'true' : 'false'));
+        $bResponse = $bookboon->rawRequest("/books/$bookId", ['extendedMetadata' => $extendedMetadata ? 'true' : 'false']);
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -49,13 +50,17 @@ class Book extends Entity
      * @param string[] $bookIds
      * @param bool $extendedMetadata
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getMultiple(Bookboon $bookboon, array $bookIds, $extendedMetadata = false)
-    {
-        $variables = array(
+    public static function getMultiple(
+        Bookboon $bookboon,
+        array $bookIds,
+        bool $extendedMetadata = false
+    ) : BookboonResponse {
+        $variables = [
             'id' => $bookIds,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
-        );
+        ];
 
         $bResponse = $bookboon->rawRequest("/books", $variables);
 
@@ -75,14 +80,19 @@ class Book extends Entity
      *
      * @param Bookboon $bookboon
      * @param bool $extendedMetadata
+     * @param string $type
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getAll(Bookboon $bookboon, $extendedMetadata = false, $type = self::_OWN_TYPE)
-    {
-        $variables = array(
+    public static function getAll(
+        Bookboon $bookboon,
+        bool $extendedMetadata = false,
+        string $type = self::_OWN_TYPE
+    ) : BookboonResponse {
+        $variables = [
             'bookType' => $type,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
-        );
+        ];
 
         $bResponse = $bookboon->rawRequest("/books", $variables);
 
@@ -113,7 +123,7 @@ class Book extends Entity
      */
     public static function getEntitiesFromArray(array $array)
     {
-        $entities = array();
+        $entities = [];
         foreach ($array as $object) {
             $entities[] = self::objectTransformer($object);
         }
@@ -130,12 +140,17 @@ class Book extends Entity
      * @param array $variables
      * @param string $format
      * @return string
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getDownloadUrl(Bookboon $bookboon, $bookId, array $variables, $format = self::FORMAT_PDF)
-    {
+    public static function getDownloadUrl(
+        Bookboon $bookboon,
+        string $bookId,
+        array $variables,
+        string $format = self::FORMAT_PDF
+    ) : string {
         $variables['format'] = $format;
 
-        $bResponse = $bookboon->rawRequest("/books/$bookId/download", $variables, Client::HTTP_POST);
+        $bResponse = $bookboon->rawRequest("/books/$bookId/download", $variables, ClientInterface::HTTP_POST);
 
         return $bResponse->getReturnArray()['url'];
     }
@@ -144,14 +159,19 @@ class Book extends Entity
      * Search.
      *
      * @param Bookboon $bookboon
-     * @param $query string to search for
+     * @param string $query string to search for
      * @param int $limit results to return per page
      * @param int $offset offset of results
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function search(Bookboon $bookboon, $query, $limit = 10, $offset = 0)
-    {
-        $bResponse = $bookboon->rawRequest('/search', array('q' => $query, 'limit' => $limit, 'offset' => $offset));
+    public static function search(
+        Bookboon $bookboon,
+        string $query,
+        int $limit = 10,
+        int $offset = 0
+    ) : BookboonResponse {
+        $bResponse = $bookboon->rawRequest('/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset]);
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -172,10 +192,15 @@ class Book extends Entity
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5, $bookType = 'pdf')
-    {
-        $bResponse = $bookboon->rawRequest('/recommendations', array('limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType));
+    public static function recommendations(
+        Bookboon $bookboon,
+        array $bookIds = [],
+        int $limit = 5,
+        string $bookType = 'pdf'
+    ) : BookboonResponse {
+        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType]);
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -188,7 +213,7 @@ class Book extends Entity
         return $bResponse;
     }
 
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['_id'], $array['title'], $array['authors'], $array['thumbnail']);
     }
@@ -265,9 +290,9 @@ class Book extends Entity
      *
      * @return string url for thumbnail
      */
-    public function getThumbnail($size = 210, $ssl = false)
+    public function getThumbnail(int $size = 210, bool $ssl = false)
     {
-        $thumbs = array();
+        $thumbs = [];
         foreach ($this->safeGet('thumbnail') as $thumb) {
             $thumbs[$thumb['width']] = $thumb['_link'];
         }
@@ -435,7 +460,7 @@ class Book extends Entity
      */
     public function getDetails()
     {
-        return Detail::getEntitiesFromArray($this->safeGet('details', array()));
+        return Detail::getEntitiesFromArray($this->safeGet('details', []));
     }
 
     /**
@@ -445,7 +470,7 @@ class Book extends Entity
      */
     public function getSimilarBooks()
     {
-        return self::getEntitiesFromArray($this->safeGet('similar', array()));
+        return self::getEntitiesFromArray($this->safeGet('similar', []));
     }
 
     /**
@@ -455,7 +480,7 @@ class Book extends Entity
      */
     public function getReviews()
     {
-        return Review::getEntitiesFromArray($this->safeGet('reviews', array()));
+        return Review::getEntitiesFromArray($this->safeGet('reviews', []));
     }
 
     /**

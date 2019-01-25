@@ -4,7 +4,7 @@ namespace Bookboon\Api\Entity;
 
 class ExamQuestion extends Entity
 {
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['_id'], $array['phrasing']);
     }
@@ -30,7 +30,7 @@ class ExamQuestion extends Entity
     /**
      * @return ExamAnswer[]
      */
-    public function getAnswers()
+    public function getAnswers() : array
     {
         return ExamAnswer::getEntitiesFromArray($this->safeGet('answers'));
     }

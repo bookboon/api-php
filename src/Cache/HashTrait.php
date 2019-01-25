@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api\Cache;
 
-use Bookboon\Api\Client\Client;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Client\Headers;
 
 
@@ -11,12 +11,12 @@ trait HashTrait
     /**
      * Hashes url with unique values: app id and headers.
      *
-     * @param $url
+     * @param string $url
      *
      * @param array $headers
      * @return string the hashed key
      */
-    public function hash($url, $id, array $headers)
+    public function hash(string $url, string $id, array $headers) : string
     {
         $headerString = "";
         foreach ($headers as $key => $value) {
@@ -31,19 +31,19 @@ trait HashTrait
     /**
      * Determine whether cache should be attempted.
      *
-     * @param $url
-     * @param $httpMethod
+     * @param string $url
+     * @param string $httpMethod
      * @return bool
      * @internal param $variables
      *
      */
-    public function isCachable($url, $httpMethod)
+    public function isCachable(string $url, string $httpMethod) : bool
     {
-        return $httpMethod === Client::HTTP_GET && $this->isInitialized();
+        return $httpMethod === ClientInterface::HTTP_GET && $this->isInitialized();
     }
 
     /**
      * @return bool
      */
-    abstract function isInitialized();
+    abstract function isInitialized() : bool;
 }
