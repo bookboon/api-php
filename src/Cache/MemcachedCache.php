@@ -88,6 +88,6 @@ class MemcachedCache implements Cache
      */
     public function isInitialized()
     {
-        return $this->cache == null;
+        return $this->cache != null;
     }
 }

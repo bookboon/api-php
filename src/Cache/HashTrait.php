@@ -21,7 +21,7 @@ trait HashTrait
         $headerString = "";
         foreach ($headers as $key => $value) {
             if ($key != Headers::HEADER_XFF) {
-                $headerString = $key.$value;
+                $headerString .= $key.$value;
             }
         }
 
@@ -39,11 +39,7 @@ trait HashTrait
      */
     public function isCachable($url, $httpMethod)
     {
-        if ($httpMethod === Client::HTTP_GET && $this->isInitialized()) {
-            return true;
-        }
-
-        return false;
+        return $httpMethod === Client::HTTP_GET && $this->isInitialized();
     }
 
     /**

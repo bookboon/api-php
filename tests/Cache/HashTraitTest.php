@@ -40,6 +40,17 @@ class HashTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($hash1, $hash2);
     }
 
+    /** @group tttt */
+    public function testHashLanguageHeader()
+    {
+        $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
+
+        $hash1 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_LANGUAGE => 'en, de', Headers::HEADER_BRANDING => 'branding-test'));
+        $hash2 = $mock->hash('/test', "WHATEVSID", array(Headers::HEADER_LANGUAGE => 'de, en', Headers::HEADER_BRANDING => 'branding-test'));
+
+        $this->assertNotEquals($hash1, $hash2);
+    }
+
     public function testRequestIsCacheable()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Cache\HashTrait');
