@@ -73,8 +73,8 @@ trait RequestTrait
             $postVariables = $variables;
         }
 
-        if ($this->getCache() !== null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
 
+        if ($this->getCache() !== null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $result = $this->getFromCache($queryUrl);
 
             if ($result === null) {
@@ -115,7 +115,7 @@ trait RequestTrait
         $this->reportDeveloperInfo([
             'total_time' => 0,
             'http_code' => 'cache',
-            'size_download' => mb_strlen(json_encode($result->getReturnArray())),
+            'size_download' => mb_strlen($result->getBody()),
             'url' => ClientInterface::API_PROTOCOL . '://' . $queryUrl,
         ], []);
 

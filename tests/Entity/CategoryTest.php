@@ -20,7 +20,7 @@ class CategoryTest extends \PHPUnit_Framework_TestCase
         self::$bookboon = \Helpers::getBookboon();
         self::$data = Category::get(self::$bookboon, '062adfac-844b-4e8c-9242-a1620108325e')
             ->getEntityStore()
-            ->get();
+            ->getSingle();
     }
 
     public function testGetId()

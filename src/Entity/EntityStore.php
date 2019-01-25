@@ -2,6 +2,8 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Exception\UsageException;
+
 class EntityStore
 {
     /**
@@ -19,14 +21,23 @@ class EntityStore
     }
 
     /**
-     * @return array|mixed
+     * @return Entity[]
      */
-    public function get()
+    public function get() : array
+    {
+        return $this->contents;
+    }
+
+    /**
+     * @return Entity
+     * @throws UsageException
+     */
+    public function getSingle() : Entity
     {
         if (count($this->contents) === 1) {
             return $this->contents[0];
         }
 
-        return $this->contents;
+        throw new UsageException("Multiple responses exists");
     }
 }

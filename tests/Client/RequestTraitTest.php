@@ -15,7 +15,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
 
     public function callingBack() {
         $this->returnValues = func_get_args();
-        return new BookboonResponse([], []);
+        return new BookboonResponse('test', 200, []);
     }
 
     public function testPlainGet()
@@ -99,16 +99,19 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
 
         $result = $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(new BookboonResponse([], []), $result);
+        $this->assertEquals(new BookboonResponse('test', 200, []), $result);
         $this->assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_get', $this->returnValues[0]);
     }
 
+    /**
+     * @group cached
+     */
     public function testMakeRequestCached()
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
 
         $cacheMock = $this->getCacheMock();
-        $cacheMock->method("get")->willReturn(new BookboonResponse(['test'], []));
+        $cacheMock->method("get")->willReturn(new BookboonResponse('["test"]', 200, []));
         $cacheMock->method("isCachable")->willReturn(true);
 
         $mock->method('getCache')->willReturn($cacheMock);
@@ -117,7 +120,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
 
         $result = $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(new BookboonResponse(['test'], []), $result);
+        $this->assertEquals(new BookboonResponse('["test"]', 200, []), $result);
     }
 
 
@@ -134,7 +137,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
         $mock->method('getApiId')->willReturn("test-app-id");
 
         $result = \Helpers::invokeMethod($mock, 'getFromCache', ['/random/' . uniqid('cache', true)]);
-        $this->assertFalse($result);
+        $this->assertNull($result);
     }
 
     public function testGetCacheFound()
@@ -142,7 +145,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\RequestTrait');
 
         $cacheMock = $this->getCacheMock();
-        $cacheMock->method("get")->willReturn("test");
+        $cacheMock->method("get")->willReturn(new BookboonResponse('["test"]', 200, []));
         $cacheMock->method("isCachable")->willReturn(true);
 
         $mock->method('getCache')->willReturn($cacheMock);
@@ -150,7 +153,7 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase
         $mock->method('getApiId')->willReturn("test-app-id");
 
         $result = \Helpers::invokeMethod($mock, 'getFromCache', ['/random/' . uniqid('cache', true)]);
-        $this->assertEquals("test", $result);
+        $this->assertEquals(new BookboonResponse('["test"]', 200, []), $result);
     }
 }
 

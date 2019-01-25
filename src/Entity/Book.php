@@ -65,11 +65,7 @@ class Book extends Entity
         $bResponse = $bookboon->rawRequest("/books", $variables);
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    static::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -97,11 +93,7 @@ class Book extends Entity
         $bResponse = $bookboon->rawRequest("/books", $variables);
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    static::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -174,11 +166,7 @@ class Book extends Entity
         $bResponse = $bookboon->rawRequest('/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset]);
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Book::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -203,11 +191,7 @@ class Book extends Entity
         $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType]);
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Book::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;

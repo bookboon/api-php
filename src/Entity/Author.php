@@ -49,11 +49,7 @@ class Author extends Entity
         $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    static::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;

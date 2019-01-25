@@ -28,11 +28,7 @@ class Review extends Entity
         $bResponse = $bookboon->rawRequest("/books/$bookId/review");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Review::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Review::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;

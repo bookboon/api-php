@@ -26,11 +26,7 @@ class Question extends Entity
         $bResponse =  $bookboon->rawRequest($url, ['answer' => $answerIds]);
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Question::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Question::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;

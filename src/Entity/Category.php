@@ -58,11 +58,7 @@ class Category extends Entity
         }
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Category::getEntitiesFromArray($categories)
-                ]
-            )
+            new EntityStore(Category::getEntitiesFromArray($categories))
         );
 
         return $bResponse;

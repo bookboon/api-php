@@ -25,11 +25,7 @@ class Frontpage extends Entity
         $bResponse = $bookboon->rawRequest("/frontpage");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Frontpage::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Frontpage::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -45,7 +41,8 @@ class Frontpage extends Entity
      */
     public static function getBySlug(Bookboon $bookboon, string $slug) : Frontpage
     {
-        $frontpageArray =  self::get($bookboon)->getEntityStore()->get();
+        /** @var Frontpage[] $frontpageArray */
+        $frontpageArray = self::get($bookboon)->getEntityStore()->get();
 
         foreach ($frontpageArray as $frontpage) {
             if ($frontpage->getSlug() === $slug) {

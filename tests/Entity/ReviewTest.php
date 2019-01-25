@@ -18,6 +18,9 @@ class ReviewTest extends \PHPUnit_Framework_TestCase
         self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58')->getEntityStore()->get();
     }
 
+    /**
+     * @group reviewt
+     */
     public function testGetAuthor()
     {
         $firstReview = self::$data[0];

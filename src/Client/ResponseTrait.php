@@ -15,48 +15,38 @@ trait ResponseTrait
      * @param int $status
      * @param string $url
      *
-     * @return array
+     * @return void
      *
      * @throws ApiSyntaxException
      * @throws ApiAuthenticationException
      * @throws ApiGeneralException
      * @throws ApiNotFoundException
      */
-    protected function handleResponse(string $body, array $headers, int $status, string $url)
+    protected function handleErrorResponse(string $body, array $headers, int $status, string $url): void
     {
-        $returnArray = json_decode($body, true);
+        switch ($status) {
+            case 400:
+            case 405:
+                $returnArray = json_decode($body, true);
+                throw new ApiSyntaxException($returnArray['message']);
+            case 401:
+            case 403:
+                $returnArray = json_decode($body, true);
+                $message = $returnArray['message'] ?? 'Invalid credentials';
 
-        if ($status >= 300 || $status < 200) {
-            switch ($status) {
-                case 301:
-                case 302:
-                case 303:
-                    $returnArray['url'] = $this->getResponseHeader($headers, 'Location');
-                    break;
-                case 400:
-                case 405:
-                    throw new ApiSyntaxException($returnArray['message']);
-                case 401:
-                case 403:
-                    $message = 'Invalid credentials';
-                    if (isset($returnArray['message'])) {
-                        $message = $returnArray['message'];
-                    }
-                    if (isset($returnArray['hint'])) {
-                        $message .= ': ' . $returnArray['hint'];
-                    }
+                if (isset($returnArray['hint'])) {
+                    $message .= ': ' . $returnArray['hint'];
+                }
 
-                    throw new ApiAuthenticationException($message);
-                case 410:
-                case 404:
-                    throw new ApiNotFoundException($url);
-                    break;
-                default:
-                    throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers));
-            }
+                throw new ApiAuthenticationException($message);
+            case 410:
+            case 404:
+                throw new ApiNotFoundException($url);
+                break;
+            default:
+                $returnArray = json_decode($body, true);
+                throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers));
         }
-
-        return $returnArray;
     }
 
     /**
@@ -67,8 +57,9 @@ trait ResponseTrait
     protected function generalExceptionMessage(array $responseArray, array $headers)
     {
         $message = '';
-        if (isset($responseArray['message'], $responseArray['code'])) {
-            $message .= 'Code: ' . $responseArray['code'] . '    Message: ' . $responseArray['message'];
+
+        foreach ($responseArray as $key => $value) {
+            $message .= "$key: $value   ";
         }
 
         $xVarnish = $this->getResponseHeader($headers, 'X-Varnish');
@@ -91,5 +82,8 @@ trait ResponseTrait
      *
      * @return string result
      */
-    abstract protected function getResponseHeader(array $headers, string $name);
+    protected function getResponseHeader(array $headers, string $name) : string
+    {
+        return $headers[$name] ?? '';
+    }
 }

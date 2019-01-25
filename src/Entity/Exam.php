@@ -49,11 +49,7 @@ class Exam extends Entity
         $bResponse = $bookboon->rawRequest("/books/$bookId/exams");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Exam::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Exam::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -71,11 +67,7 @@ class Exam extends Entity
         $bResponse = $bookboon->rawRequest("/exams");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    static::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;

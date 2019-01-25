@@ -50,7 +50,8 @@ class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
     public function testValidHeader()
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: http://bookboon.com";
-        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
+        $headerArray = \Helpers::invokeMethod(self::$client, 'decodeHeaders', [$headers]);
+        $result = $headerArray['Location'];
 
         $this->assertEquals('http://bookboon.com', $result);
     }

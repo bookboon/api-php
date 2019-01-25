@@ -137,14 +137,23 @@ class OauthClient implements ClientInterface
             $response = $e->getResponse();
         }
 
-        $responseArray = $this->handleResponse(
-            $response->getBody()->getContents(),
-            $response->getHeaders(),
-            $response->getStatusCode(),
-            $uri
-        );
+        $normalizedHeaders = $this->normalizeHeaders($response->getHeaders());
+        $body = $response->getBody()->getContents();
 
-        return new BookboonResponse($responseArray, $response->getHeaders());
+        if ($response->getStatusCode() >= 400) {
+            $this->handleErrorResponse(
+                $body,
+                $normalizedHeaders,
+                $response->getStatusCode(),
+                $uri
+            );
+        }
+
+        return new BookboonResponse(
+            $body,
+            $response->getStatusCode(),
+            $normalizedHeaders
+        );
     }
 
     /**
@@ -247,13 +256,17 @@ class OauthClient implements ClientInterface
      * Return specific header value from string of headers.
      *
      * @param array $headers
-     * @param string $name
      *
-     * @return string result
+     * @return array
      */
-    protected function getResponseHeader(array $headers, string $name)
+    protected function normalizeHeaders(array $headers) : array
     {
-        return $headers[$name][0] ?? $headers[$name] ?? '';
+        $returnHeaders = [];
+        foreach ($headers as $key => $header) {
+            $returnHeaders[$key] = $header[0] ?? $header;
+        }
+
+        return $returnHeaders;
     }
 
     /**

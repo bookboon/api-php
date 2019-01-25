@@ -14,19 +14,18 @@ services:
   - memcached
   - redis-server
 
-
 jobs:
   include:
     - stage: "Tests"
       name: "Unit Tests"
       script: vendor/bin/phpunit -c . --coverage-clover build/logs/clover.xml
-    - script: ./integration-tests
+    - script: vendor/bin/phpstan analyse src/ --level 6 --no-progress
       name: "Static Analyser"
-    - stage: vendor/bin/phpstan analyse src/ --level 1 --no-progress
 
 before_script:
   - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
+  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then echo "extension = igbinary.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - composer install
 
 after_script:

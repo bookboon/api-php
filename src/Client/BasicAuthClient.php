@@ -117,33 +117,23 @@ class BasicAuthClient implements ClientInterface
             throw new ApiGeneralException('Empty response from API');
         }
 
-        $responseArray = $this->handleResponse(
-            substr($response, $headersSize),
-            [substr($response, 0, $headersSize)],
-            $httpStatus,
-            $uri
-        );
+        $decodedHeaders = $this->decodeHeaders(substr($response, 0, $headersSize));
+        $body = substr($response, $headersSize);
 
-        return new BookboonResponse($responseArray, $headers);
-    }
-
-    /**
-     * Return specific header value from string of headers.
-     *
-     * @param array $headers
-     * @param string $name
-     *
-     * @return string result
-     */
-    protected function getResponseHeader(array $headers, string $name)
-    {
-        foreach (explode("\n", $headers[0]) as $header) {
-            if (strpos($header, $name) === 0) {
-                return trim(str_replace("$name: ", '', $header));
-            }
+        if ($httpStatus >= 400) {
+            $this->handleErrorResponse(
+                $body,
+                $decodedHeaders,
+                $httpStatus,
+                $uri
+            );
         }
 
-        return '';
+        return new BookboonResponse(
+            $body,
+            $httpStatus,
+            $decodedHeaders
+        );
     }
 
     protected function reportDeveloperInfo($request, $data)
@@ -263,5 +253,22 @@ class BasicAuthClient implements ClientInterface
     protected function getBaseApiUri() : string
     {
         return $this->_apiUri;
+    }
+
+    private function decodeHeaders(string $headers) : array
+    {
+        $headerArray = [];
+        foreach (explode("\n", $headers) as $header) {
+            $separator = strpos($header, ':');
+
+            // Invalid header
+            if ($separator === false) {
+                continue;
+            }
+
+            $headerArray[substr($header, 0, $separator)] = trim(substr($header, $separator + 1));
+        }
+
+        return $headerArray;
     }
 }
