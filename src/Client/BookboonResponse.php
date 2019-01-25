@@ -49,6 +49,11 @@ class BookboonResponse
         return $this->responseArray;
     }
 
+    public function setReturnArray(array $returnArray)
+    {
+        $this->responseArray = $returnArray;
+    }
+
     /**
      * @return EntityStore
      */

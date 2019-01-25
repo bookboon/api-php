@@ -52,6 +52,7 @@ class Category extends Entity
             self::recursiveBlacklist($categories, $blacklistedCategoryIds);
         }
 
+        $bResponse->setReturnArray($categories);
         $bResponse->setEntityStore(
             new EntityStore(
                 [
@@ -74,6 +75,8 @@ class Category extends Entity
                 self::recursiveBlacklist($categories[$key]['categories'], $blacklistedCategoryIds);
             }
         }
+
+        $categories = array_values($categories);
     }
 
     /**
