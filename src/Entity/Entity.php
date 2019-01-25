@@ -3,9 +3,10 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Exception\EntityDataException;
+use JsonSerializable;
 use Serializable;
 
-abstract class Entity implements Serializable
+abstract class Entity implements Serializable, JsonSerializable
 {
     protected $data = [];
 
@@ -103,5 +104,10 @@ abstract class Entity implements Serializable
     public static function isValidUUID(string $uuid) : bool
     {
         return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $uuid) == true;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->getData();
     }
 }
