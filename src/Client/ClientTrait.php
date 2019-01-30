@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\CacheInterface;
+use Psr\SimpleCache\CacheInterface;
 
 trait ClientTrait
 {

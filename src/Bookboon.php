@@ -19,12 +19,12 @@ namespace Bookboon\Api;
  *
  */
 
-use Bookboon\Api\Cache\CacheInterface;
 use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class Bookboon
 {

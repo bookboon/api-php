@@ -2,8 +2,8 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\CacheInterface;
 use Bookboon\Api\Exception\UsageException;
+use Psr\SimpleCache\CacheInterface;
 
 trait RequestTrait
 {
@@ -36,7 +36,20 @@ trait RequestTrait
      */
     abstract public function getHeaders() : Headers;
 
-    abstract protected function reportDeveloperInfo($request, $data);
+    /**
+     * @param string $url
+     * @param string $id
+     * @param array $headers
+     * @return string
+     */
+    abstract protected function hash(string $url, string $id, array $headers) : string;
+
+    /**
+     * @param string $url
+     * @param string $httpMethod
+     * @return bool
+     */
+    abstract public function isCachable(string $url, string $httpMethod) : bool;
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
@@ -74,7 +87,7 @@ trait RequestTrait
         }
 
 
-        if ($this->getCache() !== null && $this->getCache()->isCachable($queryUrl, $httpMethod) && $shouldCache) {
+        if ($this->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $result = $this->getFromCache($queryUrl);
 
             if ($result === null) {
@@ -95,8 +108,8 @@ trait RequestTrait
      */
     protected function saveInCache(string $queryUrl, BookboonResponse $result)
     {
-        $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
-        $this->getCache()->save($hash, $result);
+        $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
+        $this->getCache()->set($hash, $result);
     }
 
     /**
@@ -105,21 +118,10 @@ trait RequestTrait
      */
     protected function getFromCache(string $queryUrl) : ?BookboonResponse
     {
-        $hash = $this->getCache()->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
+        $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
         $result = $this->getCache()->get($hash);
 
-        if (!($result instanceof BookboonResponse)) {
-            return null;
-        }
-
-        $this->reportDeveloperInfo([
-            'total_time' => 0,
-            'http_code' => 'cache',
-            'size_download' => mb_strlen($result->getBody()),
-            'url' => ClientInterface::API_PROTOCOL . '://' . $queryUrl,
-        ], []);
-
-        return $result;
+        return $result instanceof BookboonResponse ? $result : null;
     }
 
     /**
@@ -142,7 +144,7 @@ trait RequestTrait
             }
         }
 
-        if ($protocol != 'http' && $protocol != 'https') {
+        if ($protocol !== 'http' && $protocol !== 'https') {
             throw new UsageException('Invalid protocol specified in URI');
         }
 

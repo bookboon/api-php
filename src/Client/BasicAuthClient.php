@@ -2,7 +2,6 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\CacheInterface;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiGeneralException;
@@ -10,10 +9,11 @@ use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class BasicAuthClient implements ClientInterface
 {
-    use ClientTrait, ResponseTrait, RequestTrait;
+    use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
     const C_VERSION = '2.1';
 

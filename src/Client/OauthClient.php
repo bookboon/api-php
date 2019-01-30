@@ -2,8 +2,6 @@
 
 namespace Bookboon\Api\Client;
 
-
-use Bookboon\Api\Cache\CacheInterface;
 use Bookboon\Api\Client\Oauth\BookboonProvider;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAccessTokenExpired;
@@ -14,6 +12,7 @@ use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Class BookboonOauthClient
@@ -21,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class OauthClient implements ClientInterface
 {
-    use ClientTrait, ResponseTrait, RequestTrait;
+    use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
     const C_VERSION = '2.1';
 
@@ -72,6 +71,7 @@ class OauthClient implements ClientInterface
             'baseUri'       => $authServiceUri
         ]);
 
+        $this->setApiId($apiId);
         $this->setCache($cache);
         $this->setHeaders($headers);
         $this->setAct($appUserId);

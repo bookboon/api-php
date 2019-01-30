@@ -1,31 +1,34 @@
 <?php
 
-namespace Bookboon\Api\Cache;
+namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Client\ClientInterface;
-use Bookboon\Api\Client\Headers;
-
+use Psr\SimpleCache\CacheInterface;
 
 trait HashTrait
 {
     /**
+     * @return CacheInterface|null
+     */
+    abstract public function getCache() : ?CacheInterface;
+
+    /**
      * Hashes url with unique values: app id and headers.
      *
      * @param string $url
-     *
+     * @param string $apiId
      * @param array $headers
      * @return string the hashed key
      */
-    public function hash(string $url, string $id, array $headers) : string
+    protected function hash(string $url, string $apiId, array $headers) : string
     {
-        $headerString = "";
+        $headerString = '';
         foreach ($headers as $key => $value) {
             if ($key != Headers::HEADER_XFF) {
                 $headerString .= $key.$value;
             }
         }
 
-        return sha1($id . $headerString . $url);
+        return sha1($apiId . $headerString . $url);
     }
 
     /**
@@ -39,11 +42,6 @@ trait HashTrait
      */
     public function isCachable(string $url, string $httpMethod) : bool
     {
-        return $httpMethod === ClientInterface::HTTP_GET && $this->isInitialized();
+        return $httpMethod === ClientInterface::HTTP_GET && $this->getCache() !== null;
     }
-
-    /**
-     * @return bool
-     */
-    abstract function isInitialized() : bool;
 }
