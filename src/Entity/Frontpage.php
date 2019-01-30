@@ -18,17 +18,14 @@ class Frontpage extends Entity
      *
      * @param Bookboon $bookboon
      * @return BookboonResponse
+     * @throws UsageException
      */
-    public static function get(Bookboon $bookboon)
+    public static function get(Bookboon $bookboon) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/frontpage");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Frontpage::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(Frontpage::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -42,9 +39,10 @@ class Frontpage extends Entity
      * @return Frontpage
      * @throws UsageException
      */
-    public static function getBySlug(Bookboon $bookboon, $slug)
+    public static function getBySlug(Bookboon $bookboon, string $slug) : Frontpage
     {
-        $frontpageArray =  self::get($bookboon)->getEntityStore()->get();
+        /** @var Frontpage[] $frontpageArray */
+        $frontpageArray = self::get($bookboon)->getEntityStore()->get();
 
         foreach ($frontpageArray as $frontpage) {
             if ($frontpage->getSlug() === $slug) {
@@ -55,7 +53,7 @@ class Frontpage extends Entity
         throw new UsageException("Non-existing slug");
     }
 
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['_slug'], $array['title'], $array['books']);
     }
@@ -64,7 +62,7 @@ class Frontpage extends Entity
      * @param string $slug
      * @return bool
      */
-    public static function isValidSlug($slug)
+    public static function isValidSlug(string $slug) : bool
     {
         return in_array(
             $slug,
@@ -97,8 +95,8 @@ class Frontpage extends Entity
     /**
      * @return Book[] books in category
      */
-    public function getBooks()
+    public function getBooks() : array
     {
-        return Book::getEntitiesFromArray($this->safeGet('books', array()));
+        return Book::getEntitiesFromArray($this->safeGet('books', []));
     }
 }

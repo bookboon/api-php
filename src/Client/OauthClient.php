@@ -2,8 +2,6 @@
 
 namespace Bookboon\Api\Client;
 
-
-use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Oauth\BookboonProvider;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAccessTokenExpired;
@@ -12,22 +10,23 @@ use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Class BookboonOauthClient
  * @package Bookboon\Api\Client
  */
-class OauthClient implements Client
+class OauthClient implements ClientInterface
 {
-    use ClientTrait, ResponseTrait, RequestTrait;
+    use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
     const C_VERSION = '2.1';
 
     protected $_apiUri;
 
-    /** @var AccessToken */
+    /** @var AccessTokenInterface */
     private $accessToken;
 
     /** @var string */
@@ -42,7 +41,7 @@ class OauthClient implements Client
      * @param string $apiSecret
      * @param Headers $headers
      * @param array $scopes
-     * @param Cache $cache
+     * @param CacheInterface $cache
      * @param string $redirectUri
      * @param string $appUserId
      * @param string|null $authServiceUri
@@ -50,15 +49,15 @@ class OauthClient implements Client
      * @throws UsageException
      */
     public function __construct(
-        $apiId,
-        $apiSecret,
+        string $apiId,
+        string $apiSecret,
         Headers $headers,
         array $scopes,
-        Cache $cache = null,
-        $redirectUri = null,
-        $appUserId = null,
-        $authServiceUri = null,
-        $apiUri = null
+        CacheInterface $cache = null,
+        ?string $redirectUri = null,
+        ?string $appUserId = null,
+        ?string $authServiceUri = null,
+        ?string $apiUri = null
     ) {
         if (empty($apiId)) {
             throw new UsageException("Client id is required");
@@ -72,6 +71,7 @@ class OauthClient implements Client
             'baseUri'       => $authServiceUri
         ]);
 
+        $this->setApiId($apiId);
         $this->setCache($cache);
         $this->setHeaders($headers);
         $this->setAct($appUserId);
@@ -90,11 +90,14 @@ class OauthClient implements Client
      * @throws \Bookboon\Api\Exception\ApiGeneralException
      * @throws \Bookboon\Api\Exception\ApiNotFoundException
      * @throws \Bookboon\Api\Exception\ApiSyntaxException
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function executeQuery($uri, $type = Client::HTTP_GET, $variables = array(), $contentType = Client::CONTENT_TYPE_JSON)
-    {
-        if (!($this->getAccessToken() instanceof AccessToken)) {
+    protected function executeQuery(
+        string $uri,
+        string $type = ClientInterface::HTTP_GET,
+        array $variables = [],
+        string $contentType = ClientInterface::CONTENT_TYPE_JSON
+    ) : BookboonResponse {
+        if (!($this->getAccessToken() instanceof AccessTokenInterface)) {
             throw new ApiAuthenticationException("Not authenticated");
         }
 
@@ -104,8 +107,8 @@ class OauthClient implements Client
         ];
         $options['headers']['User-Agent'] = $this->getUserAgentString();
 
-        if (count($variables) > 0 && $type == Client::HTTP_POST) {
-            $postType = $contentType == Client::CONTENT_TYPE_JSON ? 'json' : 'form_params';
+        if (count($variables) > 0 && $type == ClientInterface::HTTP_POST) {
+            $postType = $contentType == ClientInterface::CONTENT_TYPE_JSON ? 'json' : 'form_params';
             $options[$postType] = $variables;
         }
 
@@ -134,21 +137,30 @@ class OauthClient implements Client
             $response = $e->getResponse();
         }
 
-        $responseArray = $this->handleResponse(
-            $response->getBody()->getContents(),
-            $response->getHeaders(),
-            $response->getStatusCode(),
-            $uri
-        );
+        $normalizedHeaders = $this->normalizeHeaders($response->getHeaders());
+        $body = $response->getBody()->getContents();
 
-        return new BookboonResponse($responseArray, $response->getHeaders());
+        if ($response->getStatusCode() >= 400) {
+            $this->handleErrorResponse(
+                $body,
+                $normalizedHeaders,
+                $response->getStatusCode(),
+                $uri
+            );
+        }
+
+        return new BookboonResponse(
+            $body,
+            $response->getStatusCode(),
+            $normalizedHeaders
+        );
     }
 
     /**
      * @param array $options
      * @return string
      */
-    public function getAuthorizationUrl(array $options = array())
+    public function getAuthorizationUrl(array $options = []) : string
     {
         $provider = $this->provider;
 
@@ -156,20 +168,20 @@ class OauthClient implements Client
             $options['act'] = $this->act;
         }
 
-        $url = $provider->getAuthorizationUrl($options);
-
-        return $url;
+        return $provider->getAuthorizationUrl($options);
     }
 
     /**
      * @param array $options
-     * @param null|string $type
-     * @return AccessToken
+     * @param string $type
+     * @return AccessTokenInterface
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken(array $options = array(), $type = OauthGrants::AUTHORIZATION_CODE)
-    {
+    public function requestAccessToken(
+        array $options = [],
+        string $type = OauthGrants::AUTHORIZATION_CODE
+    ) : AccessTokenInterface {
         $provider = $this->provider;
 
         if ($type == OauthGrants::AUTHORIZATION_CODE && !isset($options["code"])) {
@@ -190,10 +202,11 @@ class OauthClient implements Client
 
 
     /**
-     * @param AccessToken $accessToken
-     * @return AccessToken
+     * @param AccessTokenInterface $accessToken
+     * @return AccessTokenInterface
+     * @throws IdentityProviderException
      */
-    public function refreshAccessToken(AccessToken $accessToken)
+    public function refreshAccessToken(AccessTokenInterface $accessToken) : AccessTokenInterface
     {
         $this->accessToken = $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $accessToken->getRefreshToken()
@@ -210,11 +223,11 @@ class OauthClient implements Client
 
 
     /**
-     * @param AccessToken $accessToken
+     * @param AccessTokenInterface $accessToken
      * @return void
      * @throws ApiAccessTokenExpired
      */
-    public function setAccessToken(AccessToken $accessToken)
+    public function setAccessToken(AccessTokenInterface $accessToken) : void
     {
         if ($accessToken->hasExpired()) {
             throw new ApiAccessTokenExpired("The api access token has expired");
@@ -224,12 +237,12 @@ class OauthClient implements Client
     }
 
     /**
-     * @param $stateParameter
-     * @param $stateSession
+     * @param string $stateParameter
+     * @param string $stateSession
      * @return boolean
      * @throws ApiInvalidStateException
      */
-    public function isCorrectState($stateParameter, $stateSession)
+    public function isCorrectState(string $stateParameter, string $stateSession) : bool
     {
         if (empty($stateParameter) || ($stateParameter !== $stateSession)) {
             throw new ApiInvalidStateException("State is invalid");
@@ -242,28 +255,25 @@ class OauthClient implements Client
     /**
      * Return specific header value from string of headers.
      *
-     * @param string $headers
-     * @param string $name
+     * @param array $headers
      *
-     * @return string result
+     * @return array
      */
-    protected function getResponseHeader($headers, $name)
+    protected function normalizeHeaders(array $headers) : array
     {
-        if (isset($headers[$name][0])) {
-            return $headers[$name][0];
+        $returnHeaders = [];
+        foreach ($headers as $key => $header) {
+            $returnHeaders[$key] = $header[0] ?? $header;
         }
 
-        if (isset($headers[$name])) {
-            return $headers[$name];
-        }
-
-        return '';
+        return $returnHeaders;
     }
 
     /**
-     * @param $act
+     * @param string|null $act
+     * @return void
      */
-    public function setAct($act)
+    public function setAct(?string $act) : void
     {
         $this->act = $act;
     }
@@ -271,24 +281,19 @@ class OauthClient implements Client
     /**
      * @return string
      */
-    public function getAct()
+    public function getAct() : string
     {
         return $this->act;
     }
 
     /**
-     * @return AccessToken
+     * @return AccessTokenInterface
      */
-    public function getAccessToken()
+    public function getAccessToken() : ?AccessTokenInterface
     {
         return $this->accessToken;
     }
 
-    /**
-     * @param $request
-     * @param $data
-     * @return void
-     */
     protected function reportDeveloperInfo($request, $data)
     {
         // TODO: Implement reportDeveloperInfo() method.
@@ -297,7 +302,7 @@ class OauthClient implements Client
     /**
      * @return string
      */
-    protected function getComponentVersion()
+    protected function getComponentVersion() : string
     {
         return self::C_VERSION;
     }
@@ -305,7 +310,7 @@ class OauthClient implements Client
     /**
      * @return string
      */
-    protected function getBaseApiUri()
+    protected function getBaseApiUri() : string
     {
         return $this->_apiUri;
     }

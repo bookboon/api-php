@@ -2,31 +2,31 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
-use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\SimpleCache\CacheInterface;
 
-class BasicAuthClient implements Client
+class BasicAuthClient implements ClientInterface
 {
-    use ClientTrait, ResponseTrait, RequestTrait;
+    use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
     const C_VERSION = '2.1';
 
     protected static $CURL_REQUESTS;
 
-    public static $CURL_OPTS = array(
+    public static $CURL_OPTS = [
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         CURLOPT_TIMEOUT => 60,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
-    );
+    ];
 
     protected $_apiUri;
 
@@ -35,11 +35,11 @@ class BasicAuthClient implements Client
      * @param string $apiId
      * @param string $apiSecret
      * @param Headers $headers
-     * @param Cache|null $cache
+     * @param CacheInterface|null $cache
      * @param string|null $apiUri
      * @throws UsageException
      */
-    public function __construct($apiId, $apiSecret, Headers $headers, Cache $cache = null, $apiUri = null)
+    public function __construct($apiId, $apiSecret, Headers $headers, CacheInterface $cache = null, $apiUri = null)
     {
         if (empty($apiId) || empty($apiSecret)) {
             throw new UsageException("Key and secret are required");
@@ -72,9 +72,9 @@ class BasicAuthClient implements Client
     protected function executeQuery(
         $uri,
         $type = self::HTTP_GET,
-        $variables = array(),
+        $variables = [],
         $contentType = self::CONTENT_TYPE_FORM
-    ) {
+    ) : BookboonResponse {
         $http = curl_init();
         $headers = $this->getHeaders()->getAll();
 
@@ -105,7 +105,7 @@ class BasicAuthClient implements Client
         $this->reportDeveloperInfo(curl_getinfo($http), $variables);
 
         if (curl_errno($http)) {
-            if (curl_errno($http) == 28) {
+            if (curl_errno($http) === 28) {
                 throw new ApiTimeoutException();
             }
             throw new ApiGeneralException('Curl error number ' . curl_errno($http));
@@ -113,41 +113,35 @@ class BasicAuthClient implements Client
 
         curl_close($http);
 
-        $responseArray = $this->handleResponse(
-            substr($response, $headersSize),
-            substr($response, 0, $headersSize),
-            $httpStatus,
-            $uri
-        );
-
-        return new BookboonResponse($responseArray, $headers);
-    }
-
-    /**
-     * Return specific header value from string of headers.
-     *
-     * @param string $headers
-     * @param string $name
-     *
-     * @return string result
-     */
-    protected function getResponseHeader($headers, $name)
-    {
-        foreach (explode("\n", $headers) as $header) {
-            if (strpos($header, $name) === 0) {
-                return trim(str_replace("$name: ", '', $header));
-            }
+        if (is_bool($response)) {
+            throw new ApiGeneralException('Empty response from API');
         }
 
-        return '';
+        $decodedHeaders = $this->decodeHeaders(substr($response, 0, $headersSize));
+        $body = substr($response, $headersSize);
+
+        if ($httpStatus >= 400) {
+            $this->handleErrorResponse(
+                $body,
+                $decodedHeaders,
+                $httpStatus,
+                $uri
+            );
+        }
+
+        return new BookboonResponse(
+            $body,
+            $httpStatus,
+            $decodedHeaders
+        );
     }
 
     protected function reportDeveloperInfo($request, $data)
     {
-        self::$CURL_REQUESTS[] = array(
+        self::$CURL_REQUESTS[] = [
             'curl' => $request,
             'data' => $data,
-        );
+        ];
     }
 
     /**
@@ -155,20 +149,22 @@ class BasicAuthClient implements Client
      * @return string
      * @throws UsageException
      */
-    public function getAuthorizationUrl(array $options = array())
+    public function getAuthorizationUrl(array $options = [])
     {
         throw new UsageException("Not Supported");
     }
 
     /**
      * @param array $options
-     * @param null|string $type
-     * @return AccessToken
+     * @param string $type
+     * @return AccessTokenInterface
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken(array $options = array(), $type = OauthGrants::AUTHORIZATION_CODE)
-    {
+    public function requestAccessToken(
+        array $options = [],
+        string $type = OauthGrants::AUTHORIZATION_CODE
+    ) : AccessTokenInterface {
         throw new UsageException("Not Supported");
     }
 
@@ -176,10 +172,21 @@ class BasicAuthClient implements Client
      * @param array $variables
      * @param string $contentType
      * @return string
+     * @throws ApiGeneralException
      */
-    protected function encodeByContentType(array $variables, $contentType)
+    protected function encodeByContentType(array $variables, string $contentType) : string
     {
-        return strpos($contentType, 'json') !== false ? json_encode($variables) : http_build_query($variables);
+        if (strpos($contentType, 'json') !== false) {
+            $output = json_encode($variables);
+
+            if ($output === false) {
+                throw new ApiGeneralException('Failed to encode request to JSON');
+            }
+
+            return $output;
+        }
+
+        return http_build_query($variables);
     }
 
 
@@ -187,7 +194,7 @@ class BasicAuthClient implements Client
      * @param string $appUserId
      * @throws UsageException
      */
-    public function setAct($appUserId)
+    public function setAct(string $appUserId) : void
     {
         throw new UsageException("Not Supported");
     }
@@ -196,22 +203,22 @@ class BasicAuthClient implements Client
      * @return string
      * @throws UsageException
      */
-    public function getAct()
+    public function getAct() : string
     {
         throw new UsageException("Not Supported");
     }
 
-    public function setAccessToken(AccessToken $accessToken)
+    public function setAccessToken(AccessTokenInterface $accessToken) : void
     {
         throw new UsageException("Not Supported");
     }
 
-    public function getAccessToken()
+    public function getAccessToken() : ?AccessTokenInterface
     {
         throw new UsageException("Not Supported");
     }
 
-    public function refreshAccessToken(AccessToken $accessToken)
+    public function refreshAccessToken(AccessTokenInterface $accessToken)
     {
         throw new UsageException("Not Supported");
     }
@@ -223,11 +230,11 @@ class BasicAuthClient implements Client
 
     /**
      * @param string $stateParameter
-     * @param string  $stateSession
+     * @param string $stateSession
      * @return boolean
      * @throws UsageException
      */
-    public function isCorrectState($stateParameter, $stateSession)
+    public function isCorrectState(string $stateParameter, string $stateSession) : bool
     {
         throw new UsageException("Not Supported");
     }
@@ -235,7 +242,7 @@ class BasicAuthClient implements Client
     /**
      * @return string
      */
-    protected function getComponentVersion()
+    protected function getComponentVersion() : string
     {
         return self::C_VERSION;
     }
@@ -243,8 +250,25 @@ class BasicAuthClient implements Client
     /**
      * @return string
      */
-    protected function getBaseApiUri()
+    protected function getBaseApiUri() : string
     {
         return $this->_apiUri;
+    }
+
+    private function decodeHeaders(string $headers) : array
+    {
+        $headerArray = [];
+        foreach (explode("\n", $headers) as $header) {
+            $separator = strpos($header, ':');
+
+            // Invalid header
+            if ($separator === false) {
+                continue;
+            }
+
+            $headerArray[substr($header, 0, $separator)] = trim(substr($header, $separator + 1));
+        }
+
+        return $headerArray;
     }
 }

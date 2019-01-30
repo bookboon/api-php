@@ -3,11 +3,12 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Exception\EntityDataException;
+use JsonSerializable;
 use Serializable;
 
-abstract class Entity implements Serializable
+abstract class Entity implements Serializable, JsonSerializable
 {
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Category constructor.
@@ -25,21 +26,23 @@ abstract class Entity implements Serializable
         $this->data = $array;
     }
 
-    abstract protected function isValid(array $array);
+    /**
+     * Determines whether api response is valid
+     *
+     * @param array $array
+     * @return bool
+     */
+    abstract protected function isValid(array $array) : bool;
 
     /**
-     * @param $key
-     * @param bool|false $default
+     * @param string $key
+     * @param mixed $default
      *
      * @return mixed will default default if keys doens't exist
      */
-    protected function safeGet($key, $default = false)
+    protected function safeGet(string $key, $default = false)
     {
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
-        }
-
-        return $default;
+        return $this->data[$key] ?? $default;
     }
 
     /**
@@ -74,7 +77,7 @@ abstract class Entity implements Serializable
 
     public static function getEntitiesFromArray(array $array)
     {
-        $entities = array();
+        $entities = [];
         foreach ($array as $object) {
             $entities[] = new static($object);
         }
@@ -93,13 +96,18 @@ abstract class Entity implements Serializable
     /**
      * Useful UUID validator to validate input in scripts.
      *
-     * @param $uuid
+     * @param string $uuid
      * @return bool true if valid, false if not
      * @internal param string $uuid UUID to validate
      *
      */
-    public static function isValidUUID($uuid)
+    public static function isValidUUID(string $uuid) : bool
     {
         return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $uuid) == true;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->getData();
     }
 }

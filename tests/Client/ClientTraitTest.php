@@ -3,6 +3,8 @@
 namespace Bookboon\Api\Client;
 
 
+use Psr\SimpleCache\CacheInterface;
+
 /**
  * Class ClientTraitTest
  * @package Client
@@ -16,7 +18,7 @@ class ClientTraitTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["setHeaders", "getHeaders", new Headers()],
-            ["setCache", "getCache", $this->getMock('\Bookboon\Api\Cache\Cache')]
+            ["setCache", "getCache", $this->getMockBuilder(CacheInterface::class)->getMock()]
         ];
     }
 

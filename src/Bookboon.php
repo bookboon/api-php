@@ -19,12 +19,12 @@ namespace Bookboon\Api;
  *
  */
 
-use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\BookboonResponse;
-use Bookboon\Api\Client\Client;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
 
 class Bookboon
 {
@@ -33,9 +33,9 @@ class Bookboon
     /**
      * Bookboon constructor.
      *
-     * @param Client $client
+     * @param ClientInterface $client
      */
-    public function __construct(Client $client)
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
     }
@@ -47,19 +47,19 @@ class Bookboon
      * @param array $headers
      * @param string|null $appUserId
      * @param string|null $redirectUri
-     * @param Cache|null $cache
+     * @param CacheInterface|null $cache
      * @return Bookboon
      * @throws Exception\UsageException
      */
     public static function create(
-        $appId,
-        $appSecret,
+        string $appId,
+        string $appSecret,
         array $scopes,
         array $headers = [],
-        $appUserId = null,
-        $redirectUri = null,
-        Cache $cache = null
-    ) {
+        ?string $appUserId = null,
+        ?string $redirectUri = null,
+        CacheInterface $cache = null
+    ) : Bookboon {
         $headersObject = new Headers();
         foreach ($headers as $key => $value) {
             $headersObject->set($key, $value);
@@ -78,13 +78,17 @@ class Bookboon
      * @return BookboonResponse
      * @throws Exception\UsageException
      */
-    public function rawRequest($url, array $variables = [], $httpMethod = Client::HTTP_GET, $shouldCache = true)
-    {
+    public function rawRequest(
+        string $url,
+        array $variables = [],
+        string $httpMethod = ClientInterface::HTTP_GET,
+        bool $shouldCache = true
+    ) : BookboonResponse {
         return $this->client->makeRequest($url, $variables, $httpMethod, $shouldCache);
     }
 
     /**
-     * @return Client
+     * @return ClientInterface
      */
     public function getClient()
     {

@@ -2,7 +2,7 @@
 
 namespace Bookboon\Api\Client;
 
-use Bookboon\Api\Cache\Cache;
+use Psr\SimpleCache\CacheInterface;
 
 trait ClientTrait
 {
@@ -13,7 +13,7 @@ trait ClientTrait
 
     abstract protected function getComponentVersion();
 
-    protected function getUserAgentString()
+    protected function getUserAgentString() : string
     {
         if (defined('HHVM_VERSION')) {
             $runtime = 'HHVM/' . HHVM_VERSION;
@@ -22,22 +22,22 @@ trait ClientTrait
         }
 
         $component = substr(get_class($this), strrpos(get_class($this), '\\') + 1);
-        return Client::VERSION . ' ' . $runtime . ' ' . $component . '/' . $this->getComponentVersion();
+        return ClientInterface::VERSION . ' ' . $runtime . ' ' . $component . '/' . $this->getComponentVersion();
     }
 
     /**
-     * @return Cache|null
+     * @return CacheInterface|null
      */
-    public function getCache()
+    public function getCache() : ?CacheInterface
     {
         return $this->cache;
     }
 
     /**
-     * @param Cache $cache
+     * @param CacheInterface $cache
      * @return void
      */
-    public function setCache(Cache $cache = null)
+    public function setCache(CacheInterface $cache = null) : void
     {
         $this->cache = $cache;
     }
@@ -45,7 +45,7 @@ trait ClientTrait
     /**
      * @return Headers
      */
-    public function getHeaders()
+    public function getHeaders() : Headers
     {
         return $this->headers;
     }
@@ -53,7 +53,7 @@ trait ClientTrait
     /**
      * @param Headers $headers
      */
-    public function setHeaders(Headers $headers)
+    public function setHeaders(Headers $headers) : void
     {
         $this->headers = $headers;
     }
@@ -61,16 +61,16 @@ trait ClientTrait
     /**
      * @return string
      */
-    protected function getApiId()
+    protected function getApiId() : string
     {
         return $this->apiId;
     }
 
     /**
-     * @param $apiId
+     * @param string $apiId
      * @return void
      */
-    protected function setApiId($apiId)
+    protected function setApiId(string $apiId) : void
     {
         $this->apiId = $apiId;
     }
@@ -78,16 +78,16 @@ trait ClientTrait
     /**
      * @return string
      */
-    protected function getApiSecret()
+    protected function getApiSecret() : string
     {
         return $this->apiSecret;
     }
 
     /**
-     * @param $apiSecret
-     * @return string
+     * @param string $apiSecret
+     * @return void
      */
-    protected function setApiSecret($apiSecret)
+    protected function setApiSecret(string $apiSecret) : void
     {
         $this->apiSecret = $apiSecret;
     }

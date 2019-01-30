@@ -10,14 +10,16 @@ class Author extends Entity
 {
     /**
      * @param Bookboon $bookboon
-     * @param $authorId
+     * @param string $authorId
      * @return BookboonResponse
      * @throws BadUUIDException
+     * @throws \Bookboon\Api\Exception\EntityDataException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, $authorId)
+    public static function get(Bookboon $bookboon, string $authorId) : BookboonResponse
     {
         if (Entity::isValidUUID($authorId) === false) {
-            throw new BadUUIDException("UUID Not Formatted Correctly");
+            throw new BadUUIDException();
         }
 
         $bResponse = $bookboon->rawRequest("/authors/$authorId");
@@ -40,23 +42,20 @@ class Author extends Entity
      * @param string $bookId
      * @return BookboonResponse
      * @throws BadUUIDException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public function getByBookId(Bookboon $bookboon, $bookId)
+    public function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    static::getEntitiesFromArray($bResponse->getReturnArray())
-                ]
-            )
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
     }
 
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['_id'], $array['name'], $array['books']);
     }
@@ -160,8 +159,8 @@ class Author extends Entity
      *
      * @return Book[] books by author
      */
-    public function getBooks()
+    public function getBooks() : array
     {
-        return Book::getEntitiesFromArray($this->safeGet('books', array()));
+        return Book::getEntitiesFromArray($this->safeGet('books', []));
     }
 }

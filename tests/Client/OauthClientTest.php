@@ -14,8 +14,8 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testClientCredentialsGrantSuccessful()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $result = $client->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
     }
 
@@ -24,14 +24,14 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testClientCredentialsGrantUnsuccessful()
     {
-        $client = new OauthClient(\Helpers::getApiId(), "BAD SECRET", new Headers(), array("basic"));
-        $result = $client->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
+        $client = new OauthClient(\Helpers::getApiId(), "BAD SECRET", new Headers(), ["basic"]);
+        $result = $client->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
     }
 
     public function testAuthorizationCodeUrlWithAppUserId()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"), null, null, 9999);
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"], null, null, 9999);
         $result = $client->getAuthorizationUrl();
 
         parse_str(parse_url($result)['query'], $redirectData);
@@ -49,15 +49,15 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
             \Helpers::getApiId(),
             \Helpers::getApiSecret(),
             new Headers(),
-            array("basic"),
+            ["basic"],
             null,
             "http://subsites-local.bookboon.com/skeleton/web/exam/authorize"
         );
 
-        $result = $client->getAuthorizationUrl(array(
+        $result = $client->getAuthorizationUrl([
             'act' => 'rj7Hq2f9d4n59YZ5',
             'response_type' => 'custom_flow'
-        ));
+        ]);
 
         $this->assertStringStartsWith("https://bookboon.com/login/authorize?", $result);
 
@@ -109,11 +109,11 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
             \Helpers::getApiId(),
             \Helpers::getApiSecret(),
             new Headers(),
-            array("basic"),
+            ["basic"],
             null,
             "http://subsites-local.bookboon.com/skeleton/web/exam/authorize"
         );
-        $result = $client->requestAccessToken(array("code" => $code), OauthGrants::AUTHORIZATION_CODE);
+        $result = $client->requestAccessToken(["code" => $code], OauthGrants::AUTHORIZATION_CODE);
 
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
 
@@ -126,7 +126,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthorizationCodeTokenRefreshSuccessful(AccessToken $accessToken)
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
         $result = $client->refreshAccessToken($accessToken);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
     }
@@ -136,7 +136,7 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testStateCheckInvalid()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
         $client->isCorrectState("a", "b");
     }
 
@@ -145,8 +145,8 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthorizationCodeTokenMissingCode()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
-        $result = $client->requestAccessToken(array(), OauthGrants::AUTHORIZATION_CODE);
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $result = $client->requestAccessToken([], OauthGrants::AUTHORIZATION_CODE);
         $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
 
         return $result;
@@ -154,14 +154,14 @@ class OauthClientTest extends \PHPUnit_Framework_TestCase
 
     public function testStateCheckValid()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
         $result = $client->isCorrectState("a", "a");
         $this->assertTrue($result);
     }
 
     public function testGenerateState()
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), array("basic"));
+        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
         $this->assertNotEmpty($client->generateState());
     }
 }

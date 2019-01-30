@@ -4,8 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
-use Bookboon\Api\Client\Client;
-use Bookboon\Api\Exception\BadUUIDException;
+use Bookboon\Api\Client\ClientInterface;
 
 class Category extends Entity
 {
@@ -18,8 +17,10 @@ class Category extends Entity
      * @param Bookboon $bookboon
      * @param string $categoryId
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\EntityDataException
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, $categoryId)
+    public static function get(Bookboon $bookboon, string $categoryId) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/categories/$categoryId");
 
@@ -41,10 +42,14 @@ class Category extends Entity
      * @param array $blacklistedCategoryIds
      * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function getTree(Bookboon $bookboon, array $blacklistedCategoryIds = array(), $depth = 2)
-    {
-        $bResponse = $bookboon->rawRequest('/categories', array('depth' => $depth));
+    public static function getTree(
+        Bookboon $bookboon,
+        array $blacklistedCategoryIds = [],
+        int $depth = 2
+    ) : BookboonResponse {
+        $bResponse = $bookboon->rawRequest('/categories', ['depth' => $depth]);
 
         $categories = $bResponse->getReturnArray();
 
@@ -53,17 +58,17 @@ class Category extends Entity
         }
 
         $bResponse->setEntityStore(
-            new EntityStore(
-                [
-                    Category::getEntitiesFromArray($categories)
-                ]
-            )
+            new EntityStore(Category::getEntitiesFromArray($categories))
         );
 
         return $bResponse;
     }
 
-    private static function recursiveBlacklist(&$categories, $blacklistedCategoryIds)
+    /**
+     * @param array $categories
+     * @param array $blacklistedCategoryIds
+     */
+    private static function recursiveBlacklist(array &$categories, array $blacklistedCategoryIds) : void
     {
         foreach ($categories as $key => $category) {
             if (in_array($category['_id'], $blacklistedCategoryIds)) {
@@ -80,18 +85,18 @@ class Category extends Entity
      * Get the download url.
      *
      * @param Bookboon $bookboon
-     * @param $categoryId
+     * @param string $categoryId
      * @param array $variables
      * @return string
      */
-    public static function getDownloadUrl(Bookboon $bookboon, $categoryId, array $variables)
+    public static function getDownloadUrl(Bookboon $bookboon, string $categoryId, array $variables) : string
     {
-        $bResponse = $bookboon->rawRequest("/categories/$categoryId/download", $variables, Client::HTTP_POST);
+        $bResponse = $bookboon->rawRequest("/categories/$categoryId/download", $variables, ClientInterface::HTTP_POST);
 
         return $bResponse->getReturnArray()['url'];
     }
 
-    protected function isValid(array $array)
+    protected function isValid(array $array) : bool
     {
         return isset($array['_id'], $array['name'], $array['description'], $array['homepage']);
     }
@@ -139,16 +144,16 @@ class Category extends Entity
     /**
      * @return Category[] of Category objects
      */
-    public function getCategories()
+    public function getCategories() : array
     {
-        return self::getEntitiesFromArray($this->safeGet('categories', array()));
+        return self::getEntitiesFromArray($this->safeGet('categories', []));
     }
 
     /**
      * @return Book[] books in category
      */
-    public function getBooks()
+    public function getBooks() : array
     {
-        return Book::getEntitiesFromArray($this->safeGet('books', array()));
+        return Book::getEntitiesFromArray($this->safeGet('books', []));
     }
 }

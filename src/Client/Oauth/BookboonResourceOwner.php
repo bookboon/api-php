@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security;
+namespace Bookboon\Api\Client\Oauth;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Tool\ArrayAccessorTrait;
@@ -93,7 +93,7 @@ class BookboonResourceOwner implements ResourceOwnerInterface
      */
     public function hasErrored()
     {
-        return $this->getValueByKey($this->response, 'status') != null;
+        return $this->getValueByKey($this->response, 'status') !== null;
     }
 
     /**

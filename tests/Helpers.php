@@ -18,8 +18,8 @@ class Helpers
 
     public static function getBookboon()
     {
-        $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), array('basic', 'download_book.pdf', 'download_category'));
-        $bookboon->getClient()->requestAccessToken(array(), OauthGrants::CLIENT_CREDENTIALS);
+        $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), ['basic', 'download_book.pdf', 'download_category']);
+        $bookboon->getClient()->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
 
         return $bookboon;
     }
@@ -33,7 +33,7 @@ class Helpers
      *
      * @return mixed Method return
      */
-    public static function invokeMethod(&$object, $methodName, array $parameters = array())
+    public static function invokeMethod(&$object, $methodName, array $parameters = [])
     {
         $reflection = new \ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodName);

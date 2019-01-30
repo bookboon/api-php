@@ -2,15 +2,14 @@
 
 namespace Bookboon\Api\Client;
 
-
-use Bookboon\Api\Cache\Cache;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
-use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\SimpleCache\CacheInterface;
 
-interface Client
+interface ClientInterface
 {
     const HTTP_GET = 'GET';
     const HTTP_POST = 'POST';
@@ -33,20 +32,26 @@ interface Client
      * @param bool   $shouldCache     manually disable object cache for query
      * @param string $contentType     Request Content type
      *
-     * @return array results of call
+     * @return BookboonResponse results of call
      *
      * @throws UsageException
      */
-    public function makeRequest($relativeUrl, array $variables = array(), $httpMethod = self::HTTP_GET, $shouldCache = true, $contentType = self::CONTENT_TYPE_FORM);
+    public function makeRequest(
+        string $relativeUrl,
+        array $variables = [],
+        string $httpMethod = self::HTTP_GET,
+        bool $shouldCache = true,
+        string $contentType = self::CONTENT_TYPE_FORM
+    ) : BookboonResponse;
 
     /**
      * @param array $options
-     * @param null|string $type
-     * @return AccessToken
+     * @param string $type
+     * @return AccessTokenInterface
      * @throws ApiAuthenticationException
      * @throws UsageException
      */
-    public function requestAccessToken(array $options = array(), $type = OauthGrants::AUTHORIZATION_CODE);
+    public function requestAccessToken(array $options = [], string $type = OauthGrants::AUTHORIZATION_CODE);
 
     /**
      * @return string
@@ -54,69 +59,68 @@ interface Client
     public function generateState();
 
     /**
-     * @param AccessToken $accessToken
+     * @param AccessTokenInterface $accessToken
      * @return mixed
      */
-    public function refreshAccessToken(AccessToken $accessToken);
+    public function refreshAccessToken(AccessTokenInterface $accessToken);
 
     /**
      * * @param array $options
      * @return string
      * @throws UsageException
      */
-    public function getAuthorizationUrl(array $options = array());
+    public function getAuthorizationUrl(array $options = []);
 
     /**
-     * @param $appUserId
+     * @param string $appUserId
      * @return void
      */
-    public function setAct($appUserId);
+    public function setAct(string $appUserId) : void;
 
     /**
      * @return string
      */
-    public function getAct();
+    public function getAct() : string;
 
     /**
-     * @param AccessToken $accessToken
+     * @param AccessTokenInterface $accessToken
      * @return void
      */
-    public function setAccessToken(AccessToken $accessToken);
+    public function setAccessToken(AccessTokenInterface $accessToken) : void;
 
     /**
-     * @return AccessToken
+     * @return AccessTokenInterface|null
      */
-    public function getAccessToken();
+    public function getAccessToken() : ?AccessTokenInterface;
 
     /**
      * @return Headers
      */
-    public function getHeaders();
+    public function getHeaders() : Headers;
 
     /**
      * @param Headers $headers
      * @return void
      */
-    public function setHeaders(Headers $headers);
+    public function setHeaders(Headers $headers) : void;
 
     /**
-     * @return Cache|null
+     * @return CacheInterface|null
      */
-    public function getCache();
+    public function getCache() : ?CacheInterface;
 
     /**
-     * @param $cache
+     * @param CacheInterface $cache
      * @return void
      */
-    public function setCache(Cache $cache);
+    public function setCache(CacheInterface $cache) : void;
 
     /**
-     * @param $stateParameter
-     * @param $stateSession
+     * @param string $stateParameter
+     * @param string $stateSession
      * @return bool
      * @throws ApiInvalidStateException
      * @throws UsageException
      */
-    public function isCorrectState($stateParameter, $stateSession);
-
+    public function isCorrectState(string $stateParameter, string $stateSession) : bool;
 }

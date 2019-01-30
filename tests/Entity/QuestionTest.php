@@ -40,7 +40,7 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $answers = $firstQuestion->getAnswers();
         $firstAnswer = $answers[0];
 
-        $questions = Question::get(self::$bookboon, array($firstAnswer->getId()))->getEntityStore()->get();
+        $questions = Question::get(self::$bookboon, [$firstAnswer->getId()])->getEntityStore()->get();
         $this->assertGreaterThan(1, count($questions));
     }
 
@@ -49,6 +49,6 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidQuestion()
     {
-        $question = new Question(array('blah'));
+        $question = new Question(['blah']);
     }
 }
