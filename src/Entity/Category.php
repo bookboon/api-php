@@ -70,14 +70,21 @@ class Category extends Entity
      */
     private static function recursiveBlacklist(array &$categories, array $blacklistedCategoryIds) : void
     {
+        $hasAlteredArray = false;
+
         foreach ($categories as $key => $category) {
-            if (in_array($category['_id'], $blacklistedCategoryIds)) {
+            if (in_array($category['_id'], $blacklistedCategoryIds, true)) {
                 unset($categories[$key]);
+                $hasAlteredArray = true;
                 continue;
             }
             if (isset($category['categories'])) {
                 self::recursiveBlacklist($categories[$key]['categories'], $blacklistedCategoryIds);
             }
+        }
+
+        if ($hasAlteredArray) {
+            $categories = array_values($categories);
         }
     }
 
