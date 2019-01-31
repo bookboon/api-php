@@ -5,6 +5,7 @@ namespace Bookboon\Api\Entity;
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\ClientInterface;
+use Bookboon\Api\Exception\UsageException;
 
 class Book extends Entity
 {
@@ -57,6 +58,11 @@ class Book extends Entity
         array $bookIds,
         bool $extendedMetadata = false
     ) : BookboonResponse {
+        if (count($bookIds) === 0) {
+            throw new UsageException('At least one id is required for bookIds');
+        }
+
+
         $variables = [
             'id' => $bookIds,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
@@ -79,6 +85,8 @@ class Book extends Entity
      * @param string $type
      * @return BookboonResponse
      * @throws \Bookboon\Api\Exception\UsageException
+     *
+     * @deprecated Shouln't be used for performance reasons
      */
     public static function getAll(
         Bookboon $bookboon,
