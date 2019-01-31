@@ -107,7 +107,7 @@ class BookTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidBook()
     {
-        $book = new Book(['blah']);
+        $book = new PdfBook(['blah']);
     }
 
     public function testBookDownloadOauth()

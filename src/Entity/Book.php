@@ -7,13 +7,14 @@ use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\UsageException;
 
-class Book extends Entity
+abstract class Book extends Entity
 {
     const _OWN_TYPE = '';
 
     const TYPE_AUDIO = 'audio';
     const TYPE_PDF = 'pdf';
     const TYPE_VIDEO = 'video';
+    const TYPE_AUDIOTALK = 'audioTalk';
 
     const FORMAT_PDF = 'pdf';
     const FORMAT_EPUB = 'epub';
@@ -111,7 +112,7 @@ class Book extends Entity
      * @param array $objectArray
      * @return Book
      */
-    private static function objectTransformer(array $objectArray)
+    public static function objectTransformer(array $objectArray)
     {
         $className = 'Bookboon\Api\Entity\\' . ucfirst($objectArray['_type']) . 'Book';
         return new $className($objectArray);
@@ -125,7 +126,13 @@ class Book extends Entity
     {
         $entities = [];
         foreach ($array as $object) {
-            $entities[] = self::objectTransformer($object);
+            if (in_array(
+                $object['_type'],
+                [self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO, self::TYPE_AUDIOTALK],
+                true)
+            ) {
+                $entities[] = self::objectTransformer($object);
+            }
         }
 
         return $entities;
