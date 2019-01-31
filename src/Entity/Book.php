@@ -86,7 +86,13 @@ class Book extends Entity
     {
         $entities = array();
         foreach ($array as $object) {
-            $entities[] = self::objectTransformer($object);
+            if (in_array(
+                $object['_type'],
+                array(self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO),
+                true)
+            ) {
+                $entities[] = self::objectTransformer($object);
+            }
         }
 
         return $entities;
