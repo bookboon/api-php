@@ -6,7 +6,7 @@ use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\ClientInterface;
 
-class Book extends Entity
+abstract class Book extends Entity
 {
     const _OWN_TYPE = '';
 
@@ -104,7 +104,7 @@ class Book extends Entity
      * @param array $objectArray
      * @return Book
      */
-    private static function objectTransformer(array $objectArray)
+    public static function objectTransformer(array $objectArray)
     {
         $className = 'Bookboon\Api\Entity\\' . ucfirst($objectArray['_type']) . 'Book';
         return new $className($objectArray);

@@ -128,11 +128,10 @@ class Exam extends Entity
      * Return book to which the exam is related
      *
      * @return Book
-     * @throws \Bookboon\Api\Exception\EntityDataException
      */
     public function getBook()
     {
-        return new Book($this->safeGet('book', []));
+        return Book::objectTransformer($this->safeGet('book', []));
     }
 
     /**
