@@ -83,7 +83,7 @@ abstract class Book extends Entity
      *
      * @param Bookboon $bookboon
      * @param bool $extendedMetadata
-     * @param string $type
+     * @param array $bookTypes
      * @return BookboonResponse
      * @throws \Bookboon\Api\Exception\UsageException
      *
@@ -92,10 +92,10 @@ abstract class Book extends Entity
     public static function getAll(
         Bookboon $bookboon,
         bool $extendedMetadata = false,
-        string $type = self::_OWN_TYPE
+        array $bookTypes = [self::_OWN_TYPE]
     ) : BookboonResponse {
         $variables = [
-            'bookType' => $type,
+            'bookType' => join(',', $bookTypes),
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         ];
 
@@ -166,19 +166,22 @@ abstract class Book extends Entity
      * Search.
      *
      * @param Bookboon $bookboon
-     * @param string $query string to search for
-     * @param int $limit results to return per page
-     * @param int $offset offset of results
+     * @param string $query
+     * @param int $limit
+     * @param int $offset
+     * @param array $bookTypes
      * @return BookboonResponse
-     * @throws \Bookboon\Api\Exception\UsageException
+     * @throws UsageException
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
     public static function search(
         Bookboon $bookboon,
         string $query,
         int $limit = 10,
-        int $offset = 0
+        int $offset = 0,
+         array $bookTypes = ['pdf']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset]);
+        $bResponse = $bookboon->rawRequest('/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -191,7 +194,7 @@ abstract class Book extends Entity
      * Recommendations.
      *
      * @param Bookboon $bookboon
-     * @param string $bookType
+     * @param array $bookTypes
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
      * @return BookboonResponse
@@ -201,9 +204,9 @@ abstract class Book extends Entity
         Bookboon $bookboon,
         array $bookIds = [],
         int $limit = 5,
-        string $bookType = 'pdf'
+        array $bookTypes = ['pdf']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType]);
+        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'book' => $bookIds, 'bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))

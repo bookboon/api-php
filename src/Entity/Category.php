@@ -16,13 +16,15 @@ class Category extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $categoryId
+     * @param array $bookTypes
      * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\EntityDataException
      * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, string $categoryId) : BookboonResponse
+    public static function get(Bookboon $bookboon, string $categoryId, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/categories/$categoryId");
+        $bResponse = $bookboon->rawRequest("/categories/$categoryId", ['bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(

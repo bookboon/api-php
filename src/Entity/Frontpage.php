@@ -17,12 +17,14 @@ class Frontpage extends Entity
      * Get all front page books
      *
      * @param Bookboon $bookboon
+     * @param array $bookTypes
      * @return BookboonResponse
      * @throws UsageException
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function get(Bookboon $bookboon) : BookboonResponse
+    public static function get(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/frontpage");
+        $bResponse = $bookboon->rawRequest("/frontpage", ['bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Frontpage::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -36,21 +38,27 @@ class Frontpage extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $slug
-     * @return Frontpage
+     * @param array $bookTypes
+     * @return BookboonResponse
      * @throws UsageException
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
+     * @throws \Bookboon\Api\Exception\EntityDataException
      */
-    public static function getBySlug(Bookboon $bookboon, string $slug) : Frontpage
+    public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['pdf']) : BookboonResponse
     {
+
         /** @var Frontpage[] $frontpageArray */
-        $frontpageArray = self::get($bookboon)->getEntityStore()->get();
+        $bResponse = $bookboon->rawRequest("/frontpage/$slug", ['bookType' => join(',', $bookTypes)]);
 
-        foreach ($frontpageArray as $frontpage) {
-            if ($frontpage->getSlug() === $slug) {
-                return $frontpage;
-            }
-        }
+        $bResponse->setEntityStore(
+            new EntityStore(
+                [
+                    new static($bResponse->getReturnArray())
+                ]
+            )
+        );
 
-        throw new UsageException("Non-existing slug");
+        return $bResponse;
     }
 
     protected function isValid(array $array) : bool
