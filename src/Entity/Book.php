@@ -123,11 +123,21 @@ class Book extends Entity
      * @param $query string to search for
      * @param int $limit results to return per page
      * @param int $offset offset of results
+     * @param string $bookType
      * @return Book[]
      */
-    public static function search(Bookboon $bookboon, $query, $limit = 10, $offset = 0)
+    public static function search(Bookboon $bookboon, $query, $limit = 10, $offset = 0, $bookType = self::TYPE_PDF)
     {
-        $search = $bookboon->rawRequest('/search', array('q' => $query, 'limit' => $limit, 'offset' => $offset));
+        $search = $bookboon->rawRequest(
+            '/search',
+            array(
+                'q' => $query,
+                'limit' => $limit,
+                'offset' => $offset,
+                'bookType' => $bookType
+            )
+        );
+
         if (count($search) === 0) {
             return array();
         }
@@ -144,9 +154,16 @@ class Book extends Entity
      * @param int $limit
      * @return Book[]
      */
-    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5, $bookType = 'pdf')
+    public static function recommendations(Bookboon $bookboon, array $bookIds = array(), $limit = 5, $bookType = self::TYPE_PDF)
     {
-        $recommendations = $bookboon->rawRequest('/recommendations', array('limit' => $limit, 'book' => $bookIds, 'bookType' => $bookType));
+        $recommendations = $bookboon->rawRequest(
+            '/recommendations',
+            array(
+                'limit' => $limit,
+                'book' => $bookIds,
+                'bookType' => $bookType
+            )
+        );
 
         return Book::getEntitiesFromArray($recommendations);
     }

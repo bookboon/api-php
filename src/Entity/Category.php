@@ -16,11 +16,13 @@ class Category extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $categoryId
-     * @return Category|bool
+     * @param string $bookType
+     * @return Category
+     * @throws \Bookboon\Api\Exception\EntityDataException
      */
-    public static function get(Bookboon $bookboon, $categoryId)
+    public static function get(Bookboon $bookboon, $categoryId, $bookType = Book::TYPE_PDF)
     {
-        return new static($bookboon->rawRequest("/categories/$categoryId"));
+        return new static($bookboon->rawRequest("/categories/$categoryId", array('bookType' => $bookType)));
     }
 
     /**
