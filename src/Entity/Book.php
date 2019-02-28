@@ -302,14 +302,26 @@ abstract class Book extends Entity
         $sizes = array_keys($thumbs);
         while (true) {
             $thumbSize = array_shift($sizes);
-            if ((int) $size <= (int) $thumbSize || count($sizes) == 0) {
-                if ($ssl) {
-                    return str_replace('http://', 'https://', $thumbs[$thumbSize]);
-                }
-
+            if ((int) $size <= (int) $thumbSize || count($sizes) === 0) {
                 return $thumbs[$thumbSize];
             }
         }
+    }
+
+    /**
+     * Returns closes raw thumbnail (without branding) size to input, default 210px.
+     *
+     * @param int $size appromimate size
+     * @param string $type
+     *
+     * @return string url for thumbnail
+     */
+    public function getThumbnailRaw(int $size = 210, string $type = 'default')
+    {
+        $thumbUrl = $this->safeGet('thumbnail')[0]['_link'];
+        $thumbnailParts = explode('/', $thumbUrl);
+
+        return "{$thumbnailParts[0]}//{$thumbnailParts[2]}/thumbnail/b/$size/{$this->getId()}/$type.jpg";
     }
 
     /**
