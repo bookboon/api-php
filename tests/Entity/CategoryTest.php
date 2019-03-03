@@ -3,13 +3,14 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CategoryTest
  * @package Bookboon\Api\Entity
  * @group entity
  */
-class CategoryTest extends \PHPUnit_Framework_TestCase
+class CategoryTest extends TestCase
 {
     private static $data = null;
     private static $bookboon = null;

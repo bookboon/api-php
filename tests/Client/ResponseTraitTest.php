@@ -2,12 +2,14 @@
 
 namespace Bookboon\Api\Client;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class ClientCommonTest
  * @package Client
  * @group client
  */
-class ResponseTraitTest extends \PHPUnit_Framework_TestCase
+class ResponseTraitTest extends TestCase
 {
     /**
      * @expectedException \Bookboon\Api\Exception\ApiSyntaxException

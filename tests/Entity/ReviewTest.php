@@ -2,12 +2,14 @@
 
 namespace Bookboon\Api\Entity;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class ReviewTest
  * @package Bookboon\Api\Entity
  * @group entity
  */
-class ReviewTest extends \PHPUnit_Framework_TestCase
+class ReviewTest extends TestCase
 {
     private static $data = null;
 

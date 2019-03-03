@@ -2,15 +2,15 @@
 
 namespace Bookboon\Api\Client;
 
-
 use Psr\SimpleCache\CacheInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class HashTraitTest
  * @package Bookboon\Api\Client
  * @group cache
  */
-class HashTraitTest extends \PHPUnit_Framework_TestCase
+class HashTraitTest extends TestCase
 {
     public function testHashUrl()
     {

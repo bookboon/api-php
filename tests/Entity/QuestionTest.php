@@ -2,13 +2,14 @@
 
 namespace Bookboon\Api\Entity;
 
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class QuestionTest
  * @package Bookboon\Api\Entity
  * @group entity
  */
-class QuestionTest extends \PHPUnit_Framework_TestCase
+class QuestionTest extends TestCase
 {
     private static $data = null;
     private static $bookboon = null;

@@ -2,15 +2,15 @@
 
 namespace Bookboon\Api\Client;
 
-
 use Bookboon\Api\Bookboon;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class BasicAuthClientTest
  * @package Bookboon\Api\Client
  * @group basicauth
  */
-class BasicAuthClientTest extends \PHPUnit_Framework_TestCase
+class BasicAuthClientTest extends TestCase
 {
     private static $client;
 
