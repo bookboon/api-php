@@ -24,6 +24,7 @@ use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 class Bookboon
@@ -48,6 +49,7 @@ class Bookboon
      * @param string|null $appUserId
      * @param string|null $redirectUri
      * @param CacheInterface|null $cache
+     * @param LoggerInterface|null $logger
      * @return Bookboon
      * @throws Exception\UsageException
      */
@@ -58,7 +60,8 @@ class Bookboon
         array $headers = [],
         ?string $appUserId = null,
         ?string $redirectUri = null,
-        CacheInterface $cache = null
+        CacheInterface $cache = null,
+        LoggerInterface $logger = null
     ) : Bookboon {
         $headersObject = new Headers();
         foreach ($headers as $key => $value) {
@@ -66,7 +69,7 @@ class Bookboon
         }
 
         return new Bookboon(
-            new OauthClient($appId, $appSecret, $headersObject, $scopes, $cache, $redirectUri, $appUserId)
+            new OauthClient($appId, $appSecret, $headersObject, $scopes, $cache, $redirectUri, $appUserId, null, null, $logger)
         );
     }
 

@@ -9,6 +9,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class BookboonProvider extends AbstractProvider
@@ -19,6 +20,8 @@ class BookboonProvider extends AbstractProvider
     private $protocol = 'https';
 
     protected $scope = ['basic'];
+
+    protected $requestOptions = [];
 
     public function __construct(array $options = [], array $collaborators = [])
     {
@@ -31,6 +34,8 @@ class BookboonProvider extends AbstractProvider
         if ($this->protocol !== 'http' && $this->protocol !== 'https') {
             throw new UsageException('Invalid protocol');
         }
+
+        $this->requestOptions = $options['requestOptions'] ?? [];
 
         parent::__construct($options, $collaborators);
     }
@@ -145,5 +150,19 @@ class BookboonProvider extends AbstractProvider
     protected function getScopeSeparator()
     {
         return ' ';
+    }
+
+    /**
+     * Sends a request instance and returns a response instance.
+     *
+     * WARNING: This method does not attempt to catch exceptions caused by HTTP
+     * errors! It is recommended to wrap this method in a try/catch block.
+     *
+     * @param  RequestInterface $request
+     * @return ResponseInterface
+     */
+    public function getResponse(RequestInterface $request)
+    {
+        return $this->getHttpClient()->send($request, $this->requestOptions);
     }
 }
