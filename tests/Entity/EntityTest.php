@@ -2,13 +2,14 @@
 
 namespace Bookboon\Api\Entity;
 
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class EntityTest
  * @package Entity
  * @group entity
  */
-class EntityTest extends \PHPUnit_Framework_TestCase
+class EntityTest extends TestCase
 {
     /*
      * UUID

@@ -1,8 +1,10 @@
 <?php
 
 namespace Bookboon\Api\Client;
+
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use League\OAuth2\Client\Token\AccessToken;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class OauthClientTest
@@ -10,7 +12,7 @@ use League\OAuth2\Client\Token\AccessToken;
  * @group client
  * @group oauth
  */
-class OauthClientTest extends \PHPUnit_Framework_TestCase
+class OauthClientTest extends TestCase
 {
     public function testClientCredentialsGrantSuccessful()
     {

@@ -4,6 +4,7 @@ namespace Bookboon\Api\Client;
 
 
 use Psr\SimpleCache\CacheInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class RequestTraitTest
@@ -11,7 +12,7 @@ use Psr\SimpleCache\CacheInterface;
  * @group client
  * @group request
  */
-class RequestTraitTest extends \PHPUnit_Framework_TestCase
+class RequestTraitTest extends TestCase
 {
     private $returnValues = [];
 

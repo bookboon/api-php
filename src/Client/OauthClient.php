@@ -9,9 +9,14 @@ use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\TransferStats;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -22,7 +27,7 @@ class OauthClient implements ClientInterface
 {
     use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
-    const C_VERSION = '2.1';
+    const C_VERSION = '2.2';
 
     protected $_apiUri;
 
@@ -35,6 +40,8 @@ class OauthClient implements ClientInterface
     /** @var BookboonProvider */
     protected $provider;
 
+    protected $requestOptions = [];
+
     /**
      * ClientCommon constructor.
      * @param string $apiId
@@ -46,6 +53,7 @@ class OauthClient implements ClientInterface
      * @param string $appUserId
      * @param string|null $authServiceUri
      * @param string|null $apiUri
+     * @param LoggerInterface|null $logger
      * @throws UsageException
      */
     public function __construct(
@@ -57,19 +65,40 @@ class OauthClient implements ClientInterface
         ?string $redirectUri = null,
         ?string $appUserId = null,
         ?string $authServiceUri = null,
-        ?string $apiUri = null
+        ?string $apiUri = null,
+        LoggerInterface $logger = null
     ) {
         if (empty($apiId)) {
             throw new UsageException("Client id is required");
         }
 
-        $this->provider = new BookboonProvider([
+        $options = [
             'clientId'      => $apiId,
             'clientSecret'  => $apiSecret,
             'scope'         => $scopes,
             'redirectUri'   => $redirectUri,
-            'baseUri'       => $authServiceUri
-        ]);
+            'baseUri'       => $authServiceUri,
+        ];
+
+        if ($logger !== null) {
+            $this->requestOptions = [
+                'on_stats' => function (TransferStats $stats) use ($logger) {
+                    if ($stats->hasResponse()) {
+                        $size = $stats->getHandlerStat('size_download') ?? 0;
+                        $logger->info(
+                            "Api request \"{$stats->getRequest()->getMethod()} {$stats->getRequest()->getRequestTarget()} HTTP/{$stats->getRequest()->getProtocolVersion()}\" {$stats->getResponse()->getStatusCode()} - {$size} - {$stats->getTransferTime()}"
+                        );
+                    } else {
+                        $logger->error(
+                            "Api request: No response received with error {$stats->getHandlerErrorData()}"
+                        );
+                    }
+                }
+            ];
+        }
+
+        $options['requestOptions'] = $this->requestOptions;
+        $this->provider = new BookboonProvider($options);
 
         $this->setApiId($apiId);
         $this->setCache($cache);
@@ -101,14 +130,18 @@ class OauthClient implements ClientInterface
             throw new ApiAuthenticationException("Not authenticated");
         }
 
-        $options = [
-            'allow_redirects' => false,
-            'headers' => $this->headers->getHeadersArray()
-        ];
+        $options = array_merge(
+            [
+                'allow_redirects' => false,
+                'headers' => $this->getHeaders()->getHeadersArray()
+            ],
+            $this->requestOptions
+        );
+
         $options['headers']['User-Agent'] = $this->getUserAgentString();
 
         if (count($variables) > 0 && $type == ClientInterface::HTTP_POST) {
-            $postType = $contentType == ClientInterface::CONTENT_TYPE_JSON ? 'json' : 'form_params';
+            $postType = $contentType === ClientInterface::CONTENT_TYPE_JSON ? 'json' : 'form_params';
             $options[$postType] = $variables;
         }
 
@@ -292,11 +325,6 @@ class OauthClient implements ClientInterface
     public function getAccessToken() : ?AccessTokenInterface
     {
         return $this->accessToken;
-    }
-
-    protected function reportDeveloperInfo($request, $data)
-    {
-        // TODO: Implement reportDeveloperInfo() method.
     }
 
     /**

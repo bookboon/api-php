@@ -5,7 +5,7 @@ namespace Bookboon\Api\Entity;
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BasicAuthClient;
 use Bookboon\Api\Client\Headers;
-use Client\OauthGrant;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class BookTest
@@ -13,7 +13,7 @@ use Client\OauthGrant;
  * @group entity
  * @group book
  */
-class BookTest extends \PHPUnit_Framework_TestCase
+class BookTest extends TestCase
 {
     /** @var Book */
     private static $data = null;

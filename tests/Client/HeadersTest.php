@@ -2,6 +2,7 @@
 
 namespace Bookboon\Api\Client;
 
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class HeadersTest
@@ -9,7 +10,7 @@ namespace Bookboon\Api\Client;
  * @group client
  * @group header
  */
-class HeadersTest extends \PHPUnit_Framework_TestCase
+class HeadersTest extends TestCase
 {
     public function testInvalidXFFIP()
     {

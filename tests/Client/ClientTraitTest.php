@@ -4,13 +4,14 @@ namespace Bookboon\Api\Client;
 
 
 use Psr\SimpleCache\CacheInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ClientTraitTest
  * @package Client
  * @group client
  */
-class ClientTraitTest extends \PHPUnit_Framework_TestCase
+class ClientTraitTest extends TestCase
 {
     private static $mock;
 

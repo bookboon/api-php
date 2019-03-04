@@ -9,13 +9,14 @@ use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 class BasicAuthClient implements ClientInterface
 {
     use ClientTrait, ResponseTrait, RequestTrait, HashTrait;
 
-    const C_VERSION = '2.1';
+    const C_VERSION = '2.2';
 
     protected static $CURL_REQUESTS;
 
@@ -30,6 +31,8 @@ class BasicAuthClient implements ClientInterface
 
     protected $_apiUri;
 
+    protected $_logger;
+
     /**
      * BasicAuthClient constructor.
      * @param string $apiId
@@ -39,7 +42,13 @@ class BasicAuthClient implements ClientInterface
      * @param string|null $apiUri
      * @throws UsageException
      */
-    public function __construct($apiId, $apiSecret, Headers $headers, CacheInterface $cache = null, $apiUri = null)
+    public function __construct(
+        $apiId,
+        $apiSecret,
+        Headers $headers,
+        CacheInterface $cache = null,
+        $apiUri = null,
+        LoggerInterface $logger = null)
     {
         if (empty($apiId) || empty($apiSecret)) {
             throw new UsageException("Key and secret are required");
@@ -49,6 +58,8 @@ class BasicAuthClient implements ClientInterface
         $this->setApiSecret($apiSecret);
         $this->setCache($cache);
         $this->setHeaders($headers);
+
+        $this->_logger = $logger;
 
         $this->_apiUri = $this->parseUriOrDefault($apiUri);
     }
@@ -99,16 +110,27 @@ class BasicAuthClient implements ClientInterface
         }
 
         $response = curl_exec($http);
-        $headersSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
-        $httpStatus = curl_getinfo($http, CURLINFO_HTTP_CODE);
+        $curlInfo = curl_getinfo($http);
+        $headersSize = $curlInfo['header_size'];
+        $httpStatus = $curlInfo['http_code'];
 
-        $this->reportDeveloperInfo(curl_getinfo($http), $variables);
+        $errorNumber = curl_errno($http);
+        if ($errorNumber > 0) {
+            if ($this->_logger) {
+                $this->_logger->error("Api request: No response received with error {$errorNumber}");
+            }
 
-        if (curl_errno($http)) {
-            if (curl_errno($http) === 28) {
+            if ($errorNumber === 28) {
                 throw new ApiTimeoutException();
             }
+
             throw new ApiGeneralException('Curl error number ' . curl_errno($http));
+        }
+
+        if ($this->_logger) {
+            $totalTime = $curlInfo['total_time'] ?? 0;
+            $size = $curlInfo['size_download'] ?? 0;
+            $this->_logger->info("Api request \"{$type} {$uri} HTTP/1.1\" {$httpStatus} - {$size} - {$totalTime}");
         }
 
         curl_close($http);
@@ -134,14 +156,6 @@ class BasicAuthClient implements ClientInterface
             $httpStatus,
             $decodedHeaders
         );
-    }
-
-    protected function reportDeveloperInfo($request, $data)
-    {
-        self::$CURL_REQUESTS[] = [
-            'curl' => $request,
-            'data' => $data,
-        ];
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Bookboon\Api;
 
+use PHPUnit\Framework\TestCase;
+
 include_once(__DIR__ . '/Helpers.php');
 
 /**
@@ -9,7 +11,7 @@ include_once(__DIR__ . '/Helpers.php');
  * @package Bookboon\Api
  * @group main
  */
-class BookboonTest extends \PHPUnit_Framework_TestCase
+class BookboonTest extends TestCase
 {
     /** @var Bookboon */
     private static $bookboon;
