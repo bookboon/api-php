@@ -90,7 +90,7 @@ class BasicAuthClient implements ClientInterface
         $headers = $this->getHeaders()->getAll();
 
 
-        if ($type == self::HTTP_POST) {
+        if ($type === self::HTTP_POST) {
             $encodedVariables = $this->encodeByContentType($variables, $contentType);
 
             $headers[] = "Content-Type: $contentType";
@@ -280,7 +280,9 @@ class BasicAuthClient implements ClientInterface
                 continue;
             }
 
-            $headerArray[substr($header, 0, $separator)] = trim(substr($header, $separator + 1));
+            $headerKey = trim(substr($header, 0, $separator));
+            $headerKey = implode('-', array_map('ucfirst', explode('-', $headerKey)));
+            $headerArray[$headerKey] = trim(substr($header, $separator + 1));
         }
 
         return $headerArray;
