@@ -6,6 +6,7 @@ use Bookboon\Api\Client\Oauth\BookboonProvider;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAccessTokenExpired;
 use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiGeneralException;
 use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\UsageException;
 use GuzzleHttp\Exception\RequestException;
@@ -156,17 +157,17 @@ class OauthClient implements ClientInterface
                 throw new ApiAccessTokenExpired("Bookboon API Access Token Has Now Expired");
 
             }
-        }
-        catch (IdentityProviderException $e) {
+        } catch (IdentityProviderException $e) {
             throw new ApiAuthenticationException("Identity not found");
         }
 
-        /** @var ResponseInterface*/
         try {
             $response = $this->provider->getHttpClient()->send($request, $options);
-        }
+        } catch (RequestException $e) {
+            if (false === $e->hasResponse()) {
+                throw new ApiGeneralException('No response. Curl error code: ' . $e->getCode() );
+            }
 
-        catch (RequestException $e) {
             $response = $e->getResponse();
         }
 
