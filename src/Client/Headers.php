@@ -77,6 +77,10 @@ class Headers
 
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $hostname = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+
+            if (false === $hostname) {
+                $hostname = null;
+            }
         }
 
         if (function_exists('apache_request_headers')) {
