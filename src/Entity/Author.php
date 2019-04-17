@@ -36,6 +36,23 @@ class Author extends Entity
     }
 
     /**
+     * @param Bookboon $bookboon
+     * @return BookboonResponse
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
+     * @throws \Bookboon\Api\Exception\UsageException
+     */
+    public static function getAll(Bookboon $bookboon)
+    {
+        $bResponse = $bookboon->rawRequest("/authors");
+
+        $bResponse->setEntityStore(
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+        );
+
+        return $bResponse;
+    }
+
+    /**
      * Get Author by book.
      *
      * @param Bookboon $bookboon
