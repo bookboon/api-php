@@ -135,6 +135,22 @@ class Category extends Entity
     }
 
     /**
+     * @return string title of entity
+     */
+    public function getTitle()
+    {
+        return $this->safeGet('title');
+    }
+
+    /**
+     * @return string seo title of entity
+     */
+    public function getSeoTitle()
+    {
+        return $this->safeGet('seoTitle');
+    }
+
+    /**
      * @return string link to category on bookboon.com
      */
     public function getHomepage()
