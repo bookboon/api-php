@@ -61,7 +61,7 @@ class Author extends Entity
      * @throws BadUUIDException
      * @throws \Bookboon\Api\Exception\UsageException
      */
-    public function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
+    public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
 
