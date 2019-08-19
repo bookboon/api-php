@@ -206,7 +206,7 @@ abstract class Book extends Entity
         int $limit = 5,
         array $bookTypes = ['pdf']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'book' => $bookIds, 'bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
