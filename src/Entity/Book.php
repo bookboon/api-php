@@ -12,6 +12,7 @@ class Book extends Entity
     const TYPE_AUDIO = 'audio';
     const TYPE_PDF = 'pdf';
     const TYPE_VIDEO = 'video';
+    const TYPE_AUDIOTALK = 'audioTalk';
 
     const FORMAT_PDF = 'pdf';
     const FORMAT_EPUB = 'epub';
@@ -88,7 +89,7 @@ class Book extends Entity
         foreach ($array as $object) {
             if (in_array(
                 $object['_type'],
-                array(self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO),
+                array(self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO, self::TYPE_AUDIOTALK),
                 true)
             ) {
                 $entities[] = self::objectTransformer($object);
