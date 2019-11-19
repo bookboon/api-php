@@ -58,7 +58,7 @@ class BookboonResponse implements Serializable
     public function getReturnArray() : array
     {
         if ($this->getStatus() >= 300) {
-            return ['url' => $this->headers['Location']];
+            return ['url' => $this->getHeaders()['Location']];
         }
 
         $json = json_decode($this->body, true);

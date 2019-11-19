@@ -13,6 +13,8 @@ interface ClientInterface
 {
     const HTTP_GET = 'GET';
     const HTTP_POST = 'POST';
+    const HTTP_DELETE = 'DELETE';
+    const HTTP_PUT = 'PUT';
 
     const CONTENT_TYPE_JSON = 'application/json';
     const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
@@ -21,7 +23,7 @@ interface ClientInterface
     const API_HOST = 'bookboon.com';
     const API_PATH = '/api';
 
-    const VERSION = 'Bookboon-PHP/3.1';
+    const VERSION = 'Bookboon-PHP/3.2';
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.
