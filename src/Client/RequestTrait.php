@@ -82,10 +82,9 @@ trait RequestTrait
             $queryUrl .= '?' . http_build_query($variables);
         }
 
-        if ($httpMethod === ClientInterface::HTTP_POST) {
+        if (in_array($httpMethod, [ClientInterface::HTTP_POST, ClientInterface::HTTP_DELETE, ClientInterface::HTTP_PUT], true)) {
             $postVariables = $variables;
         }
-
 
         if ($this->isCachable($queryUrl, $httpMethod) && $shouldCache) {
             $result = $this->getFromCache($queryUrl);
