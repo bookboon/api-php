@@ -141,7 +141,8 @@ class OauthClient implements ClientInterface
 
         $options['headers']['User-Agent'] = $this->getUserAgentString();
 
-        if (count($variables) > 0 && $type == ClientInterface::HTTP_POST) {
+        if (count($variables) > 0
+            && in_array($type, [ClientInterface::HTTP_POST, ClientInterface::HTTP_DELETE, ClientInterface::HTTP_PUT], true)) {
             $postType = $contentType === ClientInterface::CONTENT_TYPE_JSON ? 'json' : 'form_params';
             $options[$postType] = $variables;
         }

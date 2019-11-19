@@ -28,16 +28,21 @@ class Subscription extends Entity
      * @return boolean
      * @throws \Bookboon\Api\Exception\UsageException
      */
-    protected static function add(Bookboon $bookboon, string $email, bool $hasConsented, ?string $alias) : bool
+    public static function add(Bookboon $bookboon, string $email, bool $hasConsented, ?string $alias) : bool
     {
+        $options = [
+            'email' => $email,
+            'hasConsented' => false
+        ];
+
+        if ($alias !== null) {
+            $options['alias'] = $alias;
+        }
+
         try {
             $bookboon->rawRequest(
                 '/subscriptions',
-                [
-                    'email' => $email,
-                    'alias' => $alias,
-                    'hasConsented' => false
-                ],
+                $options,
                 ClientInterface::HTTP_POST,
                 false
             );
@@ -55,15 +60,21 @@ class Subscription extends Entity
      * @return boolean
      * @throws \Bookboon\Api\Exception\UsageException
      */
-    protected static function remove(Bookboon $bookboon, string $email, ?string $alias) : bool
+    public static function remove(Bookboon $bookboon, string $email, ?string $alias) : bool
     {
+        $options = [
+            'email' => $email,
+            'hasConsented' => false
+        ];
+
+        if ($alias !== null) {
+            $options['alias'] = $alias;
+        }
+
         try {
             $bookboon->rawRequest(
                 '/subscriptions',
-                [
-                    'email' => $email,
-                    'alias' => $alias
-                ],
+                $options,
                 ClientInterface::HTTP_DELETE,
                 false
             );
@@ -75,3 +86,4 @@ class Subscription extends Entity
     }
 
 }
+    
