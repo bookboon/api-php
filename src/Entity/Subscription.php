@@ -86,4 +86,4 @@ class Subscription extends Entity
     }
 
 }
-    
+
