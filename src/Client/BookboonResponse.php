@@ -44,11 +44,11 @@ class BookboonResponse implements Serializable
 
 
     /**
-     * @return array
+     * @return Headers
      */
-    public function getHeaders() : array
+    public function getHeaders() : Headers
     {
-        return $this->headers;
+        return new Headers($this->headers);
     }
 
     /**
