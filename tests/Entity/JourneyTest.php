@@ -45,7 +45,7 @@ class JourneyTest extends TestCase
 
     public function testGetJourney()
     {
-        $data = Journey::get(self::$bookboon, '010e0268-0eec-4859-a67a-ce41ee2315c4')
+        $data = Journey::get(self::$bookboon, '40b8b453-4ce9-425b-baa9-a8d88a589e3d')
             ->getEntityStore()
             ->get()[0];
 

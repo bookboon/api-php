@@ -298,7 +298,7 @@ class OauthClient implements ClientInterface
     {
         $returnHeaders = [];
         foreach ($headers as $key => $header) {
-            $returnHeaders[$key] = $header[0] ?? $header;
+            $returnHeaders[strtolower($key)] = $header[0] ?? $header;
         }
 
         return $returnHeaders;

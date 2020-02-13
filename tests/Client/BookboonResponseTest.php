@@ -13,7 +13,7 @@ class BookboonResponseTest extends TestCase
 {
     public function testRedirectResponse() {
         $testUrl = 'http://test.com';
-        $bResponse = new BookboonResponse('', 302, ['Location' => $testUrl]);
+        $bResponse = new BookboonResponse('', 302, ['location' => $testUrl]);
 
         $this->assertEquals(['url' => $testUrl], $bResponse->getReturnArray());
     }
