@@ -3,7 +3,9 @@
 namespace Bookboon\Api\Client;
 
 
-class Headers
+use ArrayAccess;
+
+class Headers implements ArrayAccess
 {
     const HEADER_BRANDING = 'X-Bookboon-Branding';
     const HEADER_ROTATION = 'X-Bookboon-Rotation';
@@ -14,8 +16,9 @@ class Headers
 
     private $headers = [];
 
-    public function __construct()
+    public function __construct(array $headers = [])
     {
+        $this->headers = $headers;
         $this->set(static::HEADER_XFF, $this->getRemoteAddress() ?? '');
     }
 
@@ -102,5 +105,67 @@ class Headers
         }
 
         return $hostname;
+    }
+
+    /**
+     * Whether a offset exists
+     * @link https://php.net/manual/en/arrayaccess.offsetexists.php
+     * @param mixed $offset <p>
+     * An offset to check for.
+     * </p>
+     * @return bool true on success or false on failure.
+     * </p>
+     * <p>
+     * The return value will be casted to boolean if non-boolean was returned.
+     * @since 5.0.0
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->headers[strtolower($offset)]);
+    }
+
+    /**
+     * Offset to retrieve
+     * @link https://php.net/manual/en/arrayaccess.offsetget.php
+     * @param mixed $offset <p>
+     * The offset to retrieve.
+     * </p>
+     * @return mixed Can return all value types.
+     * @since 5.0.0
+     */
+    public function offsetGet($offset)
+    {
+        return $this->headers[strtolower($offset)] ?? null;
+    }
+
+    /**
+     * Offset to set
+     * @link https://php.net/manual/en/arrayaccess.offsetset.php
+     * @param mixed $offset <p>
+     * The offset to assign the value to.
+     * </p>
+     * @param mixed $value <p>
+     * The value to set.
+     * </p>
+     * @return void
+     * @since 5.0.0
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->headers[strtolower($offset)] = $value;
+    }
+
+    /**
+     * Offset to unset
+     * @link https://php.net/manual/en/arrayaccess.offsetunset.php
+     * @param mixed $offset <p>
+     * The offset to unset.
+     * </p>
+     * @return void
+     * @since 5.0.0
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->headers[strtolower($offset)]);
     }
 }
