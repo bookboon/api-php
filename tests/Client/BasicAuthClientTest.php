@@ -42,7 +42,7 @@ class BasicAuthClientTest extends TestCase
     public function testNonExistingHeader()
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0";
-        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
+        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'location']);
 
         $this->assertEmpty($result);
     }
@@ -51,7 +51,7 @@ class BasicAuthClientTest extends TestCase
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: http://bookboon.com";
         $headerArray = \Helpers::invokeMethod(self::$client, 'decodeHeaders', [$headers]);
-        $result = $headerArray['Location'];
+        $result = $headerArray['location'];
 
         $this->assertEquals('http://bookboon.com', $result);
     }
