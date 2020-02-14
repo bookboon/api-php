@@ -24,9 +24,8 @@ class Journey extends Entity
 
         if (count($journeyEntity->getBookIds()) > 0) {
             $books = Book::getMultiple($bookboon, $journeyEntity->getBookIds(), false);
+            $journeyEntity->setBooks($books->getEntityStore()->get());
         }
-
-        $journeyEntity->setBooks($books->getEntityStore()->get());
 
         $bResponse->setEntityStore(
             new EntityStore(
