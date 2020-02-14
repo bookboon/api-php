@@ -123,7 +123,7 @@ class Author extends Entity
      */
     public function getProfile()
     {
-        return $this->safeGet('profile');
+        return $this->safeGet('profileText');
     }
 
     /**
