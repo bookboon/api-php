@@ -107,8 +107,9 @@ class BasicAuthClient implements Client
     protected function getResponseHeader($headers, $name)
     {
         foreach (explode("\n", $headers) as $header) {
-            if (strpos($header, $name) === 0) {
-                return trim(str_replace("$name: ", '', $header));
+            $pos = stripos($header, $name);
+            if ($pos === 0) {
+                return trim(substr($header, strpos($header, ':') + 1));
             }
         }
 

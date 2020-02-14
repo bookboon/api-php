@@ -229,12 +229,10 @@ class OauthClient implements Client
      */
     protected function getResponseHeader($headers, $name)
     {
-        if (isset($headers[$name][0])) {
-            return $headers[$name][0];
-        }
-
-        if (isset($headers[$name])) {
-            return $headers[$name];
+        foreach ($headers as $k => $v) {
+            if (strcasecmp($name, $k) === 0) {
+                return isset($v[0]) ? $v[0] : $v;
+            }
         }
 
         return '';
