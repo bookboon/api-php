@@ -18,7 +18,10 @@ class Headers implements ArrayAccess
 
     public function __construct(array $headers = [])
     {
-        $this->headers = $headers;
+        foreach ($headers as $k => $v) {
+            $this->offsetSet($k, $v);
+        }
+
         $this->set(static::HEADER_XFF, $this->getRemoteAddress() ?? '');
     }
 
@@ -152,7 +155,9 @@ class Headers implements ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        $this->headers[strtolower($offset)] = $value;
+        if (is_string($offset) && $offset !== '') {
+            $this->headers[strtolower($offset)] = $value;
+        }
     }
 
     /**

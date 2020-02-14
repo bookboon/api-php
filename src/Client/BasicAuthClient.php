@@ -282,7 +282,7 @@ class BasicAuthClient implements ClientInterface
 
             $headerKey = trim(substr($header, 0, $separator));
             $headerKey = implode('-', array_map('ucfirst', explode('-', $headerKey)));
-            $headerArray[strtolower($headerKey)] = trim(substr($header, $separator + 1));
+            $headerArray[$headerKey] = trim(substr($header, $separator + 1));
         }
 
         return $headerArray;
