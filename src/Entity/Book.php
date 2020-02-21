@@ -288,11 +288,10 @@ abstract class Book extends Entity
      * Returns closes thumbnail size to input, default 210px.
      *
      * @param int  $size appromimate size
-     * @param bool $ssl  Whether or not to return https:// url for thumbnail
      *
      * @return string url for thumbnail
      */
-    public function getThumbnail(int $size = 210, bool $ssl = false)
+    public function getThumbnail(int $size = 210)
     {
         $thumbs = [];
         foreach ($this->safeGet('thumbnail') as $thumb) {
