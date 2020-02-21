@@ -110,7 +110,7 @@ class Journey extends Entity
     public function getThumbnail(int $size = 210)
     {
         $thumbs = [];
-        foreach ($this->safeGet('thumbnail') as $thumb) {
+        foreach ($this->safeGet('thumbnail', []) as $thumb) {
             $thumbs[$thumb['width']] = $thumb['_link'];
         }
 
