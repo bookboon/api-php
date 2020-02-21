@@ -106,6 +106,26 @@ abstract class Entity implements Serializable, JsonSerializable
         return preg_match('/^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$/', $uuid) == true;
     }
 
+    protected function thumbnailResolver($thumbnails, $size) : string
+    {
+        if (false === is_array($thumbnails) || count($thumbnails) === 0) {
+            return '';
+        }
+
+        $thumbs = [];
+        foreach ($thumbnails as $thumb) {
+            $thumbs[$thumb['width']] = $thumb['_link'];
+        }
+
+        $sizes = array_keys($thumbs);
+        while (true) {
+            $thumbSize = array_shift($sizes);
+            if ((int) $size <= (int) $thumbSize || count($sizes) === 0) {
+                return $thumbs[$thumbSize];
+            }
+        }
+    }
+
     public function jsonSerialize()
     {
         return $this->getData();

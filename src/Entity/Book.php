@@ -293,18 +293,7 @@ abstract class Book extends Entity
      */
     public function getThumbnail(int $size = 210)
     {
-        $thumbs = [];
-        foreach ($this->safeGet('thumbnail', []) as $thumb) {
-            $thumbs[$thumb['width']] = $thumb['_link'];
-        }
-
-        $sizes = array_keys($thumbs);
-        while (true) {
-            $thumbSize = array_shift($sizes);
-            if ((int) $size <= (int) $thumbSize || count($sizes) === 0) {
-                return $thumbs[$thumbSize];
-            }
-        }
+        return $this->thumbnailResolver($this->safeGet('thumbnail', []), $size);
     }
 
     /**
