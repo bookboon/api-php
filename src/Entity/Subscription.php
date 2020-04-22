@@ -41,7 +41,7 @@ class Subscription extends Entity
 
         try {
             $bookboon->rawRequest(
-                '/subscriptions',
+                '/v1/subscriptions',
                 $options,
                 ClientInterface::HTTP_POST,
                 false
@@ -73,7 +73,7 @@ class Subscription extends Entity
 
         try {
             $bookboon->rawRequest(
-                '/subscriptions',
+                '/v1/subscriptions',
                 $options,
                 ClientInterface::HTTP_DELETE,
                 false

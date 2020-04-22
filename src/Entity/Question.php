@@ -22,7 +22,7 @@ class Question extends Entity
         array $answerIds = [],
         string $rootSegmentId = ''
     ) : BookboonResponse {
-        $url = $rootSegmentId == '' ? '/questions' : '/questions/' . $rootSegmentId;
+        $url = $rootSegmentId == '' ? '/v1/questions' : '/v1/questions/' . $rootSegmentId;
         $bResponse =  $bookboon->rawRequest($url, ['answer' => $answerIds]);
 
         $bResponse->setEntityStore(
@@ -46,7 +46,7 @@ class Question extends Entity
         array $variables = [],
         string $rootSegmentId = ''
     ) : BookboonResponse {
-        $url = $rootSegmentId == '' ? '/questions' : '/questions/' . $rootSegmentId;
+        $url = $rootSegmentId == '' ? '/v1/questions' : '/v1/questions/' . $rootSegmentId;
         $bResponse = $bookboon->rawRequest($url, $variables, ClientInterface::HTTP_POST);
         return $bResponse;
     }

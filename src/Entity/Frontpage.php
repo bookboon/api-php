@@ -24,7 +24,7 @@ class Frontpage extends Entity
      */
     public static function get(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/frontpage', ['bookType' => implode(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest('/v1/frontpage', ['bookType' => implode(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Frontpage::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -48,7 +48,7 @@ class Frontpage extends Entity
     {
 
         /** @var Frontpage[] $frontpageArray */
-        $bResponse = $bookboon->rawRequest("/frontpage/$slug", ['bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest("/v1/frontpage/$slug", ['bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(

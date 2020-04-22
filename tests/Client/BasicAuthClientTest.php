@@ -36,7 +36,7 @@ class BasicAuthClientTest extends TestCase
         $client = new BasicAuthClient("bad", "auth", new Headers(), null);
         $bookboon = new Bookboon($client);
 
-        $bookboon->rawRequest('/categories');
+        $bookboon->rawRequest('/v1/categories');
     }
 
     public function testNonExistingHeader()

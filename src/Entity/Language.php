@@ -19,7 +19,7 @@ class Language extends Entity
      */
     public static function get(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/languages');
+        $bResponse = $bookboon->rawRequest('/v1/languages');
 
         $bResponse->setEntityStore(
             new EntityStore(Language::getEntitiesFromArray($bResponse->getReturnArray()))

@@ -22,7 +22,7 @@ class Author extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/authors/$authorId");
+        $bResponse = $bookboon->rawRequest("/v1/authors/$authorId");
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -43,7 +43,7 @@ class Author extends Entity
      */
     public static function getAll(Bookboon $bookboon)
     {
-        $bResponse = $bookboon->rawRequest("/authors");
+        $bResponse = $bookboon->rawRequest('/v1/authors');
 
         $bResponse->setEntityStore(
             new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -63,7 +63,7 @@ class Author extends Entity
      */
     public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/books/$bookId/authors");
+        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/authors");
 
         $bResponse->setEntityStore(
             new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))

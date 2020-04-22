@@ -24,7 +24,7 @@ class Category extends Entity
      */
     public static function get(Bookboon $bookboon, string $categoryId, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/categories/$categoryId", ['bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest("/v1/categories/$categoryId", ['bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -51,7 +51,7 @@ class Category extends Entity
         array $blacklistedCategoryIds = [],
         int $depth = 2
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/categories', ['depth' => $depth]);
+        $bResponse = $bookboon->rawRequest('/v1/categories');
 
         $categories = $bResponse->getReturnArray();
 
@@ -100,7 +100,7 @@ class Category extends Entity
      */
     public static function getDownloadUrl(Bookboon $bookboon, string $categoryId, array $variables) : string
     {
-        $bResponse = $bookboon->rawRequest("/categories/$categoryId/download", $variables, ClientInterface::HTTP_POST);
+        $bResponse = $bookboon->rawRequest("/v1/categories/$categoryId/download", $variables, ClientInterface::HTTP_POST);
 
         return $bResponse->getReturnArray()['url'];
     }

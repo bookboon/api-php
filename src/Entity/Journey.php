@@ -18,7 +18,7 @@ class Journey extends Entity
      */
     public static function get(Bookboon $bookboon, string $journeyId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/journeys/$journeyId");
+        $bResponse = $bookboon->rawRequest("/v1/journeys/$journeyId");
 
         $journeyEntity = new static($bResponse->getReturnArray());
 
@@ -49,7 +49,7 @@ class Journey extends Entity
      */
     public static function getAll(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/journeys');
+        $bResponse = $bookboon->rawRequest('/v1/journeys');
 
         $bResponse->setEntityStore(
             new EntityStore(Journey::getEntitiesFromArray($bResponse->getReturnArray()))
