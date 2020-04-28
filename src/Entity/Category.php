@@ -8,9 +8,6 @@ use Bookboon\Api\Client\ClientInterface;
 
 class Category extends Entity
 {
-    const TEXTBOOKS = 'd1fabb36-4eff-4760-a80d-a15700efa9ae';
-    const BUSINESS = '82403e77-ccbf-4e10-875c-a15700ef8a56';
-
     /**
      * Get Category.
      *
@@ -29,7 +26,7 @@ class Category extends Entity
         $bResponse->setEntityStore(
             new EntityStore(
                 [
-                    new static($bResponse->getReturnArray())
+                    new self($bResponse->getReturnArray())
                 ]
             )
         );
@@ -60,7 +57,7 @@ class Category extends Entity
         }
 
         $bResponse->setEntityStore(
-            new EntityStore(Category::getEntitiesFromArray($categories))
+            new EntityStore(self::getEntitiesFromArray($categories))
         );
 
         return $bResponse;

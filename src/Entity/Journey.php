@@ -20,7 +20,7 @@ class Journey extends Entity
     {
         $bResponse = $bookboon->rawRequest("/v1/journeys/$journeyId");
 
-        $journeyEntity = new static($bResponse->getReturnArray());
+        $journeyEntity = new self($bResponse->getReturnArray());
 
         if (count($journeyEntity->getBookIds()) > 0) {
             $books = Book::getMultiple($bookboon, $journeyEntity->getBookIds(), false);

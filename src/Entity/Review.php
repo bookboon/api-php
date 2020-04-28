@@ -28,7 +28,7 @@ class Review extends Entity
         $bResponse = $bookboon->rawRequest("/v1/books/$bookId/reviews");
 
         $bResponse->setEntityStore(
-            new EntityStore(Review::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -36,12 +36,12 @@ class Review extends Entity
 
     /**
      * @param array $review
-     * @return static
+     * @return Review
      * @throws \Bookboon\Api\Exception\EntityDataException
      */
     public static function create(array $review = []) : Review
     {
-        return new static($review);
+        return new self($review);
     }
 
 

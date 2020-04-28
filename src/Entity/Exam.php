@@ -30,7 +30,7 @@ class Exam extends Entity
         $bResponse->setEntityStore(
             new EntityStore(
                 [
-                    new static($bResponse->getReturnArray())
+                    new self($bResponse->getReturnArray())
                 ]
             )
         );

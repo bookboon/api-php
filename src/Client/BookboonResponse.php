@@ -113,7 +113,7 @@ class BookboonResponse implements Serializable
      */
     public function unserialize($serialized)
     {
-        $data = unserialize($serialized, ['']);
+        $data = unserialize($serialized, ['allowed_classes' => [BookboonResponse::class]]);
         $this->body = $data['body'];
         $this->status = $data['status'];
         $this->headers = $data['headers'];

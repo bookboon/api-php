@@ -28,7 +28,7 @@ trait ResponseTrait
             case 400:
             case 405:
                 $returnArray = json_decode($body, true);
-                throw new ApiSyntaxException($returnArray['message']);
+                throw new ApiSyntaxException($returnArray['message'] ?? '');
             case 401:
             case 403:
                 $returnArray = json_decode($body, true);
@@ -42,7 +42,6 @@ trait ResponseTrait
             case 410:
             case 404:
                 throw new ApiNotFoundException($url);
-                break;
             default:
                 $returnArray = json_decode($body, true);
                 throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers));
