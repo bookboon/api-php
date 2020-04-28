@@ -40,6 +40,7 @@ class BasicAuthClient implements ClientInterface
      * @param Headers $headers
      * @param CacheInterface|null $cache
      * @param string|null $apiUri
+     * @param LoggerInterface|null $logger
      * @throws UsageException
      */
     public function __construct(
@@ -48,8 +49,8 @@ class BasicAuthClient implements ClientInterface
         Headers $headers,
         CacheInterface $cache = null,
         $apiUri = null,
-        LoggerInterface $logger = null)
-    {
+        LoggerInterface $logger = null
+    ) {
         if (empty($apiId) || empty($apiSecret)) {
             throw new UsageException("Key and secret are required");
         }

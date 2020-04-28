@@ -23,7 +23,7 @@ interface ClientInterface
     const API_HOST = 'bookboon.com';
     const API_PATH = '/api';
 
-    const VERSION = 'Bookboon-PHP/3.2';
+    const VERSION = 'Bookboon-PHP/3.3';
 
     /**
      * Prepares the call to the api and if enabled tries cache provider first for GET calls.

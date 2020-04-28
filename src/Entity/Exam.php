@@ -25,12 +25,12 @@ class Exam extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/exams/$examId");
+        $bResponse = $bookboon->rawRequest("/v1/exams/$examId");
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
-                    new static($bResponse->getReturnArray())
+                    new self($bResponse->getReturnArray())
                 ]
             )
         );
@@ -46,7 +46,7 @@ class Exam extends Entity
      */
     public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/books/$bookId/exams");
+        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/exams");
 
         $bResponse->setEntityStore(
             new EntityStore(Exam::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -64,7 +64,7 @@ class Exam extends Entity
      */
     public static function getAll(Bookboon $bookboon) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/exams");
+        $bResponse = $bookboon->rawRequest("/v1/exams");
 
         $bResponse->setEntityStore(
             new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -75,12 +75,12 @@ class Exam extends Entity
 
     public static function start(Bookboon $bookboon, $examId)
     {
-        return $bookboon->rawRequest("/exams/$examId", [], ClientInterface::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest("/v1/exams/$examId", [], ClientInterface::HTTP_POST)->getReturnArray();
     }
 
     public static function finish(Bookboon $bookboon, $examId, $postVars)
     {
-        return $bookboon->rawRequest("/exams/$examId/submit", $postVars, ClientInterface::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest("/v1/exams/$examId/submit", $postVars, ClientInterface::HTTP_POST)->getReturnArray();
     }
 
     /**

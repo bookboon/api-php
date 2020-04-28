@@ -59,14 +59,22 @@ class CategoryTest extends TestCase
     public function testGetCategoryTree()
     {
         $categories = Category::getTree(self::$bookboon)->getEntityStore()->get();
-        $this->assertEquals(2, count($categories));
+        $this->assertGreaterThan(10, count($categories));
     }
 
     public function testGetCategoryTreeBlacklist()
     {
-        $categories = Category::getTree(self::$bookboon, ['82403e77-ccbf-4e10-875c-a15700ef8a56', '07651831-1c44-4815-87a2-a2b500f5934a']);
+        $hiddenId = 'a382f37c-dc28-400a-9838-a17700ad5472';
+        $categories = Category::getTree(self::$bookboon, [$hiddenId]);
 
-        $this->assertEquals(1, count($categories->getEntityStore()->get()));
+        $categoryIds = array_map(
+            static function (Category $item) {
+                return $item->getId();
+            },
+            $categories->getEntityStore()->get()
+        );
+
+        $this->assertNotContains($hiddenId, $categoryIds);
     }
 
     public function testCategoryDownload()

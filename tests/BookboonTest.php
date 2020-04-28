@@ -33,7 +33,7 @@ class BookboonTest extends TestCase
      */
     public function testBadRequest()
     {
-        self::$bookboon->rawRequest('/search', ['get' => ['q' => '']]);
+        self::$bookboon->rawRequest('/v1/search', ['get' => ['q' => '']]);
     }
 
     /**
@@ -41,7 +41,7 @@ class BookboonTest extends TestCase
      */
     public function testNotFound()
     {
-        self::$bookboon->rawRequest('/bah');
+        self::$bookboon->rawRequest('/v1/bah');
     }
 
     /**
@@ -50,7 +50,7 @@ class BookboonTest extends TestCase
     public function testBadAuthentication()
     {
         $bookboon = Bookboon::create("bad", "auth", ['basic']);
-        $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
+        $bookboon->rawRequest('/v1/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 
     /**
@@ -59,7 +59,7 @@ class BookboonTest extends TestCase
     public function testEmpty()
     {
         $bookboon = Bookboon::create("", "", ['basic']);
-        $bookboon->rawRequest('/categories/062adfac-844b-4e8c-9242-a1620108325e');
+        $bookboon->rawRequest('/v1/categories/062adfac-844b-4e8c-9242-a1620108325e');
     }
 
     public function testGetClient()

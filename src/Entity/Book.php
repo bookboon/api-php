@@ -32,7 +32,7 @@ abstract class Book extends Entity
      */
     public static function get(Bookboon $bookboon, string $bookId, bool $extendedMetadata = false) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/books/$bookId", ['extendedMetadata' => $extendedMetadata ? 'true' : 'false']);
+        $bResponse = $bookboon->rawRequest("/v1/books/$bookId", ['extendedMetadata' => $extendedMetadata ? 'true' : 'false']);
 
         $bResponse->setEntityStore(
             new EntityStore(
@@ -69,7 +69,7 @@ abstract class Book extends Entity
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         ];
 
-        $bResponse = $bookboon->rawRequest("/books", $variables);
+        $bResponse = $bookboon->rawRequest('/v1/books', $variables);
 
         $bResponse->setEntityStore(
             new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -99,7 +99,7 @@ abstract class Book extends Entity
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         ];
 
-        $bResponse = $bookboon->rawRequest("/books", $variables);
+        $bResponse = $bookboon->rawRequest('/v1/books', $variables);
 
         $bResponse->setEntityStore(
             new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -157,7 +157,7 @@ abstract class Book extends Entity
     ) : string {
         $variables['format'] = $format;
 
-        $bResponse = $bookboon->rawRequest("/books/$bookId/download", $variables, ClientInterface::HTTP_POST);
+        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/download", $variables, ClientInterface::HTTP_POST);
 
         return $bResponse->getReturnArray()['url'];
     }
@@ -181,7 +181,7 @@ abstract class Book extends Entity
         int $offset = 0,
          array $bookTypes = ['pdf']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest('/v1/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
@@ -206,7 +206,7 @@ abstract class Book extends Entity
         int $limit = 5,
         array $bookTypes = ['pdf']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/recommendations', ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest('/v1/recommendations', ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)]);
 
         $bResponse->setEntityStore(
             new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))

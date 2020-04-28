@@ -18,7 +18,7 @@ class Helpers
 
     public static function getBookboon()
     {
-        $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), ['basic', 'download_book.pdf', 'download_category']);
+        $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), ['basic', 'api.book.academic', 'api.book.professional', 'api.download_category', 'api.journeys']);
         $bookboon->getClient()->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
 
         return $bookboon;

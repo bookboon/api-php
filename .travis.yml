@@ -18,7 +18,7 @@ jobs:
     - stage: "Tests"
       name: "Unit Tests"
       script: vendor/bin/phpunit -c . --coverage-clover build/logs/clover.xml
-    - script: vendor/bin/phpstan analyse src/ --level 6 --no-progress
+    - script: vendor/bin/phpstan analyse src/ --level 5 --no-progress
       name: "Static Analyser"
 
 before_script:

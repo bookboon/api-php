@@ -25,10 +25,10 @@ class Review extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/books/$bookId/review");
+        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/reviews");
 
         $bResponse->setEntityStore(
-            new EntityStore(Review::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()))
         );
 
         return $bResponse;
@@ -36,12 +36,12 @@ class Review extends Entity
 
     /**
      * @param array $review
-     * @return static
+     * @return Review
      * @throws \Bookboon\Api\Exception\EntityDataException
      */
     public static function create(array $review = []) : Review
     {
-        return new static($review);
+        return new self($review);
     }
 
 
@@ -57,7 +57,7 @@ class Review extends Entity
     public function submit(Bookboon $bookboon, string $bookId) : void
     {
         if (Entity::isValidUUID($bookId)) {
-            $bookboon->rawRequest("/books/$bookId/review", $this->getData(), ClientInterface::HTTP_POST);
+            $bookboon->rawRequest("/v1/books/$bookId/reviews", $this->getData(), ClientInterface::HTTP_POST);
         }
     }
 
