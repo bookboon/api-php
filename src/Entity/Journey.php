@@ -47,7 +47,7 @@ class Journey extends Entity
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function getAll(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
+    public static function getAll(Bookboon $bookboon, array $bookTypes = ['professional']) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest('/v1/journeys');
 

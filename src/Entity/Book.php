@@ -179,7 +179,7 @@ abstract class Book extends Entity
         string $query,
         int $limit = 10,
         int $offset = 0,
-         array $bookTypes = ['pdf']
+         array $bookTypes = ['professional']
     ) : BookboonResponse {
         $bResponse = $bookboon->rawRequest('/v1/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)]);
 
@@ -204,7 +204,7 @@ abstract class Book extends Entity
         Bookboon $bookboon,
         array $bookIds = [],
         int $limit = 5,
-        array $bookTypes = ['pdf']
+        array $bookTypes = ['professional']
     ) : BookboonResponse {
         $bResponse = $bookboon->rawRequest('/v1/recommendations', ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)]);
 
