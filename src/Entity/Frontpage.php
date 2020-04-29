@@ -22,7 +22,7 @@ class Frontpage extends Entity
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function get(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
+    public static function get(Bookboon $bookboon, array $bookTypes = ['professional']) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest('/v1/frontpage', ['bookType' => implode(',', $bookTypes)]);
 
@@ -44,7 +44,7 @@ class Frontpage extends Entity
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\EntityDataException
      */
-    public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['pdf']) : BookboonResponse
+    public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['professional']) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/v1/frontpage/$slug", ['bookType' => join(',', $bookTypes)]);
 

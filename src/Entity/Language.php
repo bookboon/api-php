@@ -17,7 +17,7 @@ class Language extends Entity
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function get(Bookboon $bookboon, array $bookTypes = ['pdf']) : BookboonResponse
+    public static function get(Bookboon $bookboon, array $bookTypes = ['professional']) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest('/v1/languages');
 

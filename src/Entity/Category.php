@@ -19,7 +19,7 @@ class Category extends Entity
      * @throws \Bookboon\Api\Exception\EntityDataException
      * @throws \Bookboon\Api\Exception\UsageException
      */
-    public static function get(Bookboon $bookboon, string $categoryId, array $bookTypes = ['pdf']) : BookboonResponse
+    public static function get(Bookboon $bookboon, string $categoryId, array $bookTypes = ['professional']) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest("/v1/categories/$categoryId", ['bookType' => join(',', $bookTypes)]);
 
