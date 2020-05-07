@@ -25,7 +25,7 @@ class BookboonProvider extends AbstractProvider
 
     public function __construct(array $options = [], array $collaborators = [])
     {
-        if (isset($options['baseUri']) && $options['baseUri'] != "") {
+        if (isset($options['baseUri']) && $options['baseUri'] !== "") {
             $parts = explode('://', $options['baseUri']);
             $this->protocol = $parts[0];
             $this->host = $parts[1];
@@ -50,7 +50,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getBaseAuthorizationUrl()
     {
-        return $this->protocol . "://" . $this->host . "/login/authorize";
+        return "$this->protocol://$this->host/login/authorize";
     }
 
     /**
@@ -63,7 +63,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getBaseAccessTokenUrl(array $params)
     {
-        return $this->protocol . "://" . $this->host . "/login/access_token";
+        return "$this->protocol://$this->host/login/access_token";
     }
 
     /**
@@ -74,7 +74,7 @@ class BookboonProvider extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return $this->protocol . "://" . $this->host . "/login/userinfo";
+        return "$this->protocol://$this->host/login/userinfo";
     }
 
 
@@ -96,7 +96,7 @@ class BookboonProvider extends AbstractProvider
         }
 
         if (is_array($options['scope'])) {
-            $options['scope'] = join($this->getScopeSeparator(), $options['scope']);
+            $options['scope'] = implode($this->getScopeSeparator(), $options['scope']);
         }
 
         return parent::getAccessToken($grant, $options);
@@ -125,9 +125,9 @@ class BookboonProvider extends AbstractProvider
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
-        if (is_array($data) && isset($data['error'])) {
+        if (isset($data['errors'])) {
             throw new IdentityProviderException(
-                $data['error'] ?? $response->getReasonPhrase(),
+                $data['errors'][0]['title'] ?? $response->getReasonPhrase(),
                 $response->getStatusCode(),
                 $response->getBody()
             );
