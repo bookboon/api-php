@@ -32,7 +32,8 @@ class BookboonResourceOwner implements ResourceOwnerInterface
      */
     public function getId()
     {
-        return $this->getValueByKey($this->response, 'application.id');
+        return $this->getValueByKey($this->response, 'user.id') ??
+            $this->getValueByKey($this->response, 'application.id');
     }
 
     /**
@@ -89,20 +90,22 @@ class BookboonResourceOwner implements ResourceOwnerInterface
     }
 
     /**
-     * @return boolean
-     */
-    public function hasErrored()
-    {
-        return $this->getValueByKey($this->response, 'status') !== null;
-    }
-
-    /**
      * Return all of the owner details available as an array.
      *
      * @return array
      */
     public function toArray()
     {
-        return $this->response;
+        $response = $this->response;
+
+        /* Symfony roles must be prepended with "ROLE_" */
+        $response['user']['roles'] = array_map(
+            function ($role) {
+                return "ROLE_$role";
+            },
+            $response['user']['roles']
+        );
+
+        return $response;
     }
 }

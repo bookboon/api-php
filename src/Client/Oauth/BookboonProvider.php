@@ -165,4 +165,36 @@ class BookboonProvider extends AbstractProvider
     {
         return $this->getHttpClient()->send($request, $this->requestOptions);
     }
+
+    protected function getDefaultHeaders()
+    {
+        $headers = parent::getDefaultHeaders();
+
+        foreach ($this->getParentRequestHeaders() as $key => $value) {
+            if (stripos($key, 'x-b3-') !== false || stripos($key, 'x-request-id') !== false) {
+                $headers[$key] = $value;
+            }
+        }
+
+        return $headers;
+    }
+
+    protected function getParentRequestHeaders(): array
+    {
+        if (!function_exists('apache_request_headers')) {
+            $out = [];
+
+            foreach ($_SERVER as $key => $value) {
+                if (strpos($key, "HTTP_") === 0) {
+                    $key = str_replace(" ", "-", ucwords(strtolower(str_replace("_", " ", substr($key, 5)))));
+                    $out[$key] = $value;
+                } else {
+                    $out[$key] = $value;
+                }
+            }
+            return $out;
+        }
+
+        return apache_request_headers();
+    }
 }

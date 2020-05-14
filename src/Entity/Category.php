@@ -178,4 +178,16 @@ class Category extends Entity
     {
         return Book::getEntitiesFromArray($this->safeGet('books', []));
     }
+
+    /**
+     * Returns closes thumbnail size to input, default 210px.
+     *
+     * @param int $size appromimate size
+     *
+     * @return string url for thumbnail
+     */
+    public function getThumbnail(int $size = 210)
+    {
+        return $this->thumbnailResolver($this->safeGet('thumbnail', []), $size);
+    }
 }
