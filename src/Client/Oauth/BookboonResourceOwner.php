@@ -55,6 +55,14 @@ class BookboonResourceOwner implements ResourceOwnerInterface
     }
 
     /**
+     * @return string|null
+     */
+    public function getEmail() : ?string
+    {
+        return $this->getValueByKey($this->response, 'user.email');
+    }
+
+    /**
      * @return array
      */
     public function getRoles()
