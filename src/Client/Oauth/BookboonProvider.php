@@ -33,16 +33,6 @@ class BookboonProvider extends AbstractProvider
      */
     private $scopes = null;
 
-    /**
-     * @var string
-     */
-    private $responseError = 'error';
-
-    /**
-     * @var string
-     */
-    private $responseCode;
-
 
     public function __construct(array $options = [], array $collaborators = [])
     {
@@ -67,8 +57,6 @@ class BookboonProvider extends AbstractProvider
     protected function getConfigurableOptions()
     {
         return [
-            'responseError',
-            'responseCode',
             'responseResourceOwnerId',
             'scopes',
         ];
@@ -133,10 +121,13 @@ class BookboonProvider extends AbstractProvider
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
-        if (!empty($data[$this->responseError])) {
-            $error = $data[$this->responseError];
-            $code  = $this->responseCode ? $data[$this->responseCode] : 0;
-            throw new IdentityProviderException($error, $code, $data);
+        if (!empty($data['errors'])) {
+            $errorTitle = isset($data['errors'][0]['title']) ? $data['errors'][0]['title'] : $response->getReasonPhrase();
+            throw new IdentityProviderException(
+                $errorTitle,
+                $response->getStatusCode(),
+                $response->getBody()
+            );
         }
     }
 
