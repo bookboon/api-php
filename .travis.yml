@@ -5,9 +5,9 @@ php:
   - 7.3
   - 7.4
 
-addons:
-  code_climate:
-    repo_token: f250f6c653cfb19fe7460f186f46added2b5b57cf4b4255bbe63685dbff7d88e
+env:
+  global:
+    secure: ZVjngag+tfsp++ohG/7dmzqdI8M20ZemYrhEpRk/1j1mTsJfdjED4YTTzBrSHld5Qc5Lq3HNPqpqwiKjxMtBdLi04vWi9PuvIStYYa6uWFBKv1m4+SGYXbyFa70uFtjtiI8X9eakRDocT2syiZqS2xafkVFHHTPCRcod1mUBQ7E=
 
 services:
   - memcached
@@ -25,7 +25,10 @@ before_script:
   - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "extension = igbinary.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
   - composer install
 
 after_script:
-  - vendor/bin/test-reporter
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
