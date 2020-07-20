@@ -1,3 +1,6 @@
 parameters:
-    ignoreErrors:
-        - '#Unsafe usage of new static().#'
+	level: 5
+	paths:
+		- src/
+	ignoreErrors:
+		- '#Unsafe usage of new static\(\).#'
