@@ -49,12 +49,13 @@ class OauthClient implements ClientInterface
      * @param string $apiSecret
      * @param Headers $headers
      * @param array $scopes
-     * @param CacheInterface $cache
-     * @param string $redirectUri
-     * @param string $appUserId
+     * @param CacheInterface|null $cache
+     * @param string|null $redirectUri
+     * @param string|null $appUserId
      * @param string|null $authServiceUri
      * @param string|null $apiUri
      * @param LoggerInterface|null $logger
+     * @param array $clientOptions
      * @throws UsageException
      */
     public function __construct(
@@ -67,19 +68,23 @@ class OauthClient implements ClientInterface
         ?string $appUserId = null,
         ?string $authServiceUri = null,
         ?string $apiUri = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        array $clientOptions = []
     ) {
         if (empty($apiId)) {
             throw new UsageException("Client id is required");
         }
 
-        $options = [
-            'clientId'      => $apiId,
-            'clientSecret'  => $apiSecret,
-            'scope'         => $scopes,
-            'redirectUri'   => $redirectUri,
-            'baseUri'       => $authServiceUri,
-        ];
+        $clientOptions = array_merge(
+            $clientOptions,
+            [
+                'clientId'      => $apiId,
+                'clientSecret'  => $apiSecret,
+                'scope'         => $scopes,
+                'redirectUri'   => $redirectUri,
+                'baseUri'       => $authServiceUri,
+            ]
+        );
 
         if ($logger !== null) {
             $this->requestOptions = [
@@ -98,8 +103,8 @@ class OauthClient implements ClientInterface
             ];
         }
 
-        $options['requestOptions'] = $this->requestOptions;
-        $this->provider = new BookboonProvider($options);
+        $clientOptions['requestOptions'] = $this->requestOptions;
+        $this->provider = new BookboonProvider($clientOptions);
 
         $this->setApiId($apiId);
         $this->setCache($cache);
