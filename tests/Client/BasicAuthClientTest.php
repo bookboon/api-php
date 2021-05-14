@@ -3,7 +3,10 @@
 namespace Bookboon\Api\Client;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\UsageException;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class BasicAuthClientTest
@@ -14,49 +17,50 @@ class BasicAuthClientTest extends TestCase
 {
     private static $client;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         parent::setUpBeforeClass();
-        self::$client = new BasicAuthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), null);
+        self::$client = new BasicAuthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            null
+        );
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\UsageException
-     */
-    public function testMissingAuth()
+    public function testMissingAuth() : void
     {
+        $this->expectException(UsageException::class);
         $client = new BasicAuthClient("", "", new Headers(), null);
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiAuthenticationException
-     */
-    public function testBadAuthentication()
+    public function testBadAuthentication() : void
     {
+        $this->expectException(ApiAuthenticationException::class);
         $client = new BasicAuthClient("bad", "auth", new Headers(), null);
         $bookboon = new Bookboon($client);
 
         $bookboon->rawRequest('/v1/categories');
     }
 
-    public function testNonExistingHeader()
+    public function testNonExistingHeader() : void
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0";
-        $result = \Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
+        $result = Helpers::invokeMethod(self::$client, 'getResponseHeader', [[$headers], 'Location']);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
-    public function testValidHeader()
+    public function testValidHeader() : void
     {
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: http://bookboon.com";
-        $headerArray = \Helpers::invokeMethod(self::$client, 'decodeHeaders', [$headers]);
+        $headerArray = Helpers::invokeMethod(self::$client, 'decodeHeaders', [$headers]);
         $result = $headerArray['Location'];
 
-        $this->assertEquals('http://bookboon.com', $result);
+        self::assertEquals('http://bookboon.com', $result);
     }
 
-    public function providerNotSupported()
+    public function providerNotSupported() : array
     {
         return [
             ['setAct'],
@@ -71,10 +75,10 @@ class BasicAuthClientTest extends TestCase
 
     /**
      * @dataProvider providerNotSupported
-     * @expectedException \Bookboon\Api\Exception\UsageException
      */
-    public function testNotSupportedMethods($method)
+    public function testNotSupportedMethods($method) : void
     {
+        $this->expectException(UsageException::class);
         $param = ['a'];
         if (in_array($method, ['setAct', 'isCorrectState'])) {
             $param = 'a';

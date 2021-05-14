@@ -3,6 +3,7 @@
 namespace Bookboon\Api\Client;
 
 
+use Helpers\Helpers;
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +22,7 @@ class RequestTraitTest extends TestCase
         return new BookboonResponse('test', 200, []);
     }
 
-    public function testPlainGet()
+    public function testPlainGet() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
         $mock->method("getBaseApiUri")->willReturn(ClientInterface::API_HOST . ClientInterface::API_PATH);
@@ -32,10 +33,10 @@ class RequestTraitTest extends TestCase
 
         $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_get', $this->returnValues[0]);
+        self::assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_get', $this->returnValues[0]);
     }
 
-    public function testGetWithQueryString()
+    public function testGetWithQueryString() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
         $mock->method("getBaseApiUri")->willReturn(ClientInterface::API_HOST . ClientInterface::API_PATH);
@@ -46,10 +47,10 @@ class RequestTraitTest extends TestCase
 
         $mock->makeRequest('/get_query_string', ["query2" => "test1"]);
 
-        $this->assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/get_query_string?query2=test1', $this->returnValues[0]);
+        self::assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/get_query_string?query2=test1', $this->returnValues[0]);
     }
 
-    public function testPlainPost()
+    public function testPlainPost() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
         $mock->method("getBaseApiUri")->willReturn(ClientInterface::API_HOST . ClientInterface::API_PATH);
@@ -60,11 +61,11 @@ class RequestTraitTest extends TestCase
 
         $mock->makeRequest('/plain_post', [], ClientInterface::HTTP_POST);
 
-        $this->assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_post', $this->returnValues[0]);
-        $this->assertEquals(ClientInterface::HTTP_POST, $this->returnValues[1]);
+        self::assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_post', $this->returnValues[0]);
+        self::assertEquals(ClientInterface::HTTP_POST, $this->returnValues[1]);
     }
 
-    public function testPlainPostWithValues()
+    public function testPlainPostWithValues() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
         $mock->method('getApiId')->willReturn("test-app-id");
@@ -75,7 +76,7 @@ class RequestTraitTest extends TestCase
 
         $mock->makeRequest('/post_with_values', ["postval1" => "ptest1"], ClientInterface::HTTP_POST);
 
-        $this->assertEquals(["postval1" => "ptest1"], $this->returnValues[2]);
+        self::assertEquals(["postval1" => "ptest1"], $this->returnValues[2]);
     }
 
     private function getCacheMock()
@@ -83,7 +84,7 @@ class RequestTraitTest extends TestCase
         return $this->getMockBuilder(CacheInterface::class)->getMock();
     }
 
-    public function testMakeRequestNotCached()
+    public function testMakeRequestNotCached() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
         $mock->method("getBaseApiUri")->willReturn(ClientInterface::API_HOST . ClientInterface::API_PATH);
@@ -102,14 +103,14 @@ class RequestTraitTest extends TestCase
 
         $result = $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(new BookboonResponse('test', 200, []), $result);
-        $this->assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_get', $this->returnValues[0]);
+        self::assertEquals(new BookboonResponse('test', 200, []), $result);
+        self::assertEquals(ClientInterface::API_HOST . ClientInterface::API_PATH . '/plain_get', $this->returnValues[0]);
     }
 
     /**
      * @group cached
      */
-    public function testMakeRequestCached()
+    public function testMakeRequestCached() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
 
@@ -123,11 +124,11 @@ class RequestTraitTest extends TestCase
 
         $result = $mock->makeRequest('/plain_get');
 
-        $this->assertEquals(new BookboonResponse('["test"]', 200, []), $result);
+        self::assertEquals(new BookboonResponse('["test"]', 200, []), $result);
     }
 
 
-    public function testGetCacheNotFound()
+    public function testGetCacheNotFound() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
 
@@ -139,11 +140,15 @@ class RequestTraitTest extends TestCase
         $mock->method('getHeaders')->willReturn(new Headers());
         $mock->method('getApiId')->willReturn("test-app-id");
 
-        $result = \Helpers::invokeMethod($mock, 'getFromCache', ['/random/' . uniqid('cache', true)]);
-        $this->assertNull($result);
+        $result = Helpers::invokeMethod(
+            $mock,
+            'getFromCache',
+            ['/random/' . uniqid('cache', true)]
+        );
+        self::assertNull($result);
     }
 
-    public function testGetCacheFound()
+    public function testGetCacheFound() : void
     {
         $mock = $this->getMockForTrait(RequestTrait::class);
 
@@ -155,8 +160,12 @@ class RequestTraitTest extends TestCase
         $mock->method('getHeaders')->willReturn(new Headers());
         $mock->method('getApiId')->willReturn("test-app-id");
 
-        $result = \Helpers::invokeMethod($mock, 'getFromCache', ['/random/' . uniqid('cache', true)]);
-        $this->assertEquals(new BookboonResponse('["test"]', 200, []), $result);
+        $result = Helpers::invokeMethod(
+            $mock,
+            'getFromCache',
+            ['/random/' . uniqid('cache', true)]
+        );
+        self::assertEquals(new BookboonResponse('["test"]', 200, []), $result);
     }
 }
 

@@ -22,12 +22,17 @@
         "psr/log": "^1.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "~7.0",
+        "phpunit/phpunit": "~9.0",
         "vimeo/psalm": "^4.7"
     },
     "autoload": {
         "psr-4": {
             "Bookboon\\Api\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Helpers\\": "tests/Helpers/"
         }
     }
 }

@@ -29,10 +29,10 @@ class ClientTraitTest extends TestCase
      * @param $getMethod
      * @group test
      */
-    public function testSetterGetter($setMethod, $getMethod, $testValue)
+    public function testSetterGetter($setMethod, $getMethod, $testValue) : void
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\ClientTrait');
         $mock->$setMethod($testValue);
-        $this->assertEquals($testValue, $mock->$getMethod());
+        self::assertEquals($testValue, $mock->$getMethod());
     }
 }

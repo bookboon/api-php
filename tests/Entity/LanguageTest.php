@@ -3,8 +3,9 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
-
+use Helpers\Helpers;
 /**
  * Class LanguageTest
  * @package Bookboon\Api\Entity
@@ -15,10 +16,9 @@ class LanguageTest extends TestCase
     /** @var []Language */
     private static $data = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        $bookboon = \Helpers::getBookboon();
+        $bookboon = Helpers::getBookboon();
         self::$data = Language::get($bookboon)
             ->getEntityStore()
             ->get()[0];
@@ -37,16 +37,14 @@ class LanguageTest extends TestCase
     /**
      * @dataProvider providerTestGetters
      */
-    public function testNotFalse($method)
+    public function testNotFalse($method) : void
     {
-        $this->assertNotFalse(self::$data->$method());
+        self::assertNotFalse(self::$data->$method());
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidLanguage()
+    public function testInvalidLanguage() : void
     {
+        $this->expectException(EntityDataException::class);
         $language = new Language(['blah']);
     }
 }

@@ -2,8 +2,9 @@
 
 namespace Bookboon\Api\Entity;
 
-use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class JourneyTest
@@ -15,10 +16,9 @@ class JourneyTest extends TestCase
     private $methodsToTest = ['getTitle', 'getId', 'getAbstract', 'getDescription', 'getPublished'];
     private static $bookboon;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        self::$bookboon = \Helpers::getBookboon();
+        self::$bookboon = Helpers::getBookboon();
     }
 
     public function providerTestGetters()
@@ -32,35 +32,33 @@ class JourneyTest extends TestCase
         ];
     }
 
-    public function testFirstAllJourneysData()
+    public function testFirstAllJourneysData() : void
     {
         $data = Journey::getAll(self::$bookboon)
             ->getEntityStore()
             ->get()[0];
 
         foreach ($this->methodsToTest as $method) {
-            $this->assertNotFalse($data->$method());
+            self::assertNotFalse($data->$method());
         }
     }
 
-    public function testGetJourney()
+    public function testGetJourney() : void
     {
         $data = Journey::get(self::$bookboon, '40b8b453-4ce9-425b-baa9-a8d88a589e3d')
             ->getEntityStore()
             ->get()[0];
 
         foreach ($this->methodsToTest as $method) {
-            $this->assertNotFalse($data->$method());
+            self::assertNotFalse($data->$method());
         }
 
-        $this->assertInstanceOf(Book::class, $data->getBooks()[0]);
+        self::assertInstanceOf(Book::class, $data->getBooks()[0]);
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidJourney()
+    public function testInvalidJourney() : void
     {
+        $this->expectException(EntityDataException::class);
         $language = new Language(['blah']);
     }
 }

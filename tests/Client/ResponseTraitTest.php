@@ -2,6 +2,11 @@
 
 namespace Bookboon\Api\Client;
 
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiGeneralException;
+use Bookboon\Api\Exception\ApiNotFoundException;
+use Bookboon\Api\Exception\ApiSyntaxException;
+use Helpers\Helpers;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,34 +16,40 @@ use PHPUnit\Framework\TestCase;
  */
 class ResponseTraitTest extends TestCase
 {
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiSyntaxException
-     */
-    public function testParseCurlSyntaxError()
+    public function testParseCurlSyntaxError() : void
     {
+        $this->expectException(ApiSyntaxException::class);
         $mock = $this->getMockForTrait(ResponseTrait::class);
-        \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [], 400, 'http://bookboon.com/api/categories']);
+        Helpers::invokeMethod(
+            $mock,
+            'handleErrorResponse',
+            ['', [], 400, 'http://bookboon.com/api/categories']
+        );
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiAuthenticationException
-     */
-    public function testParseCurlAuthenticationError()
+    public function testParseCurlAuthenticationError() : void
     {
+        $this->expectException(ApiAuthenticationException::class);
         $mock = $this->getMockForTrait(ResponseTrait::class);
-        \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [], 403, 'http://bookboon.com/api/categories']);
+        Helpers::invokeMethod(
+            $mock,
+            'handleErrorResponse',
+            ['', [], 403, 'http://bookboon.com/api/categories']
+        );
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiNotFoundException
-     */
-    public function testParseCurlNotFoundError()
+    public function testParseCurlNotFoundError() : void
     {
+        $this->expectException(ApiNotFoundException::class);
         $mock = $this->getMockForTrait(ResponseTrait::class);
-        \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [], 404, 'http://bookboon.com/api/categories']);
+        Helpers::invokeMethod(
+            $mock,
+            'handleErrorResponse',
+            ['', [], 404, 'http://bookboon.com/api/categories']
+        );
     }
 
-//    public function testParseCurlRedirect()
+//    public function testParseCurlRedirect() : void
 //    {
 //        $expectedUrl = 'http://yes.we.can';
 //        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: $expectedUrl";
@@ -49,28 +60,32 @@ class ResponseTraitTest extends TestCase
 //             ->willReturn($expectedUrl);
 //
 //        $result = \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [$headers], 302, 'http://bookboon.com/api/books/xx/download']);
-//        $this->assertEquals(['url' => $expectedUrl], $result);
+//        self::assertEquals(['url' => $expectedUrl], $result);
 //    }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiGeneralException
-     */
-    public function testParseCurlServerError()
+    public function testParseCurlServerError() : void
     {
+        $this->expectException(ApiGeneralException::class);
         $mock = $this->getMockForTrait(ResponseTrait::class);
 
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
-        \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [$headers], 500, 'http://bookboon.com/api/categories']);
+        Helpers::invokeMethod(
+            $mock,
+            'handleErrorResponse',
+            ['', [$headers], 500, 'http://bookboon.com/api/categories']
+        );
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiGeneralException
-     */
-    public function testParseCurlUnknownError()
+    public function testParseCurlUnknownError() : void
     {
+        $this->expectException(ApiGeneralException::class);
         $mock = $this->getMockForTrait(ResponseTrait::class);
 
         $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
-        \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [$headers], 0, 'http://bookboon.com/api/categories']);
+        Helpers::invokeMethod(
+            $mock,
+            'handleErrorResponse',
+            ['', [$headers], 0, 'http://bookboon.com/api/categories']
+        );
     }
 }

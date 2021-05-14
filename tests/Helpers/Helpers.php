@@ -1,22 +1,24 @@
 <?php
 
+namespace Helpers;
+
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 
 
 class Helpers
 {
-    public static function getApiId()
+    public static function getApiId() : string
     {
         return getenv('BOOKBOON_API_ID');
     }
 
-    public static function getApiSecret()
+    public static function getApiSecret() : string
     {
         return getenv('BOOKBOON_API_KEY');
     }
 
-    public static function getBookboon()
+    public static function getBookboon() : Bookboon
     {
         $bookboon = Bookboon::create(self::getApiId(), self::getApiSecret(), ['basic', 'api.book.academic', 'api.book.professional', 'api.download_category', 'api.journeys']);
         $bookboon->getClient()->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);

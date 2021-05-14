@@ -5,7 +5,9 @@ namespace Bookboon\Api\Entity;
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BasicAuthClient;
 use Bookboon\Api\Client\Headers;
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class BookTest
@@ -21,18 +23,17 @@ class BookTest extends TestCase
     /** @var Bookboon */
     private static $bookboon = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        self::$bookboon = \Helpers::getBookboon();
+        self::$bookboon = Helpers::getBookboon();
         self::$data = Book::get(self::$bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58', true)
             ->getEntityStore()
             ->getSingle();
     }
 
-    public function testGetId()
+    public function testGetId() : void
     {
-        $this->assertEquals('3bf58559-034f-4676-bb5f-a2c101015a58', self::$data->getId());
+        self::assertEquals('3bf58559-034f-4676-bb5f-a2c101015a58', self::$data->getId());
     }
 
 
@@ -61,85 +62,88 @@ class BookTest extends TestCase
     /**
      * @dataProvider providerTestGetters
      */
-    public function testNotFalse($method)
+    public function testNotFalse($method) : void
     {
-        $this->assertNotFalse(self::$data->$method());
+        self::assertNotFalse(self::$data->$method());
     }
 
-    public function testThumbnail()
+    public function testThumbnail() : void
     {
-        $this->assertContains('.jpg', self::$data->getThumbnail());
+        self::assertStringContainsString('.jpg', self::$data->getThumbnail());
     }
 
-    public function testThumbnailSSL()
+    public function testThumbnailSSL() : void
     {
-        $this->assertContains('https://', self::$data->getThumbnail(380, true));
+        self::assertStringContainsString('https://', self::$data->getThumbnail(380, true));
     }
 
-    public function testDetailTitle()
-    {
-        $details = self::$data->getDetails();
-        $firstDetail = $details[0];
-        $this->assertNotEmpty($firstDetail->getTitle());
-    }
-
-    public function testDetailBody()
+    public function testDetailTitle() : void
     {
         $details = self::$data->getDetails();
         $firstDetail = $details[0];
-        $this->assertNotEmpty($firstDetail->getBody());
+        self::assertNotEmpty($firstDetail->getTitle());
     }
 
-    public function testHasEpub()
+    public function testDetailBody() : void
+    {
+        $details = self::$data->getDetails();
+        $firstDetail = $details[0];
+        self::assertNotEmpty($firstDetail->getBody());
+    }
+
+    public function testHasEpub() : void
     {
         // probably true!
-        $this->assertTrue(self::$data->hasEpub());
+        self::assertTrue(self::$data->hasEpub());
     }
 
-    public function testHasPdf()
+    public function testHasPdf() : void
     {
         // should always be true
-        $this->assertTrue(self::$data->hasPdf());
+        self::assertTrue(self::$data->hasPdf());
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidBook()
+    public function testInvalidBook() : void
     {
+        $this->expectException(EntityDataException::class);
         $book = new PdfBook(['blah']);
     }
 
-    public function testBookDownloadOauth()
+    public function testBookDownloadOauth() : void
     {
         $url = Book::getDownloadUrl(self::$bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', ['handle' => 'phpunit']);
-        $this->assertContains('/download/', $url);
+        self::assertStringContainsString('/download/', $url);
     }
 
-    public function testBookDownloadBasic()
+    public function testBookDownloadBasic() : void
     {
-        $bookboon = new Bookboon(new BasicAuthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers()));
+        $bookboon = new Bookboon(new BasicAuthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers())
+        );
+
         $url = Book::getDownloadUrl($bookboon, 'db98ac1b-435f-456b-9bdd-a2ba00d41a58', ['handle' => 'phpunit']);
-        $this->assertContains('/download/', $url);
+        self::assertStringContainsString('/download/', $url);
     }
 
-    public function testGetSearch()
+    public function testGetSearch() : void
     {
         // choose a query with almost certain response;
         $search = Book::search(self::$bookboon, 'engineering')->getEntityStore()->get();
-        $this->assertCount(10, $search);
+        self::assertCount(10, $search);
     }
 
-    public function testGetRecommendations()
+    public function testGetRecommendations() : void
     {
         $bResponse = Book::recommendations(self::$bookboon);
 
-        $this->assertCount(5, $bResponse->getEntityStore()->get());
+        self::assertCount(5, $bResponse->getEntityStore()->get());
     }
 
-    public function testGetRecommendationsSpecific()
+    public function testGetRecommendationsSpecific() : void
     {
         $recommendations = Book::recommendations(self::$bookboon, ['3bf58559-034f-4676-bb5f-a2c101015a58'], 8)->getEntityStore()->get();
-        $this->assertCount(8, $recommendations);
+        self::assertCount(8, $recommendations);
     }
 }

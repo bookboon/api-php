@@ -2,7 +2,9 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class QuestionTest
@@ -16,40 +18,37 @@ class QuestionTest extends TestCase
     private static $API_ID;
     private static $API_KEY;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        self::$bookboon = \Helpers::getBookboon();
+        self::$bookboon = Helpers::getBookboon();
         self::$data = Question::get(self::$bookboon)->getEntityStore()->get();
     }
 
-    public function testGetText()
+    public function testGetText() : void
     {
         $firstQuestion = self::$data[0];
-        $this->assertNotEmpty($firstQuestion->getText());
+        self::assertNotEmpty($firstQuestion->getText());
     }
 
-    public function testGetAnsweres()
+    public function testGetAnsweres() : void
     {
         $firstQuestion = self::$data[0];
-        $this->assertNotEmpty($firstQuestion->getAnswers());
+        self::assertNotEmpty($firstQuestion->getAnswers());
     }
 
-    public function testSecondQuestions()
+    public function testSecondQuestions() : void
     {
         $firstQuestion = self::$data[0];
         $answers = $firstQuestion->getAnswers();
         $firstAnswer = $answers[0];
 
         $questions = Question::get(self::$bookboon, [$firstAnswer->getId()])->getEntityStore()->get();
-        $this->assertGreaterThan(1, count($questions));
+        self::assertGreaterThan(1, count($questions));
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidQuestion()
+    public function testInvalidQuestion() : void
     {
+        $this->expectException(EntityDataException::class);
         $question = new Question(['blah']);
     }
 }
