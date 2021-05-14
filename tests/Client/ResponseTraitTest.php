@@ -49,20 +49,6 @@ class ResponseTraitTest extends TestCase
         );
     }
 
-//    public function testParseCurlRedirect() : void
-//    {
-//        $expectedUrl = 'http://yes.we.can';
-//        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nLocation: $expectedUrl";
-//
-//        $mock = $this->getMockForTrait(ResponseTrait::class);
-//
-//        $mock->method('getResponseHeader')
-//             ->willReturn($expectedUrl);
-//
-//        $result = \Helpers::invokeMethod($mock, 'handleErrorResponse', ['', [$headers], 302, 'http://bookboon.com/api/books/xx/download']);
-//        self::assertEquals(['url' => $expectedUrl], $result);
-//    }
-
     public function testParseCurlServerError() : void
     {
         $this->expectException(ApiGeneralException::class);
@@ -87,5 +73,37 @@ class ResponseTraitTest extends TestCase
             'handleErrorResponse',
             ['', [$headers], 0, 'http://bookboon.com/api/categories']
         );
+    }
+
+    public function testParseCurlAuthenticationWithoutDetailError() : void
+    {
+        $mock = $this->getMockForTrait(ResponseTrait::class);
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
+        try {
+            Helpers::invokeMethod(
+                $mock,
+                'handleErrorResponse',
+                ['{"errors": [{"title": "Custom Forbidden"}]}', [$headers], 403, 'http://bookboon.com/api/categories']
+            );
+        } catch (ApiAuthenticationException $e) {
+            self::assertEquals('Custom Forbidden', $e->getMessage());
+        }
+    }
+
+    public function testParseCurlAuthenticationWithDetailError() : void
+    {
+        $mock = $this->getMockForTrait(ResponseTrait::class);
+
+        $headers = "HTTP/1.1 200 OK\n Content-Type: application/json; charset=utf-8\nServer: Microsoft-IIS/8.0\nX-Varnish: 444";
+        try {
+            Helpers::invokeMethod(
+                $mock,
+                'handleErrorResponse',
+                ['{"errors": [{"title": "Custom Forbidden", "detail": "Other relevant information"}]}', [$headers], 403, 'http://bookboon.com/api/categories']
+            );
+        } catch (ApiAuthenticationException $e) {
+            self::assertEquals('Custom Forbidden: Other relevant information', $e->getMessage());
+        }
     }
 }

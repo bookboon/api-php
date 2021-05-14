@@ -28,17 +28,11 @@ trait ResponseTrait
             case 400:
             case 405:
                 $returnArray = json_decode($body, true);
-                throw new ApiSyntaxException($returnArray['message'] ?? '');
+                throw new ApiSyntaxException($this->getFirstError($returnArray));
             case 401:
             case 403:
                 $returnArray = json_decode($body, true);
-                $message = $returnArray['message'] ?? 'Invalid credentials';
-
-                if (isset($returnArray['hint'])) {
-                    $message .= ': ' . $returnArray['hint'];
-                }
-
-                throw new ApiAuthenticationException($message);
+                throw new ApiAuthenticationException($this->getFirstError($returnArray, 'Invalid credentials'));
             case 410:
             case 404:
                 throw new ApiNotFoundException($url);
@@ -48,6 +42,21 @@ trait ResponseTrait
         }
     }
 
+    protected function getFirstError(?array $errors, string $default = '') : string
+    {
+        if ($errors !== null && isset($errors['errors']) && count($errors['errors']) > 0) {
+            $message = $errors['errors'][0]['title'] ?? '';
+
+            if (isset($errors['errors'][0]['detail'])) {
+                $message .= ": {$errors['errors'][0]['detail']}";
+            }
+
+            return $message;
+        }
+
+        return $default;
+    }
+
     /**
      * @param array $responseArray
      * @param array $headers
@@ -55,11 +64,7 @@ trait ResponseTrait
      */
     protected function generalExceptionMessage(array $responseArray, array $headers)
     {
-        $message = '';
-
-        foreach ($responseArray as $key => $value) {
-            $message .= "$key: $value   ";
-        }
+        $message = $this->getFirstError($responseArray);
 
         $xVarnish = $this->getResponseHeader($headers, 'X-Varnish');
         if (!empty($xVarnish)) {
@@ -70,6 +75,7 @@ trait ResponseTrait
         if (!empty($apiVersion)) {
             $message .= "    X-API-Version: $apiVersion";
         }
+
         return $message;
     }
 
