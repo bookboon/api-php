@@ -27,18 +27,25 @@ abstract class Book extends Entity
      * @param Bookboon $bookboon
      * @param string $bookId
      * @param bool $extendedMetadata
-     * @return BookboonResponse
+     * @return BookboonResponse<Book>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function get(Bookboon $bookboon, string $bookId, bool $extendedMetadata = false) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/books/$bookId", ['extendedMetadata' => $extendedMetadata ? 'true' : 'false']);
+        $bResponse = $bookboon->rawRequest(
+            "/v1/books/$bookId",
+            ['extendedMetadata' => $extendedMetadata ? 'true' : 'false'],
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
                     static::objectTransformer($bResponse->getReturnArray())
-                ]
+                ],
+                Book::class
             )
         );
 
@@ -51,7 +58,7 @@ abstract class Book extends Entity
      * @param Bookboon $bookboon
      * @param string[] $bookIds
      * @param bool $extendedMetadata
-     * @return BookboonResponse
+     * @return BookboonResponse<Book>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getMultiple(
@@ -63,16 +70,21 @@ abstract class Book extends Entity
             throw new UsageException('At least one id is required for bookIds');
         }
 
-
         $variables = [
             'id' => $bookIds,
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         ];
 
-        $bResponse = $bookboon->rawRequest('/v1/books', $variables);
+        $bResponse = $bookboon->rawRequest(
+            '/v1/books',
+            $variables,
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Book::class)
         );
 
         return $bResponse;
@@ -84,10 +96,10 @@ abstract class Book extends Entity
      * @param Bookboon $bookboon
      * @param bool $extendedMetadata
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Book>
      * @throws \Bookboon\Api\Exception\UsageException
      *
-     * @deprecated Shouln't be used for performance reasons
+     * @deprecated Should not be used for performance reasons
      */
     public static function getAll(
         Bookboon $bookboon,
@@ -99,10 +111,16 @@ abstract class Book extends Entity
             'extendedMetadata' => $extendedMetadata ? 'true' : 'false'
         ];
 
-        $bResponse = $bookboon->rawRequest('/v1/books', $variables);
+        $bResponse = $bookboon->rawRequest(
+            '/v1/books',
+            $variables,
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Book::class)
         );
 
         return $bResponse;
@@ -115,16 +133,22 @@ abstract class Book extends Entity
     public static function objectTransformer(array $objectArray)
     {
         $className = 'Bookboon\Api\Entity\\' . ucfirst($objectArray['_type']) . 'Book';
-        return new $className($objectArray);
+
+        /** @var Book $book */
+        $book = new $className($objectArray);
+
+        return $book;
     }
 
     /**
+     * @psalm-suppress LessSpecificImplementedReturnType
      * @param array $array
-     * @return Book[]
+     * @return array<Book>
      */
-    public static function getEntitiesFromArray(array $array)
+    public static function getEntitiesFromArray(array $array) : array
     {
         $entities = [];
+
         foreach ($array as $object) {
             if (in_array(
                 $object['_type'],
@@ -170,7 +194,7 @@ abstract class Book extends Entity
      * @param int $limit
      * @param int $offset
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Book>
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
@@ -181,10 +205,16 @@ abstract class Book extends Entity
         int $offset = 0,
          array $bookTypes = ['professional']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/v1/search', ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest(
+            '/v1/search',
+            ['q' => $query, 'limit' => $limit, 'offset' => $offset, 'bookType' => join(',', $bookTypes)],
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()), Book::class)
         );
 
         return $bResponse;
@@ -197,7 +227,7 @@ abstract class Book extends Entity
      * @param array $bookTypes
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
-     * @return BookboonResponse
+     * @return BookboonResponse<Book>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function recommendations(
@@ -206,10 +236,16 @@ abstract class Book extends Entity
         int $limit = 5,
         array $bookTypes = ['professional']
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/v1/recommendations', ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest(
+            '/v1/recommendations',
+            ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)],
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(Book::getEntitiesFromArray($bResponse->getReturnArray()), Book::class)
         );
 
         return $bResponse;
@@ -321,7 +357,7 @@ abstract class Book extends Entity
     {
         $language = $this->safeGet('language');
 
-        return isset($language['name']) ? $language['name'] : false;
+        return $language['code'] ?? '';
     }
 
     /**
@@ -333,7 +369,7 @@ abstract class Book extends Entity
     {
         $language = $this->safeGet('language');
 
-        return isset($language['code']) ? $language['code'] : false;
+        return $language['code'] ?? '';
     }
 
     /**
@@ -420,6 +456,9 @@ abstract class Book extends Entity
         return $this->safeGet('price');
     }
 
+    /**
+     * @return string
+     */
     public function getPriceLevel()
     {
         return $this->safeGet('priceLevel');

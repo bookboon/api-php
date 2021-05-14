@@ -14,20 +14,27 @@ class Category extends Entity
      * @param Bookboon $bookboon
      * @param string $categoryId
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Category>
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\EntityDataException
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function get(Bookboon $bookboon, string $categoryId, array $bookTypes = ['professional']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/categories/$categoryId", ['bookType' => join(',', $bookTypes)]);
+        $bResponse = $bookboon->rawRequest(
+            "/v1/categories/$categoryId",
+            ['bookType' => join(',', $bookTypes)],
+            ClientInterface::HTTP_GET,
+            true,
+            Category::class
+        );
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
                     new self($bResponse->getReturnArray())
-                ]
+                ],
+                Category::class
             )
         );
 
@@ -40,7 +47,7 @@ class Category extends Entity
      * @param Bookboon $bookboon
      * @param array $blacklistedCategoryIds
      * @param int $depth level of recursion (default 2 maximum, 0 no recursion)
-     * @return BookboonResponse
+     * @return BookboonResponse<Category>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getTree(
@@ -48,7 +55,13 @@ class Category extends Entity
         array $blacklistedCategoryIds = [],
         int $depth = 2
     ) : BookboonResponse {
-        $bResponse = $bookboon->rawRequest('/v1/categories');
+        $bResponse = $bookboon->rawRequest(
+            '/v1/categories',
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Category::class
+        );
 
         $categories = $bResponse->getReturnArray();
 
@@ -57,7 +70,7 @@ class Category extends Entity
         }
 
         $bResponse->setEntityStore(
-            new EntityStore(self::getEntitiesFromArray($categories))
+            new EntityStore(self::getEntitiesFromArray($categories), Category::class)
         );
 
         return $bResponse;

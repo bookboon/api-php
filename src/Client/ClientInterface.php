@@ -67,22 +67,15 @@ interface ClientInterface
     public function refreshAccessToken(AccessTokenInterface $accessToken);
 
     /**
-     * * @param array $options
+     * @param array $options
      * @return string
      * @throws UsageException
      */
-    public function getAuthorizationUrl(array $options = []);
+    public function getAuthorizationUrl(array $options = []) : string;
 
-    /**
-     * @param string $appUserId
-     * @return void
-     */
     public function setAct(string $appUserId) : void;
 
-    /**
-     * @return string
-     */
-    public function getAct() : string;
+    public function getAct() : ?string;
 
     /**
      * @param AccessTokenInterface $accessToken
@@ -90,31 +83,14 @@ interface ClientInterface
      */
     public function setAccessToken(AccessTokenInterface $accessToken) : void;
 
-    /**
-     * @return AccessTokenInterface|null
-     */
     public function getAccessToken() : ?AccessTokenInterface;
 
-    /**
-     * @return Headers
-     */
     public function getHeaders() : Headers;
 
-    /**
-     * @param Headers $headers
-     * @return void
-     */
     public function setHeaders(Headers $headers) : void;
 
-    /**
-     * @return CacheInterface|null
-     */
     public function getCache() : ?CacheInterface;
 
-    /**
-     * @param CacheInterface $cache
-     * @return void
-     */
     public function setCache(CacheInterface $cache) : void;
 
     /**

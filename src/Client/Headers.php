@@ -14,6 +14,7 @@ class Headers implements ArrayAccess
     const HEADER_LANGUAGE = 'Accept-Language';
     const HEADER_XFF = 'X-Forwarded-For';
 
+    /** @var array */
     private $headers = [];
 
     public function __construct(array $headers = [])

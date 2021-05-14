@@ -30,17 +30,19 @@ class OauthClient implements ClientInterface
 
     const C_VERSION = '2.2';
 
+    /** @var string  */
     protected $_apiUri;
 
-    /** @var AccessTokenInterface */
+    /** @var AccessTokenInterface|null */
     private $accessToken;
 
-    /** @var string */
+    /** @var string|null */
     protected $act;
 
     /** @var BookboonProvider */
     protected $provider;
 
+    /** @var array  */
     protected $requestOptions = [];
 
     /**
@@ -91,8 +93,10 @@ class OauthClient implements ClientInterface
                 'on_stats' => function (TransferStats $stats) use ($logger) {
                     if ($stats->hasResponse()) {
                         $size = $stats->getHandlerStat('size_download') ?? 0;
+                        $statusCode = $stats->getResponse() ? $stats->getResponse()->getStatusCode() : 0;
+
                         $logger->info(
-                            "Api request \"{$stats->getRequest()->getMethod()} {$stats->getRequest()->getRequestTarget()} HTTP/{$stats->getRequest()->getProtocolVersion()}\" {$stats->getResponse()->getStatusCode()} - {$size} - {$stats->getTransferTime()}"
+                            "Api request \"{$stats->getRequest()->getMethod()} {$stats->getRequest()->getRequestTarget()} HTTP/{$stats->getRequest()->getProtocolVersion()}\" {$statusCode} - {$size} - {$stats->getTransferTime()}"
                         );
                     } else {
                         $logger->error(
@@ -152,14 +156,20 @@ class OauthClient implements ClientInterface
             $options[$postType] = $variables;
         }
 
+        $accessToken = $this->getAccessToken();
+
+        if ($accessToken === null) {
+            throw new ApiAccessTokenExpired("Access token is null");
+        }
+
         try {
             $request = $this->provider->getAuthenticatedRequest(
                 $type,
                 $uri,
-                $this->getAccessToken()
+                $accessToken
             );
 
-            if ($this->getAccessToken()->hasExpired()) {
+            if ($accessToken->hasExpired()) {
                 throw new ApiAccessTokenExpired("Bookboon API Access Token Has Now Expired");
 
             }
@@ -175,6 +185,10 @@ class OauthClient implements ClientInterface
             }
 
             $response = $e->getResponse();
+        }
+
+        if ($response === null) {
+            throw new ApiGeneralException('Response is null');
         }
 
         $normalizedHeaders = $this->normalizeHeaders($response->getHeaders());
@@ -309,42 +323,26 @@ class OauthClient implements ClientInterface
         return $returnHeaders;
     }
 
-    /**
-     * @param string|null $act
-     * @return void
-     */
     public function setAct(?string $act) : void
     {
         $this->act = $act;
     }
 
-    /**
-     * @return string
-     */
-    public function getAct() : string
+    public function getAct() : ?string
     {
         return $this->act;
     }
 
-    /**
-     * @return AccessTokenInterface
-     */
     public function getAccessToken() : ?AccessTokenInterface
     {
         return $this->accessToken;
     }
 
-    /**
-     * @return string
-     */
     protected function getComponentVersion() : string
     {
         return self::C_VERSION;
     }
 
-    /**
-     * @return string
-     */
     protected function getBaseApiUri() : string
     {
         return $this->_apiUri;

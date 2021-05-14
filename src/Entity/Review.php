@@ -14,7 +14,7 @@ class Review extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $bookId
-     * @return BookboonResponse
+     * @return BookboonResponse<Review>
      *
      * @throws BadUUIDException
      * @throws \Bookboon\Api\Exception\UsageException
@@ -25,10 +25,16 @@ class Review extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/reviews");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/books/$bookId/reviews",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Review::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()), Review::class)
         );
 
         return $bResponse;

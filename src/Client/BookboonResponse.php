@@ -6,11 +6,23 @@ use Bookboon\Api\Entity\EntityStore;
 use Bookboon\Api\Exception\ApiDecodeException;
 use Serializable;
 
+/**
+ * Class BookboonResponse
+ * @package Bookboon\Api\Client
+ * @template T extends Entity
+ */
 class BookboonResponse implements Serializable
 {
+    /** @var string */
     protected $body;
+
+    /** @var int */
     protected $status;
+
+    /** @var array array */
     protected $headers;
+
+    /** @var EntityStore */
     protected $entityStore;
 
     /**
@@ -71,7 +83,7 @@ class BookboonResponse implements Serializable
     }
 
     /**
-     * @return EntityStore
+     * @return EntityStore<T>
      */
     public function getEntityStore() : EntityStore
     {
@@ -79,7 +91,7 @@ class BookboonResponse implements Serializable
     }
 
     /**
-     * @param EntityStore $entityStore
+     * @param EntityStore<T> $entityStore
      * @return void
      */
     public function setEntityStore(EntityStore $entityStore) : void

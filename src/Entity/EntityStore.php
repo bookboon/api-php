@@ -7,25 +7,36 @@ use Countable;
 use Iterator;
 use JsonSerializable;
 
+/**
+ * Class EntityStore
+ * @package Bookboon\Api\Entity
+ * @template T extends Entity
+ */
 class EntityStore implements Iterator, Countable, JsonSerializable
 {
     /**
-     * @var array
+     * @var array<T>
      */
     protected $contents;
+
+    /**
+     * @var int
+     */
     private $index = 0;
 
     /**
      * EntityStore constructor.
-     * @param array $contents
+     * @param array<T> $contents
+     * @psalm-param class-string<T> $classString
      */
-    public function __construct(array $contents = [])
+    public function __construct(array $contents = [], string $className = Entity::class)
     {
         $this->contents = $contents;
     }
 
     /**
-     * @return Entity[]
+     * @return array<Entity>
+     * @psalm-return array<T>
      */
     public function get() : array
     {
@@ -34,6 +45,7 @@ class EntityStore implements Iterator, Countable, JsonSerializable
 
     /**
      * @return Entity
+     * @psalm-return T
      * @throws UsageException
      */
     public function getSingle() : Entity
@@ -48,7 +60,8 @@ class EntityStore implements Iterator, Countable, JsonSerializable
     /**
      * Return the current element
      * @link https://php.net/manual/en/iterator.current.php
-     * @return mixed Can return any type.
+     * @return Entity
+     * @psalm-return T
      * @since 5.0.0
      */
     public function current()

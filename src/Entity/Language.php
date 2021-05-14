@@ -4,6 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\UsageException;
 
 class Language extends Entity
@@ -13,16 +14,22 @@ class Language extends Entity
      *
      * @param Bookboon $bookboon
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Language>
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
     public static function get(Bookboon $bookboon, array $bookTypes = ['professional']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/v1/languages');
+        $bResponse = $bookboon->rawRequest(
+            '/v1/languages',
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Language::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(Language::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(Language::getEntitiesFromArray($bResponse->getReturnArray()), Language::class)
         );
 
         return $bResponse;

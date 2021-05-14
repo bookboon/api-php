@@ -5,7 +5,6 @@ namespace Bookboon\Api\Client;
 use Bookboon\Api\Client\Oauth\OauthGrants;
 use Bookboon\Api\Exception\ApiAuthenticationException;
 use Bookboon\Api\Exception\ApiGeneralException;
-use Bookboon\Api\Exception\ApiInvalidStateException;
 use Bookboon\Api\Exception\ApiTimeoutException;
 use Bookboon\Api\Exception\UsageException;
 use League\OAuth2\Client\Token\AccessTokenInterface;
@@ -18,8 +17,7 @@ class BasicAuthClient implements ClientInterface
 
     const C_VERSION = '2.2';
 
-    protected static $CURL_REQUESTS;
-
+    /** @var array<int, mixed> */
     public static $CURL_OPTS = [
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
@@ -29,8 +27,10 @@ class BasicAuthClient implements ClientInterface
         CURLOPT_SSL_VERIFYHOST => 2,
     ];
 
+    /** @var string  */
     protected $_apiUri;
 
+    /** @var LoggerInterface|null  */
     protected $_logger;
 
     /**
@@ -164,7 +164,7 @@ class BasicAuthClient implements ClientInterface
      * @return string
      * @throws UsageException
      */
-    public function getAuthorizationUrl(array $options = [])
+    public function getAuthorizationUrl(array $options = []) : string
     {
         throw new UsageException("Not Supported");
     }
