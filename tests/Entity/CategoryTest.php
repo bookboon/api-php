@@ -3,7 +3,9 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class CategoryTest
@@ -15,18 +17,17 @@ class CategoryTest extends TestCase
     private static $data = null;
     private static $bookboon = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        self::$bookboon = \Helpers::getBookboon();
+        self::$bookboon = Helpers::getBookboon();
         self::$data = Category::get(self::$bookboon, '062adfac-844b-4e8c-9242-a1620108325e')
             ->getEntityStore()
             ->getSingle();
     }
 
-    public function testGetId()
+    public function testGetId() : void
     {
-        $this->assertEquals('062adfac-844b-4e8c-9242-a1620108325e', self::$data->getId());
+        self::assertEquals('062adfac-844b-4e8c-9242-a1620108325e', self::$data->getId());
     }
 
     public function providerTestGetters()
@@ -43,26 +44,24 @@ class CategoryTest extends TestCase
     /**
      * @dataProvider providerTestGetters
      */
-    public function testNotFalse($method)
+    public function testNotFalse($method) : void
     {
-        $this->assertNotFalse(self::$data->$method());
+        self::assertNotFalse(self::$data->$method());
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidCategory()
+    public function testInvalidCategory() : void
     {
+        $this->expectException(EntityDataException::class);
         $category = new Category(['blah']);
     }
 
-    public function testGetCategoryTree()
+    public function testGetCategoryTree() : void
     {
         $categories = Category::getTree(self::$bookboon)->getEntityStore()->get();
-        $this->assertGreaterThan(10, count($categories));
+        self::assertGreaterThan(10, count($categories));
     }
 
-    public function testGetCategoryTreeBlacklist()
+    public function testGetCategoryTreeBlacklist() : void
     {
         $hiddenId = 'a382f37c-dc28-400a-9838-a17700ad5472';
         $categories = Category::getTree(self::$bookboon, [$hiddenId]);
@@ -74,12 +73,12 @@ class CategoryTest extends TestCase
             $categories->getEntityStore()->get()
         );
 
-        $this->assertNotContains($hiddenId, $categoryIds);
+        self::assertNotContains($hiddenId, $categoryIds);
     }
 
-    public function testCategoryDownload()
+    public function testCategoryDownload() : void
     {
         $url = Category::getDownloadUrl(self::$bookboon, '062adfac-844b-4e8c-9242-a1620108325e', ['handle' => 'phpunit']);
-        $this->assertContains('/download/', $url);
+        self::assertStringContainsString('/download/', $url);
     }
 }

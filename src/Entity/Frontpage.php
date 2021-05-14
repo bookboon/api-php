@@ -4,6 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\UsageException;
 
 class Frontpage extends Entity
@@ -18,16 +19,22 @@ class Frontpage extends Entity
      *
      * @param Bookboon $bookboon
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Frontpage>
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
     public static function get(Bookboon $bookboon, array $bookTypes = ['professional'], ?int $limit = null) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/v1/frontpage', ['bookType' => implode(',', $bookTypes), 'limit' => $limit]);
+        $bResponse = $bookboon->rawRequest(
+            '/v1/frontpage',
+            ['bookType' => implode(',', $bookTypes), 'limit' => $limit],
+            ClientInterface::HTTP_GET,
+            true,
+            Frontpage::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(self::getEntitiesFromArray($bResponse->getReturnArray()), Frontpage::class)
         );
 
         return $bResponse;
@@ -39,20 +46,27 @@ class Frontpage extends Entity
      * @param Bookboon $bookboon
      * @param string $slug
      * @param array $bookTypes
-     * @return BookboonResponse
+     * @return BookboonResponse<Frontpage>
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\EntityDataException
      */
     public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['professional'], ?int $limit = null) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/frontpage/$slug", ['bookType' => join(',', $bookTypes), 'limit' => $limit]);
+        $bResponse = $bookboon->rawRequest(
+            "/v1/frontpage/$slug",
+            ['bookType' => join(',', $bookTypes), 'limit' => $limit],
+            ClientInterface::HTTP_GET,
+            true,
+            Frontpage::class
+        );
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
                     new self($bResponse->getReturnArray())
-                ]
+                ],
+                Frontpage::class
             )
         );
 

@@ -4,6 +4,7 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\BadUUIDException;
 
 class Author extends Entity
@@ -11,7 +12,7 @@ class Author extends Entity
     /**
      * @param Bookboon $bookboon
      * @param string $authorId
-     * @return BookboonResponse
+     * @return BookboonResponse<Author>
      * @throws BadUUIDException
      * @throws \Bookboon\Api\Exception\EntityDataException
      * @throws \Bookboon\Api\Exception\UsageException
@@ -22,13 +23,20 @@ class Author extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/v1/authors/$authorId");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/authors/$authorId",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Author::class
+        );
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
                     new self($bResponse->getReturnArray())
-                ]
+                ],
+                Author::class
             )
         );
 
@@ -37,16 +45,22 @@ class Author extends Entity
 
     /**
      * @param Bookboon $bookboon
-     * @return BookboonResponse
+     * @return BookboonResponse<Author>
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getAll(Bookboon $bookboon)
     {
-        $bResponse = $bookboon->rawRequest('/v1/authors');
+        $bResponse = $bookboon->rawRequest(
+            '/v1/authors',
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Author::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Author::class)
         );
 
         return $bResponse;
@@ -57,16 +71,22 @@ class Author extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $bookId
-     * @return BookboonResponse
+     * @return BookboonResponse<Author>
      * @throws BadUUIDException
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/authors");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/books/$bookId/authors",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Author::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Author::class)
         );
 
         return $bResponse;

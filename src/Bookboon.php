@@ -23,6 +23,7 @@ use Bookboon\Api\Client\BookboonResponse;
 use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Client\Headers;
 use Bookboon\Api\Client\OauthClient;
+use Bookboon\Api\Entity\Entity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -78,14 +79,18 @@ class Bookboon
      * @param array $variables
      * @param string $httpMethod
      * @param boolean $shouldCache
-     * @return BookboonResponse
+     * @param string $classString
+     * @template T of Entity
+     * @psalm-param class-string<T> $classString
+     * @return BookboonResponse<T>
      * @throws Exception\UsageException
      */
     public function rawRequest(
         string $url,
         array $variables = [],
         string $httpMethod = ClientInterface::HTTP_GET,
-        bool $shouldCache = true
+        bool $shouldCache = true,
+        string $classString = Entity::class
     ) : BookboonResponse {
         return $this->client->makeRequest($url, $variables, $httpMethod, $shouldCache);
     }

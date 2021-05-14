@@ -6,9 +6,16 @@ use Psr\SimpleCache\CacheInterface;
 
 trait ClientTrait
 {
+    /** @var string */
     protected $apiId;
+
+    /** @var string */
     protected $apiSecret;
+
+    /** @var Headers */
     protected $headers;
+
+    /** @var CacheInterface|null */
     protected $cache;
 
     abstract protected function getComponentVersion();
@@ -21,7 +28,11 @@ trait ClientTrait
             $runtime = 'PHP/' . phpversion();
         }
 
-        $component = substr(get_class($this), strrpos(get_class($this), '\\') + 1);
+        $component = get_class($this);
+        if (($needle = strrpos($component, '\\')) !== false) {
+            $component = substr($component, $needle + 1);
+        }
+
         return ClientInterface::VERSION . ' ' . $runtime . ' ' . $component . '/' . $this->getComponentVersion();
     }
 
@@ -61,7 +72,7 @@ trait ClientTrait
     /**
      * @return string
      */
-    protected function getApiId() : string
+    public function getApiId() : string
     {
         return $this->apiId;
     }

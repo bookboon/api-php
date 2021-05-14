@@ -3,8 +3,9 @@
 namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
+use Bookboon\Api\Exception\EntityDataException;
 use PHPUnit\Framework\TestCase;
-use Bookboon\Api\Entity\Book;
+use Helpers\Helpers;
 
 /**
  * Class AuthorTest
@@ -16,10 +17,9 @@ class AuthorTest extends TestCase
     /** @var Author */
     private static $data = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        $bookboon = \Helpers::getBookboon();
+        $bookboon = Helpers::getBookboon();
         self::$data = Author::get($bookboon, '0908031c-ce02-9b86-11e6-6dd9268599d1')
             ->getEntityStore()
             ->getSingle();
@@ -37,22 +37,20 @@ class AuthorTest extends TestCase
     /**
      * @dataProvider providerTestGetters
      */
-    public function testNotFalse($method)
+    public function testNotFalse($method) : void
     {
-        $this->assertNotFalse(self::$data->$method());
+        self::assertNotFalse(self::$data->$method());
     }
 
-    public function testHasBooks()
+    public function testHasBooks() : void
     {
         $books = self::$data->getBooks();
-        $this->assertInstanceOf(Book::class, $books[0]);
+        self::assertInstanceOf(Book::class, $books[0]);
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidAuthor()
+    public function testInvalidAuthor() : void
     {
+        $this->expectException(EntityDataException::class);
         $author = new Author(array('blah'));
     }
 }

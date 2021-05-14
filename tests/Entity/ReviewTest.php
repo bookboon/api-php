@@ -2,6 +2,8 @@
 
 namespace Bookboon\Api\Entity;
 
+use Bookboon\Api\Exception\EntityDataException;
+use Helpers\Helpers;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,45 +15,42 @@ class ReviewTest extends TestCase
 {
     private static $data = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
-        include_once(__DIR__ . '/../Helpers.php');
-        $bookboon = \Helpers::getBookboon();
+        $bookboon = Helpers::getBookboon();
         self::$data = Review::getByBookId($bookboon, '3bf58559-034f-4676-bb5f-a2c101015a58')->getEntityStore()->get();
     }
 
     /**
      * @group reviewt
      */
-    public function testGetAuthor()
+    public function testGetAuthor() : void
     {
         $firstReview = self::$data[0];
-        $this->assertNotEmpty($firstReview->getAuthor());
+        self::assertNotEmpty($firstReview->getAuthor());
     }
 
-    public function testGetCreated()
+    public function testGetCreated() : void
     {
         $firstReview = self::$data[0];
-        $this->assertNotEmpty($firstReview->getCreated());
+        self::assertNotEmpty($firstReview->getCreated());
     }
 
-    public function testGetComment()
+    public function testGetComment() : void
     {
         $firstReview = self::$data[0];
-        $this->assertNotEmpty($firstReview->getComment());
+        self::assertNotEmpty($firstReview->getComment());
     }
 
-    public function testGetRating()
+    public function testGetRating() : void
     {
         $firstReview = self::$data[0];
-        $this->assertNotEmpty($firstReview->getRating());
+        self::assertNotEmpty($firstReview->getRating());
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\EntityDataException
-     */
-    public function testInvalidReview()
+    public function testInvalidReview() : void
     {
+        $this->expectException(EntityDataException::class);
         $review = new Review(['blah']);
     }
 }

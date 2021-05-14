@@ -4,6 +4,7 @@ namespace Bookboon\Api\Client;
 
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
+use Helpers\Helpers;
 
 /**
  * Class HashTraitTest
@@ -12,96 +13,96 @@ use PHPUnit\Framework\TestCase;
  */
 class HashTraitTest extends TestCase
 {
-    public function testHashUrl()
+    public function testHashUrl() : void
     {
         $mock = $this->getMockForTrait(HashTrait::class);
 
-        $hash1 = \Helpers::invokeMethod($mock, 'hash', ['/test', "WHATEVSID", []]);
-        $hash2 = \Helpers::invokeMethod($mock, 'hash', ['/test', "WHATEVSID", []]);
+        $hash1 = Helpers::invokeMethod($mock, 'hash', ['/test', "WHATEVSID", []]);
+        $hash2 = Helpers::invokeMethod($mock, 'hash', ['/test', "WHATEVSID", []]);
 
-        $this->assertEquals($hash1, $hash2);
+        self::assertEquals($hash1, $hash2);
     }
 
-    public function testHashHeaderXff()
+    public function testHashHeaderXff() : void
     {
         $mock = $this->getMockForTrait(HashTrait::class);
 
-        $hash1 = \Helpers::invokeMethod(
+        $hash1 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_XFF => 'One ip']]
         );
-        $hash2 = \Helpers::invokeMethod(
+        $hash2 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_XFF => 'Different ip']]
         );
 
-        $this->assertEquals($hash1, $hash2);
+        self::assertEquals($hash1, $hash2);
     }
 
-    public function testHashHeader()
+    public function testHashHeader() : void
     {
         $mock = $this->getMockForTrait(HashTrait::class);
-        $hash1 = \Helpers::invokeMethod(
+        $hash1 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_XFF => 'One ip', Headers::HEADER_BRANDING => 'branding-test-1']]
         );
-        $hash2 = \Helpers::invokeMethod(
+        $hash2 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_XFF => 'Different ip', Headers::HEADER_BRANDING => 'branding-test-2']]
         );
 
-        $this->assertNotEquals($hash1, $hash2);
+        self::assertNotEquals($hash1, $hash2);
     }
 
-    public function testHashLanguageHeader()
+    public function testHashLanguageHeader() : void
     {
         $mock = $this->getMockForTrait(HashTrait::class);
 
-        $hash1 = \Helpers::invokeMethod(
+        $hash1 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_LANGUAGE => 'en, de', Headers::HEADER_BRANDING => 'branding-test']]
         );
-        $hash2 = \Helpers::invokeMethod(
+        $hash2 = Helpers::invokeMethod(
             $mock,
             'hash',
             ['/test', "WHATEVSID", [Headers::HEADER_LANGUAGE => 'de, en', Headers::HEADER_BRANDING => 'branding-test']]
         );
 
-        $this->assertNotEquals($hash1, $hash2);
+        self::assertNotEquals($hash1, $hash2);
     }
 
-    public function testRequestIsCacheable()
+    public function testRequestIsCacheable() : void
     {
         $mock = $this->getMockForTrait(HashTrait::class);
         $cache = $this->getMockBuilder(CacheInterface::class)->getMock();
         $mock->method("getCache")->willReturn($cache);
 
-        $result = \Helpers::invokeMethod(
+        $result = Helpers::invokeMethod(
             $mock,
             'isCachable',
             ['/test/rul', ClientInterface::HTTP_GET, []]
         );
 
-        $this->assertTrue($result);
+        self::assertTrue($result);
     }
 
-    public function testRequestNotCacheblePost()
+    public function testRequestNotCacheblePost() : void
     {
         $mock = $this->getMockForTrait('\Bookboon\Api\Client\HashTrait');
         $cache = $this->getMockBuilder(CacheInterface::class)->getMock();
         $mock->method("getCache")->willReturn($cache);
 
-        $result = \Helpers::invokeMethod(
+        $result = Helpers::invokeMethod(
             $mock,
             'isCachable',
             ['/test/rul', ClientInterface::HTTP_POST, []]
         );
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 }

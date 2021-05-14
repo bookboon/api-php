@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 7.2
   - 7.3
   - 7.4
 
@@ -18,8 +17,8 @@ jobs:
     - stage: "Tests"
       name: "Unit Tests"
       script: vendor/bin/phpunit -c . --coverage-clover build/logs/clover.xml
-    - script: vendor/bin/phpstan analyse -c phpstan.neon
-      name: "Static Analyser"
+    - name: "Static Analyser"
+      script: vendor/bin/psalm
 
 before_script:
   - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini

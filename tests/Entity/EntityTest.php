@@ -14,15 +14,15 @@ class EntityTest extends TestCase
     /*
      * UUID
      */
-    public function testInvalidUuid()
+    public function testInvalidUuid() : void
     {
         $uuid = '4343f-4343-4343';
-        $this->assertFalse(Entity::isValidUUID($uuid));
+        self::assertFalse(Entity::isValidUUID($uuid));
     }
 
-    public function testValidUuid()
+    public function testValidUuid() : void
     {
         $uuid = 'db98ac1b-435f-456b-9bdd-a2ba00d41a58';
-        $this->assertTrue(Entity::isValidUUID($uuid));
+        self::assertTrue(Entity::isValidUUID($uuid));
     }
 }

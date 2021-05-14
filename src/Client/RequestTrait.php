@@ -42,7 +42,7 @@ trait RequestTrait
      * @param array $headers
      * @return string
      */
-    abstract protected function hash(string $url, string $id, array $headers) : string;
+    abstract protected function hash(string $url, string $apiId, array $headers) : string;
 
     /**
      * @param string $url
@@ -107,8 +107,10 @@ trait RequestTrait
      */
     protected function saveInCache(string $queryUrl, BookboonResponse $result)
     {
-        $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
-        $this->getCache()->set($hash, $result);
+        if (($cache = $this->getCache()) !== null) {
+            $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
+            $cache->set($hash, $result);
+        }
     }
 
     /**
@@ -117,10 +119,14 @@ trait RequestTrait
      */
     protected function getFromCache(string $queryUrl) : ?BookboonResponse
     {
-        $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
-        $result = $this->getCache()->get($hash);
+        if (($cache = $this->getCache()) !== null) {
+            $hash = $this->hash($queryUrl, $this->getApiId(), $this->getHeaders()->getAll());
+            $result = $cache->get($hash);
 
-        return $result instanceof BookboonResponse ? $result : null;
+            return $result instanceof BookboonResponse ? $result : null;
+        }
+
+        return null;
     }
 
     /**

@@ -8,6 +8,9 @@ use Serializable;
 
 abstract class Entity implements Serializable, JsonSerializable
 {
+    /**
+     * @var array
+     */
     protected $data = [];
 
     /**
@@ -75,7 +78,12 @@ abstract class Entity implements Serializable, JsonSerializable
         $this->data = unserialize($serialized);
     }
 
-    public static function getEntitiesFromArray(array $array)
+    /**
+     * @param array $array
+     * @return array<static>
+     * @throws EntityDataException
+     */
+    public static function getEntitiesFromArray(array $array) : array
     {
         $entities = [];
         foreach ($array as $object) {
@@ -124,6 +132,8 @@ abstract class Entity implements Serializable, JsonSerializable
                 return $thumbs[$thumbSize];
             }
         }
+
+        return '';
     }
 
     public function jsonSerialize()

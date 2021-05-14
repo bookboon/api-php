@@ -3,7 +3,12 @@
 namespace Bookboon\Api\Client;
 
 use Bookboon\Api\Client\Oauth\OauthGrants;
+use Bookboon\Api\Exception\ApiAuthenticationException;
+use Bookboon\Api\Exception\ApiInvalidStateException;
+use Bookboon\Api\Exception\UsageException;
+use Helpers\Helpers;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,42 +19,58 @@ use PHPUnit\Framework\TestCase;
  */
 class OauthClientTest extends TestCase
 {
-    public function testClientCredentialsGrantSuccessful()
+    public function testClientCredentialsGrantSuccessful() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
         $result = $client->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
-        $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
+        self::assertInstanceOf(AccessToken::class, $result);
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiAuthenticationException
-     */
-    public function testClientCredentialsGrantUnsuccessful()
+    public function testClientCredentialsGrantUnsuccessful() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), "BAD SECRET", new Headers(), ["basic"]);
+        $this->expectException(ApiAuthenticationException::class);
+
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            "BAD SECRET",
+            new Headers(),
+            ["basic"]
+        );
+
         $result = $client->requestAccessToken([], OauthGrants::CLIENT_CREDENTIALS);
-        $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
+        self::assertInstanceOf(AccessToken::class, $result);
     }
 
-    public function testAuthorizationCodeUrlWithAppUserId()
+    public function testAuthorizationCodeUrlWithAppUserId() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"], null, null, 9999);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"],
+            null,
+            null,
+            9999
+        );
+
         $result = $client->getAuthorizationUrl();
 
         parse_str(parse_url($result)['query'], $redirectData);
 
-        $this->assertEquals(9999, $redirectData['act']);
-        $this->assertEquals(9999, $client->getAct());
+        self::assertEquals(9999, $redirectData['act']);
+        self::assertEquals(9999, $client->getAct());
     }
 
-    /**
-     * @return string
-     */
-    public function testAuthorizationCodeUrlSuccessful()
+    public function testAuthorizationCodeUrlSuccessful() : string
     {
         $client = new OauthClient(
-            \Helpers::getApiId(),
-            \Helpers::getApiSecret(),
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
             new Headers(),
             ["basic"],
             null,
@@ -61,12 +82,12 @@ class OauthClientTest extends TestCase
             'response_type' => 'custom_flow'
         ]);
 
-        $this->assertStringStartsWith("https://bookboon.com/login/authorize?", $result);
+        self::assertStringStartsWith("https://bookboon.com/login/authorize?", $result);
 
         return $result;
     }
 
-    private function getLocationHeaderFromBody($body)
+    private function getLocationHeaderFromBody($body) : string
     {
         $bodyArray = explode("\r\n", $body);
         foreach ($bodyArray as $line) {
@@ -74,14 +95,14 @@ class OauthClientTest extends TestCase
                 return substr($line, 10);
             }
         }
-        return false;
+        return '';
     }
     /**
      * @depends testAuthorizationCodeUrlSuccessful
      * @param $url
-     * @return mixed
+     * @return string
      */
-    public function testAuthorizationCodeUrlRequestSuccessful($url)
+    public function testAuthorizationCodeUrlRequestSuccessful($url) : string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -94,8 +115,8 @@ class OauthClientTest extends TestCase
         $code = $redirectData['code'];
 
 
-        $this->assertEquals(302, curl_getinfo($curl, CURLINFO_HTTP_CODE));
-        $this->assertNotEmpty($code);
+        self::assertEquals(302, curl_getinfo($curl, CURLINFO_HTTP_CODE));
+        self::assertNotEmpty($code);
 
         return $code;
     }
@@ -103,13 +124,13 @@ class OauthClientTest extends TestCase
     /**
      * @depends testAuthorizationCodeUrlRequestSuccessful
      * @param $code
-     * @return AccessToken
+     * @return AccessTokenInterface
      */
-    public function testAuthorizationCodeTokenSuccessful($code)
+    public function testAuthorizationCodeTokenSuccessful($code) : AccessTokenInterface
     {
         $client = new OauthClient(
-            \Helpers::getApiId(),
-            \Helpers::getApiSecret(),
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
             new Headers(),
             ["basic"],
             null,
@@ -117,7 +138,7 @@ class OauthClientTest extends TestCase
         );
         $result = $client->requestAccessToken(["code" => $code], OauthGrants::AUTHORIZATION_CODE);
 
-        $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
+        self::assertInstanceOf(AccessToken::class, $result);
 
         return $result;
     }
@@ -126,44 +147,65 @@ class OauthClientTest extends TestCase
      * @depends testAuthorizationCodeTokenSuccessful
      * @param AccessToken $accessToken
      */
-    public function testAuthorizationCodeTokenRefreshSuccessful(AccessToken $accessToken)
+    public function testAuthorizationCodeTokenRefreshSuccessful(AccessToken $accessToken) : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
         $result = $client->refreshAccessToken($accessToken);
-        $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
+        self::assertInstanceOf(AccessToken::class, $result);
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\ApiInvalidStateException
-     */
-    public function testStateCheckInvalid()
+    public function testStateCheckInvalid() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $this->expectException(ApiInvalidStateException::class);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
         $client->isCorrectState("a", "b");
     }
 
-    /**
-     * @expectedException \Bookboon\Api\Exception\UsageException
-     */
-    public function testAuthorizationCodeTokenMissingCode()
+    public function testAuthorizationCodeTokenMissingCode() : AccessTokenInterface
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $this->expectException(UsageException::class);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
         $result = $client->requestAccessToken([], OauthGrants::AUTHORIZATION_CODE);
-        $this->assertInstanceOf('League\OAuth2\Client\Token\AccessToken', $result);
+        self::assertInstanceOf(AccessToken::class, $result);
 
         return $result;
     }
 
-    public function testStateCheckValid()
+    public function testStateCheckValid() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
         $result = $client->isCorrectState("a", "a");
-        $this->assertTrue($result);
+        self::assertTrue($result);
     }
 
-    public function testGenerateState()
+    public function testGenerateState() : void
     {
-        $client = new OauthClient(\Helpers::getApiId(), \Helpers::getApiSecret(), new Headers(), ["basic"]);
-        $this->assertNotEmpty($client->generateState());
+        $client = new OauthClient(
+            Helpers::getApiId(),
+            Helpers::getApiSecret(),
+            new Headers(),
+            ["basic"]
+        );
+        self::assertNotEmpty($client->generateState());
     }
 }

@@ -16,11 +16,16 @@ class BookboonProvider extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
+    /** @var string */
     private $host = 'bookboon.com';
+
+    /** @var string */
     private $protocol = 'https';
 
+    /** @var array<string> */
     protected $scope = ['basic'];
 
+    /** @var array */
     protected $requestOptions = [];
 
     public function __construct(array $options = [], array $collaborators = [])
@@ -78,7 +83,7 @@ class BookboonProvider extends AbstractProvider
     }
 
 
-    public function generateRandomState()
+    public function generateRandomState() : string
     {
         return $this->getRandomState();
     }
@@ -129,7 +134,7 @@ class BookboonProvider extends AbstractProvider
             throw new IdentityProviderException(
                 $data['errors'][0]['title'] ?? $response->getReasonPhrase(),
                 $response->getStatusCode(),
-                $response->getBody()
+                $response->getBody()->getContents()
             );
         }
     }

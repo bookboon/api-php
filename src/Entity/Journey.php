@@ -4,21 +4,29 @@ namespace Bookboon\Api\Entity;
 
 use Bookboon\Api\Bookboon;
 use Bookboon\Api\Client\BookboonResponse;
+use Bookboon\Api\Client\ClientInterface;
 use Bookboon\Api\Exception\UsageException;
 
 class Journey extends Entity
 {
+    /** @var array<Book> */
     private $books;
 
     /**
      * @param Bookboon $bookboon
      * @param string $journeyId
-     * @return BookboonResponse
+     * @return BookboonResponse<Journey>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function get(Bookboon $bookboon, string $journeyId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/journeys/$journeyId");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/journeys/$journeyId",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Journey::class
+        );
 
         $journeyEntity = new self($bResponse->getReturnArray());
 
@@ -31,7 +39,8 @@ class Journey extends Entity
             new EntityStore(
                 [
                     $journeyEntity
-                ]
+                ],
+                Journey::class
             )
         );
 
@@ -42,17 +51,23 @@ class Journey extends Entity
      * Get all journeys
      *
      * @param Bookboon $bookboon
-     * @param array $bookTypes
-     * @return BookboonResponse
+     * @param array<string> $bookTypes
+     * @return BookboonResponse<Journey>
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
     public static function getAll(Bookboon $bookboon, array $bookTypes = ['professional']) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest('/v1/journeys');
+        $bResponse = $bookboon->rawRequest(
+            '/v1/journeys',
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Journey::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(Journey::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(Journey::getEntitiesFromArray($bResponse->getReturnArray()), Journey::class),
         );
 
         return $bResponse;

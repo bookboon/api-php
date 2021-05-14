@@ -11,10 +11,10 @@ use PHPUnit\Framework\TestCase;
  */
 class BookboonResponseTest extends TestCase
 {
-    public function testRedirectResponse() {
+    public function testRedirectResponse()  : void{
         $testUrl = 'http://test.com';
         $bResponse = new BookboonResponse('', 302, ['Location' => $testUrl]);
 
-        $this->assertEquals(['url' => $testUrl], $bResponse->getReturnArray());
+        self::assertEquals(['url' => $testUrl], $bResponse->getReturnArray());
     }
 }

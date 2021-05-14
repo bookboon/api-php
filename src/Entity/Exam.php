@@ -14,7 +14,7 @@ class Exam extends Entity
      *
      * @param Bookboon $bookboon
      * @param string $examId
-     * @return BookboonResponse
+     * @return BookboonResponse<Exam>
      * @throws BadUUIDException
      * @throws \Bookboon\Api\Exception\EntityDataException
      * @throws \Bookboon\Api\Exception\UsageException
@@ -25,13 +25,20 @@ class Exam extends Entity
             throw new BadUUIDException();
         }
 
-        $bResponse = $bookboon->rawRequest("/v1/exams/$examId");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/exams/$examId",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Exam::class
+        );
 
         $bResponse->setEntityStore(
             new EntityStore(
                 [
                     new self($bResponse->getReturnArray())
-                ]
+                ],
+                Exam::class
             )
         );
 
@@ -41,15 +48,21 @@ class Exam extends Entity
     /**
      * @param Bookboon $bookboon
      * @param string $bookId
-     * @return BookboonResponse
+     * @return BookboonResponse<Exam>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getByBookId(Bookboon $bookboon, string $bookId) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/books/$bookId/exams");
+        $bResponse = $bookboon->rawRequest(
+            "/v1/books/$bookId/exams",
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Exam::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(Exam::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(Exam::getEntitiesFromArray($bResponse->getReturnArray()), Exam::class)
         );
 
         return $bResponse;
@@ -59,28 +72,46 @@ class Exam extends Entity
      * Get many exams
      *
      * @param Bookboon $bookboon
-     * @return BookboonResponse
+     * @return BookboonResponse<Exam>
      * @throws \Bookboon\Api\Exception\UsageException
      */
     public static function getAll(Bookboon $bookboon) : BookboonResponse
     {
-        $bResponse = $bookboon->rawRequest("/v1/exams");
+        $bResponse = $bookboon->rawRequest(
+            '/v1/exams',
+            [],
+            ClientInterface::HTTP_GET,
+            true,
+            Exam::class
+        );
 
         $bResponse->setEntityStore(
-            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()))
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Exam::class)
         );
 
         return $bResponse;
     }
 
-    public static function start(Bookboon $bookboon, $examId)
+    public static function start(Bookboon $bookboon, string $examId) : array
     {
-        return $bookboon->rawRequest("/v1/exams/$examId", [], ClientInterface::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest(
+            "/v1/exams/$examId",
+            [],
+            ClientInterface::HTTP_POST,
+            true,
+            Exam::class
+        )->getReturnArray();
     }
 
-    public static function finish(Bookboon $bookboon, $examId, $postVars)
+    public static function finish(Bookboon $bookboon, string $examId, array $postVars) : array
     {
-        return $bookboon->rawRequest("/v1/exams/$examId/submit", $postVars, ClientInterface::HTTP_POST)->getReturnArray();
+        return $bookboon->rawRequest(
+            "/v1/exams/$examId/submit",
+            $postVars,
+            ClientInterface::HTTP_POST,
+            false,
+            Exam::class
+        )->getReturnArray();
     }
 
     /**

@@ -12,25 +12,25 @@ use PHPUnit\Framework\TestCase;
  */
 class HeadersTest extends TestCase
 {
-    public function testInvalidXFFIP()
+    public function testInvalidXFFIP() : void
     {
         $_SERVER['REMOTE_ADDR'] = '127.';
         $headers = new Headers();
-        $this->assertEmpty($headers->get(Headers::HEADER_XFF));
+        self::assertEmpty($headers->get(Headers::HEADER_XFF));
     }
 
-    public function testValidXFFIP()
+    public function testValidXFFIP() : void
     {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $headers = new Headers();
-        $this->assertEquals('127.0.0.1', $headers->get(Headers::HEADER_XFF));
+        self::assertEquals('127.0.0.1', $headers->get(Headers::HEADER_XFF));
     }
 
-    public function testOverrideXFF()
+    public function testOverrideXFF() : void
     {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $headers = new Headers();
         $headers->set(Headers::HEADER_XFF, 'TEST');
-        $this->assertEquals('TEST', $headers->get(Headers::HEADER_XFF));
+        self::assertEquals('TEST', $headers->get(Headers::HEADER_XFF));
     }
 }
