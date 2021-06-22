@@ -357,7 +357,7 @@ abstract class Book extends Entity
     {
         $language = $this->safeGet('language');
 
-        return $language['code'] ?? '';
+        return $language['name'] ?? '';
     }
 
     /**
