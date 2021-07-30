@@ -15,6 +15,7 @@ abstract class Book extends Entity
     const TYPE_PDF = 'pdf';
     const TYPE_VIDEO = 'video';
     const TYPE_AUDIOTALK = 'audioTalk';
+    const TYPE_CLASSROOM = 'classroom';
 
     const FORMAT_PDF = 'pdf';
     const FORMAT_EPUB = 'epub';
