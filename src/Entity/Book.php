@@ -28,14 +28,16 @@ abstract class Book extends Entity
      * @param Bookboon $bookboon
      * @param string $bookId
      * @param bool $extendedMetadata
+     * @param array $params
      * @return BookboonResponse<Book>
-     * @throws \Bookboon\Api\Exception\UsageException
+     * @throws UsageException
+     * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function get(Bookboon $bookboon, string $bookId, bool $extendedMetadata = false) : BookboonResponse
+    public static function get(Bookboon $bookboon, string $bookId, bool $extendedMetadata = false, array $params = []) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest(
             "/v1/books/$bookId",
-            ['extendedMetadata' => $extendedMetadata ? 'true' : 'false'],
+            array_merge($params, ['extendedMetadata' => $extendedMetadata ? 'true' : 'false']),
             ClientInterface::HTTP_GET,
             true,
             Book::class
@@ -228,6 +230,7 @@ abstract class Book extends Entity
      * @param array $bookTypes
      * @param array $bookIds array of book ids to base recommendations on, can be empty
      * @param int $limit
+     * @param array $params
      * @return BookboonResponse<Book>
      * @throws \Bookboon\Api\Exception\UsageException
      */
@@ -235,11 +238,16 @@ abstract class Book extends Entity
         Bookboon $bookboon,
         array $bookIds = [],
         int $limit = 5,
-        array $bookTypes = ['professional']
+        array $bookTypes = ['professional'],
+        array $params = []
     ) : BookboonResponse {
         $bResponse = $bookboon->rawRequest(
             '/v1/recommendations',
-            ['limit' => $limit, 'books' => $bookIds, 'bookType' => join(',', $bookTypes)],
+            array_merge($params, [
+                'limit' => $limit,
+                'books' => $bookIds,
+                'bookType' => join(',', $bookTypes)
+            ]),
             ClientInterface::HTTP_GET,
             true,
             Book::class
