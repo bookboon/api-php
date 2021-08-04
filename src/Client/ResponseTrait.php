@@ -28,17 +28,17 @@ trait ResponseTrait
             case 400:
             case 405:
                 $returnArray = json_decode($body, true);
-                throw new ApiSyntaxException($this->getFirstError($returnArray));
+                throw new ApiSyntaxException($this->getFirstError($returnArray), $status);
             case 401:
             case 403:
                 $returnArray = json_decode($body, true);
-                throw new ApiAuthenticationException($this->getFirstError($returnArray, 'Invalid credentials'));
+                throw new ApiAuthenticationException($this->getFirstError($returnArray, 'Invalid credentials'), $status);
             case 410:
             case 404:
-                throw new ApiNotFoundException($url);
+                throw new ApiNotFoundException($url, $status);
             default:
                 $returnArray = json_decode($body, true);
-                throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers));
+                throw new ApiGeneralException($this->generalExceptionMessage($returnArray ?? [], $headers), $status);
         }
     }
 
