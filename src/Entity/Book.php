@@ -128,6 +128,40 @@ abstract class Book extends Entity
 
         return $bResponse;
     }
+    /**
+     * Get many books by filter
+     *
+     * @param Bookboon $bookboon
+     * @param array $bookTypes
+     * @param array $filters
+     * @return BookboonResponse<Book>
+     * @throws \Bookboon\Api\Exception\UsageException
+     **/
+    public static function getByFilters(
+        Bookboon $bookboon,
+        array $bookTypes = [self::_OWN_TYPE],
+        array $filters
+    ) : BookboonResponse {
+        $variables = [
+            'bookType' => join(',', $bookTypes),
+        ];
+
+        $variables = array_merge($variables, $filters);
+
+        $bResponse = $bookboon->rawRequest(
+            '/v1/books',
+            $variables,
+            ClientInterface::HTTP_GET,
+            true,
+            Book::class
+        );
+
+        $bResponse->setEntityStore(
+            new EntityStore(static::getEntitiesFromArray($bResponse->getReturnArray()), Book::class)
+        );
+
+        return $bResponse;
+    }
 
     /**
      * @param array $objectArray
