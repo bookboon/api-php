@@ -189,7 +189,7 @@ abstract class Book extends Entity
         foreach ($array as $object) {
             if (in_array(
                 $object['_type'],
-                [self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO, self::TYPE_AUDIOTALK],
+                [self::TYPE_PDF, self::TYPE_AUDIO, self::TYPE_VIDEO, self::TYPE_AUDIOTALK, self::TYPE_CLASSROOM],
                 true)
             ) {
                 $entities[] = self::objectTransformer($object);
