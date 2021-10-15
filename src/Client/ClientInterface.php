@@ -11,6 +11,7 @@ use Psr\SimpleCache\CacheInterface;
 
 interface ClientInterface
 {
+    const HTTP_HEAD = 'HEAD';
     const HTTP_GET = 'GET';
     const HTTP_POST = 'POST';
     const HTTP_DELETE = 'DELETE';
