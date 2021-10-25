@@ -28,7 +28,7 @@ trait HashTrait
             }
         }
 
-        return sha1($apiId . $headerString . $url);
+        return $apiId . '.' . sha1($headerString . $url);
     }
 
     /**
