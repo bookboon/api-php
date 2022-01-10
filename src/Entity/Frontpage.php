@@ -23,11 +23,11 @@ class Frontpage extends Entity
      * @throws UsageException
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      */
-    public static function get(Bookboon $bookboon, array $bookTypes = ['professional'], ?int $limit = null, ?int $seed = null) : BookboonResponse
+    public static function get(Bookboon $bookboon, array $bookTypes = ['professional'], ?int $limit = null) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest(
             '/v1/frontpage',
-            ['bookType' => implode(',', $bookTypes), 'limit' => $limit, 'seed' => $seed],
+            ['bookType' => implode(',', $bookTypes), 'limit' => $limit],
             ClientInterface::HTTP_GET,
             true,
             Frontpage::class
@@ -51,11 +51,11 @@ class Frontpage extends Entity
      * @throws \Bookboon\Api\Exception\ApiDecodeException
      * @throws \Bookboon\Api\Exception\EntityDataException
      */
-    public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['professional'], ?int $limit = null) : BookboonResponse
+    public static function getBySlug(Bookboon $bookboon, string $slug, array $bookTypes = ['professional'], ?int $limit = null, ?int $seed = null) : BookboonResponse
     {
         $bResponse = $bookboon->rawRequest(
             "/v1/frontpage/$slug",
-            ['bookType' => join(',', $bookTypes), 'limit' => $limit],
+            ['bookType' => join(',', $bookTypes), 'limit' => $limit, 'seed' => $seed],
             ClientInterface::HTTP_GET,
             true,
             Frontpage::class
