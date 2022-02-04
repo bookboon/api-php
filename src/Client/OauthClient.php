@@ -323,9 +323,9 @@ class OauthClient implements ClientInterface
         return $returnHeaders;
     }
 
-    public function setAct(?string $act) : void
+    public function setAct(?string $appUserId) : void
     {
-        $this->act = $act;
+        $this->act = $appUserId;
     }
 
     public function getAct() : ?string
