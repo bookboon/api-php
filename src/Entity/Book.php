@@ -140,7 +140,7 @@ abstract class Book extends Entity
     public static function getByFilters(
         Bookboon $bookboon,
         array $bookTypes = [self::_OWN_TYPE],
-        array $filters
+        array $filters = []
     ) : BookboonResponse {
         $variables = [
             'bookType' => join(',', $bookTypes),
